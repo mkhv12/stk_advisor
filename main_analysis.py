@@ -137,6 +137,83 @@ def analyze_stock(ticker, start_date, end_date, interval):
         'Decision': decision
     }
 
+def backtest_strategy(data):
+    buy_signals = []
+    sell_signals = []
+    position = None
+
+    for i in range(1, len(data)):
+        # Calculate indicators and signals
+        latest_rsi = data['RSI'].iloc[i]
+        latest_macd_histogram = data['MACD_Histogram'].iloc[i]
+        previous_macd_histogram = data['MACD_Histogram'].iloc[i-1]
+        current_price = data['Close'].iloc[i]
+        vwap = data['VWAP'].iloc[i]
+        sma_50 = data['SMA_50'].iloc[i]
+        sma_200 = data['SMA_200'].iloc[i]
+        golden_cross = sma_50 > sma_200 and data['SMA_50'].iloc[i-1] <= data['SMA_200'].iloc[i-1]
+
+        # Determine RSI status
+        if latest_rsi > 70:
+            rsi_status = 'Overbought (Sell Signal)'
+        elif latest_rsi < 30:
+            rsi_status = 'Oversold (Buy Signal)'
+        else:
+            rsi_status = 'Neutral'
+
+        # Determine MACD status
+        if data['MACD_Line'].iloc[i] > data['Signal_Line'].iloc[i]:
+            macd_status = 'Bullish (Buy Signal)'
+        else:
+            macd_status = 'Bearish (Sell Signal)'
+
+        # Determine MACD Histogram reversal
+        if previous_macd_histogram < 0 and latest_macd_histogram >= 0:
+            macd_histogram_status = 'Reversal to Bullish (Buy Signal)'
+        elif previous_macd_histogram > 0 and latest_macd_histogram <= 0:
+            macd_histogram_status = 'Reversal to Bearish (Sell Signal)'
+        else:
+            macd_histogram_status = 'No Reversal'
+
+        # Determine if current price is above or below VWAP
+        if current_price < vwap:
+            vwap_status = "Current Price is Under VWAP (Buy Signal)"
+        else:
+            vwap_status = "Current Price is Over VWAP (Sell Signal)"
+
+        # Golden Cross status
+        if golden_cross:
+            golden_cross_status = 'Golden Cross (Strong Buy Signal)'
+        else:
+            golden_cross_status = 'No Golden Cross'
+
+        # Count the number of buy or sell signals
+        buy_or_sell_signals = [rsi_status, macd_status, macd_histogram_status, vwap_status, golden_cross_status]
+        count_buy_signals = sum(signal.endswith("(Buy Signal)") for signal in buy_or_sell_signals)
+        count_sell_signals = sum(signal.endswith("(Sell Signal)") for signal in buy_or_sell_signals)
+
+        # Make trade decisions based on the count of signals
+        if count_buy_signals >= 3:
+            if position != 'Buy':
+                buy_signals.append((data.index[i], current_price))
+                position = 'Buy'
+        elif count_sell_signals >= 3:
+            if position != 'Sell':
+                sell_signals.append((data.index[i], current_price))
+                position = 'Sell'
+
+    return buy_signals, sell_signals
+
+def calculate_performance(buy_signals, sell_signals):
+    total_profit = 0
+    total_trades = 0
+
+    for buy, sell in zip(buy_signals, sell_signals):
+        total_profit += sell[1] - buy[1]
+        total_trades += 1
+
+    return total_profit, total_trades
+
 def main():
     # Step 1: Define the date range
     year_ago = datetime.now() - timedelta(days=365)  # Changed to 365 days for SMA calculation
