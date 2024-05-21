@@ -38,6 +38,15 @@ def calculate_vwap(data):
     vwap = (typical_price * data['Volume']).cumsum() / data['Volume'].cumsum()
     return vwap
 
+def calculate_sma(data, window):
+    return data['Close'].rolling(window=window).mean()
+
+def check_golden_cross(data):
+    sma_50 = calculate_sma(data, 50)
+    sma_200 = calculate_sma(data, 200)
+    golden_cross = (sma_50.iloc[-1] > sma_200.iloc[-1]) and (sma_50.iloc[-2] <= sma_200.iloc[-2])
+    return golden_cross
+
 def fetch_stock_data(ticker, start_date, end_date, interval, progress=False):
     stock_data = yf.download(ticker, start=start_date, end=end_date, interval=interval, progress=progress)
     return stock_data
@@ -58,6 +67,9 @@ def analyze_stock(ticker, start_date, end_date, interval):
 
     # Calculate VWAP
     data['VWAP'] = calculate_vwap(data)
+
+    # Check for Golden Cross
+    golden_cross = check_golden_cross(data)
 
     # Get the latest values
     latest_rsi = data['RSI'].iloc[-1]
@@ -95,8 +107,14 @@ def analyze_stock(ticker, start_date, end_date, interval):
     else:
         vwap_status = "Current Price is Over VWAP (Sell Signal)"
 
+    # Golden Cross status
+    if golden_cross:
+        golden_cross_status = 'Golden Cross (Strong Buy Signal)'
+    else:
+        golden_cross_status = 'No Golden Cross'
+
     # Count the number of buy or sell signals
-    buy_or_sell_signals = [rsi_status, macd_status, macd_histogram_status, vwap_status]
+    buy_or_sell_signals = [rsi_status, macd_status, macd_histogram_status, vwap_status, golden_cross_status]
     count_buy_signals = sum(signal.endswith("(Buy Signal)") for signal in buy_or_sell_signals)
     count_sell_signals = sum(signal.endswith("(Sell Signal)") for signal in buy_or_sell_signals)
 
@@ -115,53 +133,16 @@ def analyze_stock(ticker, start_date, end_date, interval):
         'MACD_Histogram_Status': macd_histogram_status,
         'VWAP': vwap,
         'VWAP_Status': vwap_status,
+        'Golden_Cross_Status': golden_cross_status,
         'Decision': decision
     }
 
-def backtest_strategy(data):
-    capital = 10000  # Initial capital
-    shares = 0  # Number of shares held
-    in_position = False  # Flag to track if currently in a position
-
-    # Calculate RSI, MACD, and VWAP for the entire dataset
-    data['RSI'] = calculate_rsi(data)
-    data['MACD_Histogram'], data['MACD_Line'], data['MACD_Signal'] = calculate_macd(data)
-    data['VWAP'] = calculate_vwap(data)
-
-    # Iterate through the historical data
-    for i in range(1, len(data)):
-        row = data.iloc[i]
-        prev_row = data.iloc[i - 1]
-
-        # Buy signal: RSI is oversold, MACD Histogram shows a reversal to bullish, and current price is below VWAP
-        if (row['RSI'] < 30 and prev_row['MACD_Histogram'] < 0 and row['MACD_Histogram'] >= 0 and 
-            row['Close'] < row['VWAP'] and not in_position):
-            shares = capital / row['Close']  # Buy all shares with available capital
-            in_position = True  # Set flag to indicate position is open
-        
-        # Sell signal: RSI is overbought, MACD Histogram shows a reversal to bearish, or current price is above VWAP
-        elif ((row['RSI'] > 70 or (prev_row['MACD_Histogram'] > 0 and row['MACD_Histogram'] <= 0) or 
-               row['Close'] > row['VWAP']) and in_position):
-            capital = shares * row['Close']  # Sell all shares and update capital
-            shares = 0  # Reset shares to zero
-            in_position = False  # Set flag to indicate no position
-
-    # If still holding shares, sell them at the last available price
-    if in_position:
-        capital = shares * data['Close'].iloc[-1]
-
-    final_portfolio_value = capital
-    # Calculate return on investment (ROI)
-    roi = (final_portfolio_value - 10000) / 10000 * 100
-    
-    return final_portfolio_value, roi
-
 def main():
     # Step 1: Define the date range
-    year_ago = datetime.now() - timedelta(days=30) 
+    year_ago = datetime.now() - timedelta(days=365)  # Changed to 365 days for SMA calculation
     start_date = year_ago.strftime("%Y-%m-%d")
     end_date = datetime.now().strftime("%Y-%m-%d")
-    interval='15m'
+    interval = '1d'  # Changed to '1d' for daily data suitable for Golden Cross analysis
 
     print(f"\nDate range: {start_date} to {end_date} and {interval} chart")
 
@@ -175,20 +156,14 @@ def main():
         analysis = analyze_stock(symbol, start_date, end_date, interval)
 
         if analysis:
+
             print(f"RSI Status: {analysis['RSI_Status']}")
             print(f"MACD Status: {analysis['MACD_Status']}")
             print(f"MACD Histogram: {analysis['MACD_Histogram_Status']}")
             print(f"VWAP: {analysis['VWAP']:.2f} ({analysis['VWAP_Status']})")
+            print(f"Golden Cross Status: {analysis['Golden_Cross_Status']}")
             print(f"Decision: {analysis['Decision']}")
-            
-            # # Backtest strategy
-            # data = fetch_stock_data(symbol, start_date, end_date, interval, progress=False)
-            # if not data.empty:
-            #     final_portfolio_value, roi = backtest_strategy(data)
-            #     print(f"Backtest - Final Portfolio Value: ${final_portfolio_value:.2f}")
-            #     print(f"Backtest - Return on Investment (ROI): {roi:.2f}%")
-            # else:
-            #     print(f"Could not fetch data for backtesting {symbol}")
+
         else:
             print(f"Could not analyze {symbol}")
 
