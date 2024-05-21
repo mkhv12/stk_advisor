@@ -38,13 +38,13 @@ def calculate_vwap(data):
     vwap = (typical_price * data['Volume']).cumsum() / data['Volume'].cumsum()
     return vwap
 
-def fetch_stock_data(ticker, start_date, end_date, interval='1d', progress=False):
+def fetch_stock_data(ticker, start_date, end_date, interval, progress=False):
     stock_data = yf.download(ticker, start=start_date, end=end_date, interval=interval, progress=progress)
     return stock_data
 
-def analyze_stock(ticker, start_date, end_date):
+def analyze_stock(ticker, start_date, end_date, interval):
     # Fetch stock data
-    data = fetch_stock_data(ticker, start_date, end_date, interval='1d', progress=False)
+    data = fetch_stock_data(ticker, start_date, end_date, interval, progress=False)
 
     if data.empty:
         print(f"No data found for {ticker}")
@@ -86,12 +86,22 @@ def analyze_stock(ticker, start_date, end_date):
     else:
         macd_histogram_status = 'No Reversal'
 
+    # Determine if current price is above or below VWAP
+    current_price = data['Close'].iloc[-1]
+    vwap = data['VWAP'].iloc[-1]
+    
+    if current_price < vwap:
+        vwap_status = "Current Price is Under VWAP (Buy Signal)"
+    else:
+        vwap_status = "Current Price is Over VWAP (Sell Signal)"
+
     return {
         'RSI': latest_rsi,
         'RSI_Status': rsi_status,
         'MACD_Status': macd_status,
         'MACD_Histogram_Status': macd_histogram_status,
-        'VWAP': data['VWAP'].iloc[-1]
+        'VWAP': data['VWAP'].iloc[-1],
+        'VWAP_Status': vwap_status
     }
 
 def backtest_strategy(data):
@@ -99,22 +109,25 @@ def backtest_strategy(data):
     shares = 0  # Number of shares held
     in_position = False  # Flag to track if currently in a position
 
-    # Calculate RSI and MACD for the entire dataset
+    # Calculate RSI, MACD, and VWAP for the entire dataset
     data['RSI'] = calculate_rsi(data)
     data['MACD_Histogram'], data['MACD_Line'], data['MACD_Signal'] = calculate_macd(data)
+    data['VWAP'] = calculate_vwap(data)
 
     # Iterate through the historical data
     for i in range(1, len(data)):
         row = data.iloc[i]
         prev_row = data.iloc[i - 1]
 
-        # Buy signal: RSI is oversold and MACD Histogram shows a reversal to bullish
-        if row['RSI'] < 30 and prev_row['MACD_Histogram'] < 0 and row['MACD_Histogram'] >= 0 and not in_position:
+        # Buy signal: RSI is oversold, MACD Histogram shows a reversal to bullish, and current price is below VWAP
+        if (row['RSI'] < 30 and prev_row['MACD_Histogram'] < 0 and row['MACD_Histogram'] >= 0 and 
+            row['Close'] < row['VWAP'] and not in_position):
             shares = capital / row['Close']  # Buy all shares with available capital
             in_position = True  # Set flag to indicate position is open
         
-        # Sell signal: RSI is overbought or MACD Histogram shows a reversal to bearish
-        elif (row['RSI'] > 70 or (prev_row['MACD_Histogram'] > 0 and row['MACD_Histogram'] <= 0)) and in_position:
+        # Sell signal: RSI is overbought, MACD Histogram shows a reversal to bearish, or current price is above VWAP
+        elif ((row['RSI'] > 70 or (prev_row['MACD_Histogram'] > 0 and row['MACD_Histogram'] <= 0) or 
+               row['Close'] > row['VWAP']) and in_position):
             capital = shares * row['Close']  # Sell all shares and update capital
             shares = 0  # Reset shares to zero
             in_position = False  # Set flag to indicate no position
@@ -131,11 +144,12 @@ def backtest_strategy(data):
 
 def main():
     # Step 1: Define the date range
-    year_ago = datetime.now() - timedelta(days=252)  # 1 year before
+    year_ago = datetime.now() - timedelta(days=42)  # 1 year before
     start_date = year_ago.strftime("%Y-%m-%d")
     end_date = datetime.now().strftime("%Y-%m-%d")
+    interval='1h'
 
-    print(f"\nDate range: {start_date} to {end_date}")
+    print(f"\nDate range: {start_date} to {end_date} and {interval} chart")
 
     # Loop through each row in the portfolio data
     for index, row in portfolio_data.iterrows():
@@ -144,22 +158,22 @@ def main():
         print(f"\nAnalyzing {symbol}...")
 
         # Analyze stock
-        analysis = analyze_stock(symbol, start_date, end_date)
+        analysis = analyze_stock(symbol, start_date, end_date, interval)
 
         if analysis:
             print(f"RSI Status: {analysis['RSI_Status']}")
             print(f"MACD Status: {analysis['MACD_Status']}")
             print(f"MACD Histogram: {analysis['MACD_Histogram_Status']}")
-            print(f"VWAP: {analysis['VWAP']:.2f}")  # Assuming you want to print it with two decimal places
+            print(f"VWAP: {analysis['VWAP']:.2f} ({analysis['VWAP_Status']})")
             
-            # Backtest strategy
-            data = fetch_stock_data(symbol, start_date, end_date, interval='1d', progress=False)
-            if not data.empty:
-                final_portfolio_value, roi = backtest_strategy(data)
-                print(f"Backtest - Final Portfolio Value: ${final_portfolio_value:.2f}")
-                print(f"Backtest - Return on Investment (ROI): {roi:.2f}%")
-            else:
-                print(f"Could not fetch data for backtesting {symbol}")
+            # # Backtest strategy
+            # data = fetch_stock_data(symbol, start_date, end_date, interval='1d', progress=False)
+            # if not data.empty:
+            #     final_portfolio_value, roi = backtest_strategy(data)
+            #     print(f"Backtest - Final Portfolio Value: ${final_portfolio_value:.2f}")
+            #     print(f"Backtest - Return on Investment (ROI): {roi:.2f}%")
+            # else:
+            #     print(f"Could not fetch data for backtesting {symbol}")
         else:
             print(f"Could not analyze {symbol}")
 
