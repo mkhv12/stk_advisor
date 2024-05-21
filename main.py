@@ -66,23 +66,23 @@ def analyze_stock(ticker, start_date, end_date, interval):
 
     # Determine RSI status
     if latest_rsi > 70:
-        rsi_status = 'Overbought'
+        rsi_status = 'Overbought (Sell Signal)'
     elif latest_rsi < 30:
-        rsi_status = 'Oversold'
+        rsi_status = 'Oversold (Buy Signal)'
     else:
         rsi_status = 'Neutral'
 
     # Determine MACD status
     if macd_line.iloc[-1] > signal_line.iloc[-1]:
-        macd_status = 'Bullish'
+        macd_status = 'Bullish (Buy Signal)'
     else:
-        macd_status = 'Bearish'
+        macd_status = 'Bearish (Sell Signal)'
 
     # Determine MACD Histogram reversal
     if previous_macd_histogram < 0 and latest_macd_histogram >= 0:
-        macd_histogram_status = 'Reversal to Bullish'
+        macd_histogram_status = 'Reversal to Bullish (Buy Signal)'
     elif previous_macd_histogram > 0 and latest_macd_histogram <= 0:
-        macd_histogram_status = 'Reversal to Bearish'
+        macd_histogram_status = 'Reversal to Bearish (Sell Signal)'
     else:
         macd_histogram_status = 'No Reversal'
 
@@ -95,13 +95,27 @@ def analyze_stock(ticker, start_date, end_date, interval):
     else:
         vwap_status = "Current Price is Over VWAP (Sell Signal)"
 
+    # Count the number of buy or sell signals
+    buy_or_sell_signals = [rsi_status, macd_status, macd_histogram_status, vwap_status]
+    count_buy_signals = sum(signal.endswith("(Buy Signal)") for signal in buy_or_sell_signals)
+    count_sell_signals = sum(signal.endswith("(Sell Signal)") for signal in buy_or_sell_signals)
+
+    # Determine whether to consider buy or sell based on the count of signals
+    if count_buy_signals >= 3:
+        decision = "Consider Buy"
+    elif count_sell_signals >= 3:
+        decision = "Consider Sell"
+    else:
+        decision = "Hold"
+
     return {
         'RSI': latest_rsi,
         'RSI_Status': rsi_status,
         'MACD_Status': macd_status,
         'MACD_Histogram_Status': macd_histogram_status,
-        'VWAP': data['VWAP'].iloc[-1],
-        'VWAP_Status': vwap_status
+        'VWAP': vwap,
+        'VWAP_Status': vwap_status,
+        'Decision': decision
     }
 
 def backtest_strategy(data):
@@ -144,10 +158,10 @@ def backtest_strategy(data):
 
 def main():
     # Step 1: Define the date range
-    year_ago = datetime.now() - timedelta(days=42)  # 1 year before
+    year_ago = datetime.now() - timedelta(days=59)  # 1 year before
     start_date = year_ago.strftime("%Y-%m-%d")
     end_date = datetime.now().strftime("%Y-%m-%d")
-    interval='1h'
+    interval='5m'
 
     print(f"\nDate range: {start_date} to {end_date} and {interval} chart")
 
@@ -165,6 +179,7 @@ def main():
             print(f"MACD Status: {analysis['MACD_Status']}")
             print(f"MACD Histogram: {analysis['MACD_Histogram_Status']}")
             print(f"VWAP: {analysis['VWAP']:.2f} ({analysis['VWAP_Status']})")
+            print(f"Decision: {analysis['Decision']}")
             
             # # Backtest strategy
             # data = fetch_stock_data(symbol, start_date, end_date, interval='1d', progress=False)
