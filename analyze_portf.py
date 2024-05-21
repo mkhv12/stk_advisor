@@ -8,7 +8,7 @@ import pandas as pd
 def analyze_trends(historical_data):
     # Calculate Moving Averages
     historical_data['MA5'] = ta.trend.SMAIndicator(historical_data['Close'], window=5).sma_indicator()
-    historical_data['MA50'] = ta.trend.SMAIndicator(historical_data['Close'], window=50).sma_indicator()
+    historical_data['MA20'] = ta.trend.SMAIndicator(historical_data['Close'], window=20).sma_indicator()
 
     # Calculate Fibonacci Retracement Levels
     high_price = historical_data['High'].max()
@@ -41,10 +41,10 @@ def simple_trading_algorithm(historical_data):
     Returns the decision based on the given historical data.
     """
     # Buy Signal: When the 5-day moving average crosses above the 50-day moving average
-    buy_signal = (historical_data['MA5'] > historical_data['MA50']) & (historical_data['MA5'].shift(1) <= historical_data['MA50'].shift(1))
+    buy_signal = (historical_data['MA5'] > historical_data['MA20']) & (historical_data['MA5'].shift(1) <= historical_data['MA20'].shift(1))
 
     # Sell Signal: When the 5-day moving average crosses below the 50-day moving average
-    sell_signal = (historical_data['MA5'] < historical_data['MA50']) & (historical_data['MA5'].shift(1) >= historical_data['MA50'].shift(1))
+    sell_signal = (historical_data['MA5'] < historical_data['MA20']) & (historical_data['MA5'].shift(1) >= historical_data['MA20'].shift(1))
 
     # Hold Signal: When no buying or selling conditions are met
     hold_signal = ~(buy_signal | sell_signal)
@@ -138,56 +138,68 @@ def determine_trend(historical_data):
     return trend
 
 def analyze_portfolio(symbol, analyzed_data, news_sentiments):
+    # Calculate moving averages and Fibonacci retracement levels only once
+    ma5_condition = (analyzed_data['Close'] > analyzed_data['MA5']).all()
+    ma30_condition = (analyzed_data['Close'] > analyzed_data['MA20']).all()
+    fib_38_condition = (analyzed_data['Close'] > analyzed_data['Fib_38%']).all()
+    fib_50_condition = (analyzed_data['Close'] > analyzed_data['Fib_50%']).all()
+
+    # Initialize decisions and explanations for news sentiment, SMA, and Fibonacci retracement
+    news_sentiment_decision = "Hold"
+    news_sentiment_explanation = "No news sentiment data available."
+
+    sma_decision = "Hold"
+    sma_explanation = "No clear signal based on SMA alone."
+
+    fib_decision = "Hold"
+    fib_explanation = "No clear signal based on Fibonacci retracement alone."
+
     # Check if news sentiment data is available
     if news_sentiments:
         avg_sentiment = sum(news_sentiments) / len(news_sentiments)
 
-        # Make a decision based on sentiment, moving averages, and Fibonacci retracement
-        if (avg_sentiment > 0) and (analyzed_data['Close'] > analyzed_data['MA5']).all() and (analyzed_data['Close'] > analyzed_data['MA50']).all():
-            decision = "Hold"  # or "Buy" based on additional criteria
-            explanation = "Positive news sentiment, and the stock price is above both the 10-day and 100-day moving averages. Consider holding."
-        elif (avg_sentiment < 0) or (analyzed_data['Close'] <= analyzed_data['MA5']).all() or (analyzed_data['Close'] <= analyzed_data['MA50']).all():
-            decision = "Sell"
-            explanation = "Negative news sentiment or the stock price is not performing well. Consider selling."
-        elif (analyzed_data['Close'] > analyzed_data['Fib_38%']).all() and (analyzed_data['Close'] > analyzed_data['Fib_50%']).all():
-            decision = "Hold"
-            explanation = "The stock price is above the 38% and 50% Fibonacci retracement levels. Consider holding."
-        elif (analyzed_data['Close'] < analyzed_data['Fib_38%']).all() and (analyzed_data['Close'] < analyzed_data['Fib_50%']).all():
-            decision = "Sell"
-            explanation = "The stock price is below the 38% and 50% Fibonacci retracement levels. Consider selling."
-        else:
-            decision = "Hold"
-            explanation = "No clear signal. Consider holding or reevaluating."
+        # Make a decision based on sentiment
+        if avg_sentiment > 0:
+            news_sentiment_decision = "Hold"
+            news_sentiment_explanation = "Positive news sentiment. Consider holding."
+        elif avg_sentiment < 0:
+            news_sentiment_decision = "Sell"
+            news_sentiment_explanation = "Negative news sentiment. Consider selling."
 
-    else:
-        # Provide advice based on technical analysis alone
-        if (analyzed_data['Close'] > analyzed_data['MA5']).all() and (analyzed_data['Close'] > analyzed_data['MA50']).all():
-            decision = "Hold"  # or "Buy" based on additional criteria
-            explanation = "The stock price is above both the 5-day and 20-day moving averages. Consider holding."
-        elif (analyzed_data['Close'] > analyzed_data['Fib_38%']).all():
-            decision = "Hold"  # or "Buy" based on additional criteria
-            explanation = "The stock price is above the 38% Fibonacci retracement level. Consider holding."
-        elif (analyzed_data['Close'] < analyzed_data['MA5']).all() and (analyzed_data['Close'] < analyzed_data['MA50']).all():
-            decision = "Sell"
-            explanation = "The stock price is below both the 5-day and 20-day moving averages. Consider selling."
-        elif (analyzed_data['Close'] < analyzed_data['Fib_38%']).all():
-            decision = "Sell"
-            explanation = "The stock price is below the 38% Fibonacci retracement level. Consider selling."
-        else:
-            decision = "Sell"
-            explanation = "The stock price is not performing well. Consider selling. Additional criteria may apply."
+    # Make a decision based on SMA
+    if ma5_condition and ma30_condition:
+        sma_decision = "Hold"
+        sma_explanation = "The stock price is above both the 5-day and 20-day moving averages. Consider holding."
+    elif (not ma5_condition) and (not ma30_condition):
+        sma_decision = "Sell"
+        sma_explanation = "The stock price is below both the 5-day and 20-day moving averages. Consider selling."
 
+    # Make a decision based on Fibonacci retracement
+    if fib_38_condition and fib_50_condition:
+        fib_decision = "Hold"
+        fib_explanation = "The stock price is above the 38% and 50% Fibonacci retracement levels. Consider holding."
+    elif (not fib_38_condition) and (not fib_50_condition):
+        fib_decision = "Sell"
+        fib_explanation = "The stock price is below the 38% and 50% Fibonacci retracement levels. Consider selling."
 
-    # Analyze portfolio using portfolio data, analyzed data, news sentiment, and forecast data
-    average_signal = simple_trading_algorithm(analyzed_data)
+    # Determine overall decision
+    overall_decision = "Buy" if all(decision == "Hold" for decision in [news_sentiment_decision, sma_decision, fib_decision]) else "Hold"
 
+    # Print the results
     print(f"\n{symbol}")
+    
+    # News Sentiment
+    print(f"News Sentiment - Signal: {news_sentiment_decision}-{news_sentiment_explanation}\n")
+    
+    # SMA
+    print(f"SMA Signal: {sma_decision}-{sma_explanation}")
 
-    print(f"SMA & NEws Sentiment - Signal: {decision}-{explanation}\n")
-    #print(f"Explanation: {explanation}\n")
+    # Fibonacci Retracement
+    print(f"Fib Signal: {fib_decision}-{fib_explanation}")
 
-    # Apply the simple trading algorithm
-    #average_signal = simple_trading_algorithm(analyzed_data)
-    print(f"Fib Signal: {average_signal}")
+    # Overall Decision
+    print(f"Overall Decision: {overall_decision}")
+
+
 
 

@@ -1,81 +1,167 @@
 import yfinance as yf
-import yahooquery as yq
 import pandas as pd
-import openpyxl
-import ta
-import feedparser
-from analyze_portf import *
+import warnings
+from datetime import datetime, timedelta
 
+# Suppress the specific warning from yfinance
+warnings.filterwarnings("ignore", category=FutureWarning, module="yfinance")
 
-def get_hourly_data(symbol, start_date, end_date):
-    # Download hourly data
-    hourly_data = yf.download(symbol, start=start_date, end=end_date, interval='1h')
-
-    # Extract the Share information using the Ticker() Function
-    share_info = yq.Ticker(symbol).summary_detail[symbol]
-
-    # Extracting the MarketPrice from the data
-    today_open_price = share_info.get('open')
-    today_close_price = share_info.get('previousClose')
-    today_volume = share_info.get('volume')
-    today_high = share_info.get('dayHigh')
-    today_low = share_info.get('dayLow')
-
-    # Create a DataFrame with today's market price and financial indicators
-    today_data = pd.DataFrame(index=[datetime.now()], columns=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume'])
-    today_data['Open'] = today_open_price
-    today_data['Close'] = today_close_price
-    today_data['Adj Close'] = today_close_price
-    today_data['Volume'] = today_volume
-    today_data['High'] = today_high
-    today_data['Low'] = today_low
-
-    # Concatenate today's data with hourly_data
-    combined_data = pd.concat([hourly_data, today_data])
-
-    hourly_data = calculate_vwap(combined_data)
-    
-    return combined_data
-
-def fetch_news_rss_by_sector(rss_url, sector_keywords):
-    feed = feedparser.parse(rss_url)
-    sector_news = [entry for entry in feed.entries if any(keyword.lower() in entry.title.lower() or keyword.lower() in entry.summary.lower() for keyword in sector_keywords)]
-
-    return sector_news
-
+# Load portfolio data from Excel
 portfolio_data = pd.read_excel('portfolio.xlsx')
 
+def calculate_rsi(data, window=14):
+    delta = data['Close'].diff(1)
+    gain = delta.where(delta > 0, 0)
+    loss = -delta.where(delta < 0, 0)
+
+    avg_gain = gain.rolling(window=window, min_periods=1).mean()
+    avg_loss = loss.rolling(window=window, min_periods=1).mean()
+
+    rs = avg_gain / avg_loss
+    rsi = 100 - (100 / (1 + rs))
+
+    return rsi
+
+def calculate_ema(data, window):
+    return data['Close'].ewm(span=window, adjust=False).mean()
+
+def calculate_macd(data):
+    ema12 = calculate_ema(data, 12)
+    ema26 = calculate_ema(data, 26)
+    macd_line = ema12 - ema26
+    signal_line = macd_line.ewm(span=9, adjust=False).mean()
+    macd_histogram = macd_line - signal_line
+    return macd_histogram, macd_line, signal_line
+
+def calculate_vwap(data):
+    typical_price = (data['High'] + data['Low'] + data['Close']) / 3
+    vwap = (typical_price * data['Volume']).cumsum() / data['Volume'].cumsum()
+    return vwap
+
+def fetch_stock_data(ticker, start_date, end_date, interval='1d', progress=False):
+    stock_data = yf.download(ticker, start=start_date, end=end_date, interval=interval, progress=progress)
+    return stock_data
+
+def analyze_stock(ticker, start_date, end_date):
+    # Fetch stock data
+    data = fetch_stock_data(ticker, start_date, end_date, interval='1d', progress=False)
+
+    if data.empty:
+        print(f"No data found for {ticker}")
+        return None
+
+    # Calculate RSI
+    data['RSI'] = calculate_rsi(data)
+
+    # Calculate MACD
+    macd_histogram, macd_line, signal_line = calculate_macd(data)
+
+    # Calculate VWAP
+    data['VWAP'] = calculate_vwap(data)
+
+    # Get the latest values
+    latest_rsi = data['RSI'].iloc[-1]
+    latest_macd_histogram = macd_histogram.iloc[-1]
+    previous_macd_histogram = macd_histogram.iloc[-2]
+
+    # Determine RSI status
+    if latest_rsi > 70:
+        rsi_status = 'Overbought'
+    elif latest_rsi < 30:
+        rsi_status = 'Oversold'
+    else:
+        rsi_status = 'Neutral'
+
+    # Determine MACD status
+    if macd_line.iloc[-1] > signal_line.iloc[-1]:
+        macd_status = 'Bullish'
+    else:
+        macd_status = 'Bearish'
+
+    # Determine MACD Histogram reversal
+    if previous_macd_histogram < 0 and latest_macd_histogram >= 0:
+        macd_histogram_status = 'Reversal to Bullish'
+    elif previous_macd_histogram > 0 and latest_macd_histogram <= 0:
+        macd_histogram_status = 'Reversal to Bearish'
+    else:
+        macd_histogram_status = 'No Reversal'
+
+    return {
+        'RSI': latest_rsi,
+        'RSI_Status': rsi_status,
+        'MACD_Status': macd_status,
+        'MACD_Histogram_Status': macd_histogram_status,
+        'VWAP': data['VWAP'].iloc[-1]
+    }
+
+def backtest_strategy(data):
+    capital = 10000  # Initial capital
+    shares = 0  # Number of shares held
+    in_position = False  # Flag to track if currently in a position
+
+    # Calculate RSI and MACD for the entire dataset
+    data['RSI'] = calculate_rsi(data)
+    data['MACD_Histogram'], data['MACD_Line'], data['MACD_Signal'] = calculate_macd(data)
+
+    # Iterate through the historical data
+    for i in range(1, len(data)):
+        row = data.iloc[i]
+        prev_row = data.iloc[i - 1]
+
+        # Buy signal: RSI is oversold and MACD Histogram shows a reversal to bullish
+        if row['RSI'] < 30 and prev_row['MACD_Histogram'] < 0 and row['MACD_Histogram'] >= 0 and not in_position:
+            shares = capital / row['Close']  # Buy all shares with available capital
+            in_position = True  # Set flag to indicate position is open
+        
+        # Sell signal: RSI is overbought or MACD Histogram shows a reversal to bearish
+        elif (row['RSI'] > 70 or (prev_row['MACD_Histogram'] > 0 and row['MACD_Histogram'] <= 0)) and in_position:
+            capital = shares * row['Close']  # Sell all shares and update capital
+            shares = 0  # Reset shares to zero
+            in_position = False  # Set flag to indicate no position
+
+    # If still holding shares, sell them at the last available price
+    if in_position:
+        capital = shares * data['Close'].iloc[-1]
+
+    final_portfolio_value = capital
+    # Calculate return on investment (ROI)
+    roi = (final_portfolio_value - 10000) / 10000 * 100
+    
+    return final_portfolio_value, roi
+
 def main():
-    # Step 1: Get Historical Data
-    three_month_ago = datetime.now() - timedelta(days=92)  # 3 months before
-    start_date = three_month_ago.strftime("%Y-%m-%d")
+    # Step 1: Define the date range
+    year_ago = datetime.now() - timedelta(days=252)  # 1 year before
+    start_date = year_ago.strftime("%Y-%m-%d")
     end_date = datetime.now().strftime("%Y-%m-%d")
+
+    print(f"\nDate range: {start_date} to {end_date}")
 
     # Loop through each row in the portfolio data
     for index, row in portfolio_data.iterrows():
-        print("\n")
         symbol = row['Symbol']
-        stock_sector_keywords = row['Stock_Sector'].split(',')  # Assuming Stock_Sector contains comma-separated keywords
+        
+        print(f"\nAnalyzing {symbol}...")
 
-        # Get historical data for the symbol
-        historical_data = get_hourly_data(symbol, start_date, end_date)
+        # Analyze stock
+        analysis = analyze_stock(symbol, start_date, end_date)
 
-        # Analyze trends and Fibonacci retracement
-        analyzed_data = analyze_trends(historical_data)
-
-        # Fetch news based on stock sector keywords
-        rss_url = ('https://feeds.a.dj.com/rss/RSSMarketsMain.xml')
-        news_articles_sector = fetch_news_rss_by_sector(rss_url, stock_sector_keywords)
-
-        # Analyze news sentiment
-        news_sentiments = analyze_sentiment(news_articles_sector)
-
-        # Analyze portfolio using portfolio data, analyzed data, news sentiment, and forecast data
-        analyze_portfolio(symbol, analyzed_data, news_sentiments)
-
-        # Determine the overall trend
-        overall_trend = determine_trend(analyzed_data)
-        print(f"\nOverall Trend: {overall_trend}")
+        if analysis:
+            print(f"RSI Status: {analysis['RSI_Status']}")
+            print(f"MACD Status: {analysis['MACD_Status']}")
+            print(f"MACD Histogram: {analysis['MACD_Histogram_Status']}")
+            print(f"VWAP: {analysis['VWAP']:.2f}")  # Assuming you want to print it with two decimal places
+            
+            # Backtest strategy
+            data = fetch_stock_data(symbol, start_date, end_date, interval='1d', progress=False)
+            if not data.empty:
+                final_portfolio_value, roi = backtest_strategy(data)
+                print(f"Backtest - Final Portfolio Value: ${final_portfolio_value:.2f}")
+                print(f"Backtest - Return on Investment (ROI): {roi:.2f}%")
+            else:
+                print(f"Could not fetch data for backtesting {symbol}")
+        else:
+            print(f"Could not analyze {symbol}")
 
 if __name__ == "__main__":
     main()
