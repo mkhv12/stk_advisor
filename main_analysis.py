@@ -158,10 +158,10 @@ def backtest_strategy(data):
 
 def main():
     # Step 1: Define the date range
-    year_ago = datetime.now() - timedelta(days=365) 
+    year_ago = datetime.now() - timedelta(days=60) 
     start_date = year_ago.strftime("%Y-%m-%d")
     end_date = datetime.now().strftime("%Y-%m-%d")
-    interval='1d'
+    interval='1h'
 
     print(f"\nDate range: {start_date} to {end_date} and {interval} chart")
 
