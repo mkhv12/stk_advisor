@@ -5,13 +5,21 @@ from main_analysis import fetch_stock_data, calculate_vwap
 # Load portfolio data from Excel
 portfolio_data = pd.read_excel('portfolio.xlsx')
 
-def analyze_historical_data(symbol, start_date, end_date, interval):
-    # Adjust start and end dates to match the same date last year
-    last_year_start = (datetime.strptime(start_date, "%Y-%m-%d") - timedelta(days=365)).strftime("%Y-%m-%d")
-    last_year_end = (datetime.strptime(end_date, "%Y-%m-%d") - timedelta(days=365)).strftime("%Y-%m-%d")
+def calculate_fibonacci_levels(data):
+    high = data['High'].max()
+    low = data['Low'].min()
 
+    # Calculate Fibonacci levels
+    fibonacci_levels = {
+        0.382: low + 0.382 * (high - low),
+        0.618: low + 0.618 * (high - low)
+    }
+
+    return fibonacci_levels
+
+def analyze_historical_data(symbol, start_date, end_date, interval):
     # Fetch historical data for last year
-    historical_data = fetch_stock_data(symbol, last_year_start, last_year_end, interval)
+    historical_data = fetch_stock_data(symbol, start_date, end_date, interval)
 
     if historical_data.empty:
         print(f"No historical data found for {symbol}")
@@ -20,7 +28,10 @@ def analyze_historical_data(symbol, start_date, end_date, interval):
     # Calculate VWAP for historical data
     historical_data['VWAP'] = calculate_vwap(historical_data)
 
-    return historical_data
+    # Calculate Fibonacci retracement levels
+    fibonacci_levels = calculate_fibonacci_levels(historical_data)
+
+    return historical_data, fibonacci_levels
 
 def predict_next_30_days(symbol, start_date, end_date, interval):
     next_30_days_start = datetime.strptime(end_date, "%Y-%m-%d") + timedelta(days=1)
@@ -46,10 +57,10 @@ def predict_next_30_days(symbol, start_date, end_date, interval):
     return average_vwap
 
 def main():
-    # Step 1: Define the date range
+    # Step 1: Define the date range and interval
     end_date = datetime.now().strftime("%Y-%m-%d")
-    start_date = (datetime.strptime(end_date, "%Y-%m-%d") - timedelta(days=730)).strftime("%Y-%m-%d")
-    interval = '1d'
+    start_date = (datetime.strptime(end_date, "%Y-%m-%d") - timedelta(days=30)).strftime("%Y-%m-%d")
+    interval = '1h'
 
     print(f"\nDate range: {start_date} to {end_date} and {interval} chart")
 
@@ -60,7 +71,7 @@ def main():
         print(f"\nAnalyzing historical data for {symbol}...")
 
         # Analyze historical data
-        last_year_data = analyze_historical_data(symbol, start_date, end_date, interval)
+        last_year_data, fibonacci_levels = analyze_historical_data(symbol, start_date, end_date, interval)
 
         if last_year_data is not None:
             # Fetch current year data
@@ -75,13 +86,13 @@ def main():
                     print(f"Current VWAP: {current_vwap:.2f}")
                     print(f"Predicted average VWAP for the next 30 days: {predicted_vwap:.2f}")
 
-                    # Interpret the result
-                    if current_vwap > predicted_vwap:
-                        print("The price is likely to go down (possibly bearish)")
-                    elif current_vwap < predicted_vwap:
-                        print("The price is likely to go up (possibly bullish)")
-                    else:
-                        print("The price is likely to remain stable")
+                    # Print current price
+                    current_price = current_year_data['Close'].iloc[-1]
+                    print(f"Current Price: ${current_price:.2f}")
+
+                    # Loop through each Fibonacci level
+                    for level, price in fibonacci_levels.items():
+                        print(f"Fibonacci Level {level}: ${price:.2f} - {'Price is potentially bullish' if current_vwap < price else 'Price is potentially bearish'}")
             else:
                 print(f"No data found for {symbol} in the current year")
         else:
