@@ -206,12 +206,15 @@ def main(perform_backtesting=False):
         analysis = analyze_stock(stock_data)
 
         if analysis:
-            print(f"RSI Status: {analysis['RSI_Status']}")
-            print(f"MACD Status: {analysis['MACD_Status']}")
-            print(f"MACD Histogram: {analysis['MACD_Histogram_Status']}")
-            print(f"VWAP: {analysis['VWAP']:.2f} ({analysis['VWAP_Status']})")
-            print(f"Golden Cross Status: {analysis['Golden_Cross_Status']}")
-            print(f"Decision: {analysis['Decision']}")
+            if analysis['Decision'] != "Hold":
+                print(f"RSI Status: {analysis['RSI_Status']}")
+                print(f"MACD Status: {analysis['MACD_Status']}")
+                print(f"MACD Histogram: {analysis['MACD_Histogram_Status']}")
+                print(f"VWAP: {analysis['VWAP']:.2f} ({analysis['VWAP_Status']})")
+                print(f"Golden Cross Status: {analysis['Golden_Cross_Status']}")
+                print(f"Decision: {analysis['Decision']}")
+            else:
+                print(f"Decision: {analysis['Decision']}")
 
         else:
             print(f"Could not analyze {symbol}")
