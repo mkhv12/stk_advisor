@@ -179,12 +179,13 @@ def backtest(ticker, start_date, end_date, interval):
     # Calculate final portfolio value
     final_portfolio_value = cash + position * data['Close'].iloc[-1]
     profit_or_loss = final_portfolio_value - initial_capital
+
     return {
         'Initial_Capital': initial_capital,
         'Final_Portfolio_Value': final_portfolio_value,
         'Profit_or_Loss': profit_or_loss,
         'Total_Hold_Time': total_hold_time,  # Include total hold time in the result
-        'Signals': signals
+        'Signals': signals,
     }
 
 def main(perform_backtesting=False):
@@ -193,7 +194,10 @@ def main(perform_backtesting=False):
     today = datetime.now() + timedelta(days=1)
     start_date = date_back.strftime("%Y-%m-%d")
     end_date = today.strftime("%Y-%m-%d")
-    interval = '1h'
+    interval = '1d'
+
+    count_profit = 0
+    count_loss = 0
 
     print(f"\nDate range: {start_date} to {end_date} and {interval} chart")
 
@@ -205,7 +209,7 @@ def main(perform_backtesting=False):
         stock_data = fetch_stock_data(symbol, start_date, end_date, interval, progress=False)
         analysis = analyze_stock(stock_data)
 
-        print(f"\nAnalyzing {symbol} - ${analysis['Current_Price']:.2f}")
+        print(f"\nAnalyzing {symbol}  ${analysis['Current_Price']:.2f}")
 
         if analysis:
             if analysis['Decision'] != "Hold":
@@ -227,17 +231,29 @@ def main(perform_backtesting=False):
 
             if backtest_result:
                 print(f"\nBacktesting Results for {symbol}:")
-                print(f"Initial Capital: ${backtest_result['Initial_Capital']}")
-                print(f"Final Portfolio Value: ${backtest_result['Final_Portfolio_Value']}")
-                print(f"Profit or Loss: ${backtest_result['Profit_or_Loss']}")
+                print(f"Initial Capital: ${backtest_result['Initial_Capital']:.2f}")
+                print(f"Final Portfolio Value: ${backtest_result['Final_Portfolio_Value']:.2f}")
+                print(f"Profit or Loss: ${backtest_result['Profit_or_Loss']:.2f}")
                 print("Trade Signals:")
                 for signal in backtest_result['Signals']:
                     print(f"Date: {signal[0]}, Action: {signal[1]}, Price: ${signal[2]:.2f}")
 
                 print(f"Total Hold Time: {backtest_result['Total_Hold_Time']:.2f}")
 
+                if backtest_result['Profit_or_Loss'] > 0.0:
+                    count_profit += count_profit + 1
+                else:
+                    count_loss += count_loss + 1
+
             else:
                 print(f"Could not perform backtesting for {symbol}")
 
+    if perform_backtesting:
+        print("\n")
+        print(f"Total QTY Profit {count_profit}")
+        print(f"Total QTY Loss {count_loss}")
+
+    print("\n")
+
 if __name__ == "__main__":
-    main(perform_backtesting=False)  # Set to True to enable backtesting
+    main(perform_backtesting=True)  # Set to True to enable backtesting
