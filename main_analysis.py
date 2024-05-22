@@ -127,7 +127,8 @@ def analyze_stock(data):
         'VWAP': vwap,
         'VWAP_Status': vwap_status,
         'Golden_Cross_Status': golden_cross_status,
-        'Decision': decision
+        'Decision': decision,
+        'Current_Price': current_price 
     }
 
 def backtest(ticker, start_date, end_date, interval):
@@ -188,22 +189,22 @@ def backtest(ticker, start_date, end_date, interval):
 
 def main(perform_backtesting=False):
     # Step 1: Define the date range
-    year_ago = datetime.now() - timedelta(days=365)
+    year_ago = datetime.now() - timedelta(days=42)
     start_date = year_ago.strftime("%Y-%m-%d")
     end_date = datetime.now().strftime("%Y-%m-%d")
-    interval = '1h'
+    interval = '15m'
 
     print(f"\nDate range: {start_date} to {end_date} and {interval} chart")
 
     # Loop through each row in the portfolio data
     for index, row in portfolio_data.iterrows():
         symbol = row['Symbol']
-        
-        print(f"\nAnalyzing {symbol}...")
 
         # Analyze stock
         stock_data = fetch_stock_data(symbol, start_date, end_date, interval, progress=False)
         analysis = analyze_stock(stock_data)
+
+        print(f"\nAnalyzing {symbol} - ${analysis['Current_Price']:.2f}")
 
         if analysis:
             if analysis['Decision'] != "Hold":
