@@ -189,10 +189,10 @@ def backtest(ticker, start_date, end_date, interval):
 
 def main(perform_backtesting=False):
     # Step 1: Define the date range
-    year_ago = datetime.now() - timedelta(days=42)
+    year_ago = datetime.now() - timedelta(days=63)
     start_date = year_ago.strftime("%Y-%m-%d")
     end_date = datetime.now().strftime("%Y-%m-%d")
-    interval = '15m'
+    interval = '1d'
 
     print(f"\nDate range: {start_date} to {end_date} and {interval} chart")
 
@@ -233,7 +233,7 @@ def main(perform_backtesting=False):
                 for signal in backtest_result['Signals']:
                     print(f"Date: {signal[0]}, Action: {signal[1]}, Price: ${signal[2]:.2f}")
 
-                print(f"Total Hold Time: {backtest_result['Total_Hold_Time']}")
+                print(f"Total Hold Time: {backtest_result['Total_Hold_Time']:.2f}")
 
             else:
                 print(f"Could not perform backtesting for {symbol}")
