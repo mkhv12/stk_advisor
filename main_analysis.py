@@ -241,9 +241,9 @@ def main(perform_backtesting=False):
                 print(f"Total Hold Time: {backtest_result['Total_Hold_Time']:.2f}")
 
                 if backtest_result['Profit_or_Loss'] > 0.0:
-                    count_profit += count_profit + 1
+                    count_profit += 1
                 else:
-                    count_loss += count_loss + 1
+                    count_loss += 1
 
             else:
                 print(f"Could not perform backtesting for {symbol}")
