@@ -189,10 +189,11 @@ def backtest(ticker, start_date, end_date, interval):
 
 def main(perform_backtesting=False):
     # Step 1: Define the date range
-    year_ago = datetime.now() - timedelta(days=63)
-    start_date = year_ago.strftime("%Y-%m-%d")
-    end_date = datetime.now().strftime("%Y-%m-%d")
-    interval = '1d'
+    date_back = datetime.now() - timedelta(days=63)
+    today = datetime.now() + timedelta(days=1)
+    start_date = date_back.strftime("%Y-%m-%d")
+    end_date = today.strftime("%Y-%m-%d")
+    interval = '1h'
 
     print(f"\nDate range: {start_date} to {end_date} and {interval} chart")
 

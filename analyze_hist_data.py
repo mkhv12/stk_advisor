@@ -58,7 +58,8 @@ def predict_next_30_days(symbol, start_date, end_date, interval):
 
 def main():
     # Step 1: Define the date range and interval
-    end_date = datetime.now().strftime("%Y-%m-%d")
+    today = datetime.now() + timedelta(days=1)
+    end_date = today.strftime("%Y-%m-%d")
     start_date = (datetime.strptime(end_date, "%Y-%m-%d") - timedelta(days=63)).strftime("%Y-%m-%d")
     interval = '1d'
 
