@@ -51,22 +51,15 @@ def fetch_stock_data(ticker, start_date, end_date, interval, progress=False):
     stock_data = yf.download(ticker, start=start_date, end=end_date, interval=interval, progress=progress)
     return stock_data
 
-def analyze_stock(ticker, start_date, end_date, interval):
-    # Fetch stock data
-    data = fetch_stock_data(ticker, start_date, end_date, interval, progress=False)
-
-    if data.empty:
-        print(f"No data found for {ticker}")
-        return None
-
+def analyze_stock(data):
     # Calculate RSI
-    data['RSI'] = calculate_rsi(data)
+    data.loc[:, 'RSI'] = calculate_rsi(data)
 
     # Calculate MACD
     macd_histogram, macd_line, signal_line = calculate_macd(data)
 
     # Calculate VWAP
-    data['VWAP'] = calculate_vwap(data)
+    data.loc[:, 'VWAP'] = calculate_vwap(data)
 
     # Check for Golden Cross
     golden_cross = check_golden_cross(data)
@@ -74,7 +67,6 @@ def analyze_stock(ticker, start_date, end_date, interval):
     # Get the latest values
     latest_rsi = data['RSI'].iloc[-1]
     latest_macd_histogram = macd_histogram.iloc[-1]
-    previous_macd_histogram = macd_histogram.iloc[-2]
 
     # Determine RSI status
     if latest_rsi > 70:
@@ -91,12 +83,13 @@ def analyze_stock(ticker, start_date, end_date, interval):
         macd_status = 'Bearish (Sell Signal)'
 
     # Determine MACD Histogram reversal
-    if previous_macd_histogram < 0 and latest_macd_histogram >= 0:
-        macd_histogram_status = 'Reversal to Bullish (Buy Signal)'
-    elif previous_macd_histogram > 0 and latest_macd_histogram <= 0:
-        macd_histogram_status = 'Reversal to Bearish (Sell Signal)'
-    else:
-        macd_histogram_status = 'No Reversal'
+    macd_histogram_status = 'No Reversal'
+    if len(macd_histogram) > 1:
+        previous_macd_histogram = macd_histogram.iloc[-2]
+        if previous_macd_histogram < 0 and latest_macd_histogram >= 0:
+            macd_histogram_status = 'Reversal to Bullish (Buy Signal)'
+        elif previous_macd_histogram > 0 and latest_macd_histogram <= 0:
+            macd_histogram_status = 'Reversal to Bearish (Sell Signal)'
 
     # Determine if current price is above or below VWAP
     current_price = data['Close'].iloc[-1]
@@ -137,89 +130,68 @@ def analyze_stock(ticker, start_date, end_date, interval):
         'Decision': decision
     }
 
-def backtest_strategy(data):
-    buy_signals = []
-    sell_signals = []
-    position = None
+def backtest(ticker, start_date, end_date, interval):
+    # Fetch stock data
+    data = fetch_stock_data(ticker, start_date, end_date, interval, progress=False)
 
-    for i in range(1, len(data)):
-        # Calculate indicators and signals
-        latest_rsi = data['RSI'].iloc[i]
-        latest_macd_histogram = data['MACD_Histogram'].iloc[i]
-        previous_macd_histogram = data['MACD_Histogram'].iloc[i-1]
-        current_price = data['Close'].iloc[i]
-        vwap = data['VWAP'].iloc[i]
-        sma_50 = data['SMA_50'].iloc[i]
-        sma_200 = data['SMA_200'].iloc[i]
-        golden_cross = sma_50 > sma_200 and data['SMA_50'].iloc[i-1] <= data['SMA_200'].iloc[i-1]
+    if data.empty:
+        print(f"No data found for {ticker}")
+        return None
 
-        # Determine RSI status
-        if latest_rsi > 70:
-            rsi_status = 'Overbought (Sell Signal)'
-        elif latest_rsi < 30:
-            rsi_status = 'Oversold (Buy Signal)'
-        else:
-            rsi_status = 'Neutral'
+    # Prepare for backtesting
+    initial_capital = 10000  # Initial capital for backtesting
+    position = 0  # Current position (number of shares held)
+    cash = initial_capital  # Remaining cash
+    signals = []
+    entry_timestamp = None
+    total_hold_time = 0
 
-        # Determine MACD status
-        if data['MACD_Line'].iloc[i] > data['Signal_Line'].iloc[i]:
-            macd_status = 'Bullish (Buy Signal)'
-        else:
-            macd_status = 'Bearish (Sell Signal)'
+    # Loop through the data to generate signals and simulate trades
+    for i in range(len(data)):
+        subset_data = data.iloc[:i+1].copy()  # Current subset of data up to the current date
+        if len(subset_data) < 2:
+            continue
 
-        # Determine MACD Histogram reversal
-        if previous_macd_histogram < 0 and latest_macd_histogram >= 0:
-            macd_histogram_status = 'Reversal to Bullish (Buy Signal)'
-        elif previous_macd_histogram > 0 and latest_macd_histogram <= 0:
-            macd_histogram_status = 'Reversal to Bearish (Sell Signal)'
-        else:
-            macd_histogram_status = 'No Reversal'
+        analysis = analyze_stock(subset_data)
+        decision = analysis['Decision']
 
-        # Determine if current price is above or below VWAP
-        if current_price < vwap:
-            vwap_status = "Current Price is Under VWAP (Buy Signal)"
-        else:
-            vwap_status = "Current Price is Over VWAP (Sell Signal)"
+        current_price = subset_data['Close'].iloc[-1]
+        date = subset_data.index[-1]
 
-        # Golden Cross status
-        if golden_cross:
-            golden_cross_status = 'Golden Cross (Strong Buy Signal)'
-        else:
-            golden_cross_status = 'No Golden Cross'
+        if decision == "Consider Buy" and cash >= current_price:
+            if position == 0:
+                entry_timestamp = date  # Record entry timestamp if entering a new position
+            position += cash // current_price
+            cash %= current_price
+            signals.append((date, "Buy", current_price))
 
-        # Count the number of buy or sell signals
-        buy_or_sell_signals = [rsi_status, macd_status, macd_histogram_status, vwap_status, golden_cross_status]
-        count_buy_signals = sum(signal.endswith("(Buy Signal)") for signal in buy_or_sell_signals)
-        count_sell_signals = sum(signal.endswith("(Sell Signal)") for signal in buy_or_sell_signals)
+        elif decision == "Consider Sell" and position > 0:
+            cash += position * current_price
+            position = 0
+            exit_timestamp = date  # Record exit timestamp if exiting a position
+            if entry_timestamp:
+                hold_time = exit_timestamp - entry_timestamp  # Calculate hold time
+                total_hold_time += hold_time.total_seconds() / (60 * 60 * 24)# Convert to hours and accumulate
+            entry_timestamp = None  # Reset entry timestamp
+            signals.append((date, "Sell", current_price))
 
-        # Make trade decisions based on the count of signals
-        if count_buy_signals >= 3:
-            if position != 'Buy':
-                buy_signals.append((data.index[i], current_price))
-                position = 'Buy'
-        elif count_sell_signals >= 3:
-            if position != 'Sell':
-                sell_signals.append((data.index[i], current_price))
-                position = 'Sell'
+    # Calculate final portfolio value
+    final_portfolio_value = cash + position * data['Close'].iloc[-1]
+    profit_or_loss = final_portfolio_value - initial_capital
+    return {
+        'Initial_Capital': initial_capital,
+        'Final_Portfolio_Value': final_portfolio_value,
+        'Profit_or_Loss': profit_or_loss,
+        'Total_Hold_Time': total_hold_time,  # Include total hold time in the result
+        'Signals': signals
+    }
 
-    return buy_signals, sell_signals
-
-def calculate_performance(buy_signals, sell_signals):
-    total_profit = 0
-    total_trades = 0
-
-    for buy, sell in zip(buy_signals, sell_signals):
-        total_profit += sell[1] - buy[1]
-        total_trades += 1
-
-    return total_profit, total_trades
-
-def main():
+def main(perform_backtesting=False):
     # Step 1: Define the date range
-    year_ago = datetime.now() - timedelta(days=365)  # Changed to 365 days for SMA calculation
+    year_ago = datetime.now() - timedelta(days=365)
     start_date = year_ago.strftime("%Y-%m-%d")
     end_date = datetime.now().strftime("%Y-%m-%d")
-    interval = '1d'  # Changed to '1d' for daily data suitable for Golden Cross analysis
+    interval = '1h'
 
     print(f"\nDate range: {start_date} to {end_date} and {interval} chart")
 
@@ -230,10 +202,10 @@ def main():
         print(f"\nAnalyzing {symbol}...")
 
         # Analyze stock
-        analysis = analyze_stock(symbol, start_date, end_date, interval)
+        stock_data = fetch_stock_data(symbol, start_date, end_date, interval, progress=False)
+        analysis = analyze_stock(stock_data)
 
         if analysis:
-
             print(f"RSI Status: {analysis['RSI_Status']}")
             print(f"MACD Status: {analysis['MACD_Status']}")
             print(f"MACD Histogram: {analysis['MACD_Histogram_Status']}")
@@ -244,5 +216,23 @@ def main():
         else:
             print(f"Could not analyze {symbol}")
 
+        # Perform backtesting if flag is set
+        if perform_backtesting:
+            backtest_result = backtest(symbol, start_date, end_date, interval)
+
+            if backtest_result:
+                print(f"\nBacktesting Results for {symbol}:")
+                print(f"Initial Capital: ${backtest_result['Initial_Capital']}")
+                print(f"Final Portfolio Value: ${backtest_result['Final_Portfolio_Value']}")
+                print(f"Profit or Loss: ${backtest_result['Profit_or_Loss']}")
+                print("Trade Signals:")
+                for signal in backtest_result['Signals']:
+                    print(f"Date: {signal[0]}, Action: {signal[1]}, Price: ${signal[2]:.2f}")
+
+                print(f"Total Hold Time: {backtest_result['Total_Hold_Time']}")
+
+            else:
+                print(f"Could not perform backtesting for {symbol}")
+
 if __name__ == "__main__":
-    main()
+    main(perform_backtesting=False)  # Set to True to enable backtesting

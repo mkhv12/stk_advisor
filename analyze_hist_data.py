@@ -48,7 +48,7 @@ def predict_next_30_days(symbol, start_date, end_date, interval):
 def main():
     # Step 1: Define the date range
     end_date = datetime.now().strftime("%Y-%m-%d")
-    start_date = (datetime.strptime(end_date, "%Y-%m-%d") - timedelta(days=365)).strftime("%Y-%m-%d")
+    start_date = (datetime.strptime(end_date, "%Y-%m-%d") - timedelta(days=730)).strftime("%Y-%m-%d")
     interval = '1d'
 
     print(f"\nDate range: {start_date} to {end_date} and {interval} chart")
