@@ -159,7 +159,7 @@ def analyze_stock(data):
         'Current_Price': current_price 
     }
 
-def backtest(ticker, start_date, end_date, interval, profit_threshold=0.05, stop_loss_threshold=0.05):
+def backtest(ticker, start_date, end_date, interval, profit_threshold=0.10, stop_loss_threshold=0.05):
     # Fetch stock data
     data = fetch_stock_data(ticker, start_date, end_date, interval, progress=False)
 
@@ -329,4 +329,4 @@ def main(perform_backtesting=False):
     print("\n")
 
 if __name__ == "__main__":
-    main(perform_backtesting=False)  # Set to True to enable backtesting
+    main(perform_backtesting=True)  # Set to True to enable backtesting
