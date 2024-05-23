@@ -198,9 +198,9 @@ def backtest(ticker, start_date, end_date, interval):
             cash += position * current_price
             position = 0
             exit_timestamp = date  # Record exit timestamp if exiting a position
-            if entry_timestamp:
+            if exit_timestamp:
                 hold_time = exit_timestamp - entry_timestamp  # Calculate hold time
-                total_hold_time += hold_time.total_seconds() / (60 * 60 * 24)  # Convert to days and accumulate
+                total_hold_time = hold_time.total_seconds() / (60 * 60 * 24)  # Convert to days and accumulate
             entry_timestamp = None  # Reset entry timestamp
             signals.append((date, "Sell", current_price))
 
@@ -291,8 +291,8 @@ def main(perform_backtesting=False):
                 print("Trade Signals:")
                 for signal in backtest_result['Signals']:
                     print(f"Date: {signal[0]}, Action: {signal[1]}, Price: ${signal[2]:.2f}")
-
-                print(f"Total Hold Time: {backtest_result['Total_Hold_Time']:.2f}")
+                    if signal[1] =="Sell":
+                        print(f"Total Hold Time: {backtest_result['Total_Hold_Time']:.2f}")
 
                 if backtest_result['Profit_or_Loss'] > 0.0:
                     count_profit += 1
