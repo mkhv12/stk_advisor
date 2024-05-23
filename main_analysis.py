@@ -256,4 +256,4 @@ def main(perform_backtesting=False):
     print("\n")
 
 if __name__ == "__main__":
-    main(perform_backtesting=True)  # Set to True to enable backtesting
+    main(perform_backtesting=False)  # Set to True to enable backtesting

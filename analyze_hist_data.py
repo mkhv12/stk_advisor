@@ -18,7 +18,7 @@ def calculate_fibonacci_levels(data):
     return fibonacci_levels
 
 def analyze_historical_data(symbol, start_date, end_date, interval):
-    # Fetch historical data for last year
+    # Fetch historical data
     historical_data = fetch_stock_data(symbol, start_date, end_date, interval)
 
     if historical_data.empty:
@@ -34,25 +34,21 @@ def analyze_historical_data(symbol, start_date, end_date, interval):
     return historical_data, fibonacci_levels
 
 def predict_next_30_days(symbol, start_date, end_date, interval):
-    next_30_days_start = datetime.strptime(end_date, "%Y-%m-%d") + timedelta(days=1)
-    next_30_days_end = next_30_days_start + timedelta(days=29)
-    
-    # Adjust the dates to fetch data from last year
-    last_year_start = next_30_days_start - timedelta(days=365)
-    last_year_end = next_30_days_end - timedelta(days=365)
-
-    # Fetch historical data for the next 30 days from last year
-    historical_data = fetch_stock_data(symbol, last_year_start.strftime("%Y-%m-%d"), last_year_end.strftime("%Y-%m-%d"), interval)
+    # Fetch historical data for the past 365 days
+    historical_data = fetch_stock_data(symbol, start_date, end_date, interval)
 
     if historical_data.empty:
-        print(f"No historical data found for the next 30 days last year for {symbol}")
+        print(f"No historical data found for the past year for {symbol}")
         return None
 
     # Calculate VWAP for historical data
     historical_data['VWAP'] = calculate_vwap(historical_data)
 
+    # Smooth the data using a moving average to reduce noise
+    historical_data['VWAP_MA'] = historical_data['VWAP'].rolling(window=30, min_periods=1).mean()
+
     # Calculate average VWAP over the last 30 days
-    average_vwap = historical_data['VWAP'].mean()
+    average_vwap = historical_data['VWAP_MA'].mean()
 
     return average_vwap
 
@@ -60,7 +56,7 @@ def main():
     # Step 1: Define the date range and interval
     today = datetime.now() + timedelta(days=1)
     end_date = today.strftime("%Y-%m-%d")
-    start_date = (datetime.strptime(end_date, "%Y-%m-%d") - timedelta(days=63)).strftime("%Y-%m-%d")
+    start_date = (today - timedelta(days=30)).strftime("%Y-%m-%d")
     interval = '1d'
 
     print(f"\nDate range: {start_date} to {end_date} and {interval} chart")
@@ -72,30 +68,28 @@ def main():
         print(f"\nAnalyzing historical data for {symbol}...")
 
         # Analyze historical data
-        last_year_data, fibonacci_levels = analyze_historical_data(symbol, start_date, end_date, interval)
+        historical_data, fibonacci_levels = analyze_historical_data(symbol, start_date, end_date, interval)
 
-        if last_year_data is not None:
-            # Fetch current year data
-            current_year_data = fetch_stock_data(symbol, start_date, end_date, interval)
-            if not current_year_data.empty:
-                current_year_data['VWAP'] = calculate_vwap(current_year_data)
-                current_vwap = current_year_data['VWAP'].mean()
+        if historical_data is not None:
+            # Calculate current VWAP
+            historical_data['VWAP'] = calculate_vwap(historical_data)
+            current_vwap = historical_data['VWAP'].iloc[-1]
 
-                # Predict next 30 days VWAP based on last year's data
-                predicted_vwap = predict_next_30_days(symbol, start_date, end_date, interval)
-                if predicted_vwap:
-                    print(f"Current VWAP: {current_vwap:.2f}")
-                    print(f"Predicted average VWAP for the next 30 days: {predicted_vwap:.2f}")
+            # Predict next 30 days VWAP based on historical data
+            predicted_vwap = predict_next_30_days(symbol, start_date, end_date, interval)
+            if predicted_vwap:
+                print(f"Current VWAP: {current_vwap:.2f}")
+                print(f"Predicted average VWAP for the next 30 days: {predicted_vwap:.2f}")
 
-                    # Print current price
-                    current_price = current_year_data['Close'].iloc[-1]
-                    print(f"Current Price: ${current_price:.2f}")
+                # Print current price
+                current_price = historical_data['Close'].iloc[-1]
+                print(f"Current Price: ${current_price:.2f}")
 
-                    # Loop through each Fibonacci level
-                    for level, price in fibonacci_levels.items():
-                        print(f"Fibonacci Level {level}: ${price:.2f} - {'Price is potentially bullish' if current_vwap < price else 'Price is potentially bearish'}")
+                # Loop through each Fibonacci level
+                for level, price in fibonacci_levels.items():
+                    print(f"Fibonacci Level {level}: ${price:.2f} - {'Price is potentially bullish' if current_vwap < price else 'Price is potentially bearish'}")
             else:
-                print(f"No data found for {symbol} in the current year")
+                print(f"Could not predict VWAP for the next 30 days for {symbol}")
         else:
             print(f"Could not analyze historical data for {symbol}")
 
