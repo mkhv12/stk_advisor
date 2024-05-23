@@ -51,6 +51,21 @@ def fetch_stock_data(ticker, start_date, end_date, interval, progress=False):
     stock_data = yf.download(ticker, start=start_date, end=end_date, interval=interval, progress=progress)
     return stock_data
 
+def calculate_vma(data, window=20):
+    return data['Volume'].rolling(window=window).mean()
+
+def analyze_volume_trend(data, window=20):
+    data['VMA'] = calculate_vma(data, window)
+    latest_volume = data['Volume'].iloc[-1]
+    vma = data['VMA'].iloc[-1]
+
+    if latest_volume > vma:
+        volume_trend = 'Increasing Volume (Buy Signal)'
+    else:
+        volume_trend = 'Decreasing Volume (Sell Signal)'
+
+    return volume_trend
+
 def analyze_stock(data):
     # Calculate RSI
     data.loc[:, 'RSI'] = calculate_rsi(data)
@@ -63,6 +78,9 @@ def analyze_stock(data):
 
     # Check for Golden Cross
     golden_cross = check_golden_cross(data)
+
+    # Analyze Volume Trend
+    volume_trend = analyze_volume_trend(data)
 
     # Get the latest values
     latest_rsi = data['RSI'].iloc[-1]
@@ -107,7 +125,10 @@ def analyze_stock(data):
         golden_cross_status = 'No Golden Cross'
 
     # Count the number of buy or sell signals
-    buy_or_sell_signals = [rsi_status, macd_status, macd_histogram_status, vwap_status, golden_cross_status]
+    buy_or_sell_signals = [
+        rsi_status, macd_status, macd_histogram_status, 
+        vwap_status, golden_cross_status, volume_trend
+    ]
     count_buy_signals = sum(signal.endswith("(Buy Signal)") for signal in buy_or_sell_signals)
     count_sell_signals = sum(signal.endswith("(Sell Signal)") for signal in buy_or_sell_signals)
 
@@ -127,6 +148,7 @@ def analyze_stock(data):
         'VWAP': vwap,
         'VWAP_Status': vwap_status,
         'Golden_Cross_Status': golden_cross_status,
+        'Volume_Trend': volume_trend,
         'Decision': decision,
         'Current_Price': current_price 
     }
@@ -172,7 +194,7 @@ def backtest(ticker, start_date, end_date, interval):
             exit_timestamp = date  # Record exit timestamp if exiting a position
             if entry_timestamp:
                 hold_time = exit_timestamp - entry_timestamp  # Calculate hold time
-                total_hold_time += hold_time.total_seconds() / (60 * 60 * 24)# Convert to hours and accumulate
+                total_hold_time += hold_time.total_seconds() / (60 * 60 * 24)  # Convert to days and accumulate
             entry_timestamp = None  # Reset entry timestamp
             signals.append((date, "Sell", current_price))
 
@@ -180,17 +202,27 @@ def backtest(ticker, start_date, end_date, interval):
     final_portfolio_value = cash + position * data['Close'].iloc[-1]
     profit_or_loss = final_portfolio_value - initial_capital
 
+    # Count the number of buy or sell signals, including volume trend analysis
+    buy_or_sell_signals = [
+        signal[2] for signal in signals
+    ]
+    count_buy_signals = sum(signal == "Buy" for signal in buy_or_sell_signals)
+    count_sell_signals = sum(signal == "Sell" for signal in buy_or_sell_signals)
+
     return {
         'Initial_Capital': initial_capital,
         'Final_Portfolio_Value': final_portfolio_value,
         'Profit_or_Loss': profit_or_loss,
         'Total_Hold_Time': total_hold_time,  # Include total hold time in the result
         'Signals': signals,
+        'Count_Buy_Signals': count_buy_signals,  # Include buy signals count
+        'Count_Sell_Signals': count_sell_signals,  # Include sell signals count
     }
+
 
 def main(perform_backtesting=False):
     # Step 1: Define the date range
-    date_back = datetime.now() - timedelta(days=63)
+    date_back = datetime.now() - timedelta(days=365)
     today = datetime.now() + timedelta(days=1)
     start_date = date_back.strftime("%Y-%m-%d")
     end_date = today.strftime("%Y-%m-%d")
@@ -198,6 +230,8 @@ def main(perform_backtesting=False):
 
     count_profit = 0
     count_loss = 0
+    total_hold_time = 0
+
 
     print(f"\nDate range: {start_date} to {end_date} and {interval} chart")
 
@@ -218,6 +252,7 @@ def main(perform_backtesting=False):
                 print(f"MACD Histogram: {analysis['MACD_Histogram_Status']}")
                 print(f"VWAP: {analysis['VWAP']:.2f} ({analysis['VWAP_Status']})")
                 print(f"Golden Cross Status: {analysis['Golden_Cross_Status']}")
+                print(f"Volume Trend: {analysis['Volume_Trend']}")
                 print(f"Decision: {analysis['Decision']}")
             else:
                 print(f"Decision: {analysis['Decision']}")
@@ -245,6 +280,8 @@ def main(perform_backtesting=False):
                 else:
                     count_loss += 1
 
+                total_hold_time += backtest_result['Total_Hold_Time']
+
             else:
                 print(f"Could not perform backtesting for {symbol}")
 
@@ -252,6 +289,7 @@ def main(perform_backtesting=False):
         print("\n")
         print(f"Total QTY Profit {count_profit}")
         print(f"Total QTY Loss {count_loss}")
+        print(f"Average Hold Time {round((total_hold_time/10)/21,0)} Months")
 
     print("\n")
 
