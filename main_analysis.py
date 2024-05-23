@@ -2,9 +2,15 @@ import yfinance as yf
 import pandas as pd
 import warnings
 from datetime import datetime, timedelta
+import colorama
+from colorama import Fore, Style
+
 
 # Suppress the specific warning from yfinance
 warnings.filterwarnings("ignore", category=FutureWarning, module="yfinance")
+
+# Initialize colorama
+colorama.init()
 
 # Load portfolio data from Excel
 portfolio_data = pd.read_excel('portfolio.xlsx')
@@ -220,6 +226,15 @@ def backtest(ticker, start_date, end_date, interval):
     }
 
 
+def print_with_color(text, color):
+    """
+    Print text with specified color using colorama
+    """
+    color_code = getattr(Fore, color.upper(), Fore.WHITE)
+    reset_code = Style.RESET_ALL
+    print(f"{color_code}{text}{reset_code}")
+
+
 def main(perform_backtesting=False):
     # Step 1: Define the date range
     date_back = datetime.now() - timedelta(days=365)
@@ -247,15 +262,19 @@ def main(perform_backtesting=False):
 
         if analysis:
             if analysis['Decision'] != "Hold":
-                print(f"RSI Status: {analysis['RSI_Status']}")
-                print(f"MACD Status: {analysis['MACD_Status']}")
-                print(f"MACD Histogram: {analysis['MACD_Histogram_Status']}")
-                print(f"VWAP: {analysis['VWAP']:.2f} ({analysis['VWAP_Status']})")
-                print(f"Golden Cross Status: {analysis['Golden_Cross_Status']}")
-                print(f"Volume Trend: {analysis['Volume_Trend']}")
-                print(f"Decision: {analysis['Decision']}")
+                    print(f"RSI Status: {analysis['RSI_Status']}")
+                    print(f"MACD Status: {analysis['MACD_Status']}")
+                    print(f"MACD Histogram: {analysis['MACD_Histogram_Status']}")
+                    print(f"VWAP: {analysis['VWAP']:.2f} ({analysis['VWAP_Status']})")
+                    print(f"Golden Cross Status: {analysis['Golden_Cross_Status']}")
+                    print(f"Volume Trend: {analysis['Volume_Trend']}")
+                    if analysis['Decision'] == "Consider Sell":
+                        print_with_color(f"Decision: {analysis['Decision']}", "red")
+                    if analysis['Decision'] == "Consider Buy":
+                        print_with_color(f"Decision: {analysis['Decision']}", "green")
             else:
-                print(f"Decision: {analysis['Decision']}")
+                print_with_color(f"Decision: {analysis['Decision']}", "cyan")
+                
 
         else:
             print(f"Could not analyze {symbol}")
@@ -284,6 +303,7 @@ def main(perform_backtesting=False):
 
             else:
                 print(f"Could not perform backtesting for {symbol}")
+
 
     if perform_backtesting:
         print("\n")
