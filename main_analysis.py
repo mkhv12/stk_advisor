@@ -297,14 +297,14 @@ def main(perform_backtesting=False):
                         buy_price = signal[2]
                     if signal[1] =="Sell":
                         print(f"Total Hold Time: {backtest_result['Total_Hold_Time'][hold_time_count]}")
-                        hold_time_count += 1
-
+                        
                         if signal[2] > buy_price:
                             count_profit += 1
                         elif signal[2] < buy_price:
                             count_loss += 1
 
                         hold_time += backtest_result['Total_Hold_Time'][hold_time_count]
+                        hold_time_count += 1
 
                 total_hold_time += hold_time
 
@@ -316,9 +316,9 @@ def main(perform_backtesting=False):
         print("\n")
         print(f"Total QTY Profit {count_profit}")
         print(f"Total QTY Loss {count_loss}")
-        print(f"Average Hold Time {round((total_hold_time/10)/21,0)} Months")
+        print(f"Average Hold Time {round((total_hold_time)/count_loss,0)} Days")
 
     print("\n")
 
 if __name__ == "__main__":
-    main(perform_backtesting=False)  # Set to True to enable backtesting
+    main(perform_backtesting=True)  # Set to True to enable backtesting
