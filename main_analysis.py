@@ -159,7 +159,7 @@ def analyze_stock(data):
         'Current_Price': current_price 
     }
 
-def backtest(ticker, start_date, end_date, interval):
+def backtest(ticker, start_date, end_date, interval, profit_threshold=0.05, stop_loss_threshold=0.05):
     # Fetch stock data
     data = fetch_stock_data(ticker, start_date, end_date, interval, progress=False)
 
@@ -174,6 +174,7 @@ def backtest(ticker, start_date, end_date, interval):
     signals = []
     entry_timestamp = None
     total_hold_time = []
+    entry_price = None  # Track the price at which we entered the position
 
     # Loop through the data to generate signals and simulate trades
     for i in range(len(data)):
@@ -190,19 +191,26 @@ def backtest(ticker, start_date, end_date, interval):
         if decision == "Consider Buy" and cash >= current_price:
             if position == 0:
                 entry_timestamp = date  # Record entry timestamp if entering a new position
+                entry_price = current_price
             position += cash // current_price
             cash %= current_price
             signals.append((date, "Buy", current_price))
 
         elif decision == "Consider Sell" and position > 0:
-            cash += position * current_price
-            position = 0
-            exit_timestamp = date  # Record exit timestamp if exiting a position
-            if exit_timestamp:
-                hold_time = exit_timestamp - entry_timestamp  # Calculate hold time
-                total_hold_time.append(hold_time.total_seconds() / (60 * 60 * 24))  # Convert to days and accumulate
-            entry_timestamp = None  # Reset entry timestamp
-            signals.append((date, "Sell", current_price))
+            # Check if the current price has moved by the threshold percentage
+            price_increase = (current_price - entry_price) / entry_price
+            price_decrease = (entry_price - current_price) / entry_price
+
+            if price_increase >= profit_threshold or price_decrease >= stop_loss_threshold:
+                cash += position * current_price
+                position = 0
+                exit_timestamp = date  # Record exit timestamp if exiting a position
+                if exit_timestamp:
+                    hold_time = exit_timestamp - entry_timestamp  # Calculate hold time
+                    total_hold_time.append(hold_time.total_seconds() / (60 * 60 * 24))  # Convert to days and accumulate
+                entry_timestamp = None  # Reset entry timestamp
+                entry_price = None  # Reset entry price
+                signals.append((date, "Sell", current_price))
 
     # Calculate final portfolio value
     final_portfolio_value = cash + position * data['Close'].iloc[-1]
