@@ -173,7 +173,7 @@ def backtest(ticker, start_date, end_date, interval):
     cash = initial_capital  # Remaining cash
     signals = []
     entry_timestamp = None
-    total_hold_time = 0
+    total_hold_time = []
 
     # Loop through the data to generate signals and simulate trades
     for i in range(len(data)):
@@ -200,7 +200,7 @@ def backtest(ticker, start_date, end_date, interval):
             exit_timestamp = date  # Record exit timestamp if exiting a position
             if exit_timestamp:
                 hold_time = exit_timestamp - entry_timestamp  # Calculate hold time
-                total_hold_time = hold_time.total_seconds() / (60 * 60 * 24)  # Convert to days and accumulate
+                total_hold_time.append(hold_time.total_seconds() / (60 * 60 * 24))  # Convert to days and accumulate
             entry_timestamp = None  # Reset entry timestamp
             signals.append((date, "Sell", current_price))
 
@@ -246,6 +246,7 @@ def main(perform_backtesting=False):
     count_profit = 0
     count_loss = 0
     total_hold_time = 0
+    hold_time = 0
 
 
     print(f"\nDate range: {start_date} to {end_date} and {interval} chart")
@@ -253,6 +254,7 @@ def main(perform_backtesting=False):
     # Loop through each row in the portfolio data
     for index, row in portfolio_data.iterrows():
         symbol = row['Symbol']
+        hold_time_count = 0
 
         # Analyze stock
         stock_data = fetch_stock_data(symbol, start_date, end_date, interval, progress=False)
@@ -291,15 +293,20 @@ def main(perform_backtesting=False):
                 print("Trade Signals:")
                 for signal in backtest_result['Signals']:
                     print(f"Date: {signal[0]}, Action: {signal[1]}, Price: ${signal[2]:.2f}")
+                    if signal[1] == "Buy":
+                        buy_price = signal[2]
                     if signal[1] =="Sell":
-                        print(f"Total Hold Time: {backtest_result['Total_Hold_Time']:.2f}")
+                        print(f"Total Hold Time: {backtest_result['Total_Hold_Time'][hold_time_count]}")
+                        hold_time_count += 1
 
-                if backtest_result['Profit_or_Loss'] > 0.0:
-                    count_profit += 1
-                else:
-                    count_loss += 1
+                        if signal[2] > buy_price:
+                            count_profit += 1
+                        elif signal[2] < buy_price:
+                            count_loss += 1
 
-                total_hold_time += backtest_result['Total_Hold_Time']
+                        hold_time += backtest_result['Total_Hold_Time'][hold_time_count]
+
+                total_hold_time += hold_time
 
             else:
                 print(f"Could not perform backtesting for {symbol}")
