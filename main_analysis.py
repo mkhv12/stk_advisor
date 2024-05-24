@@ -139,9 +139,9 @@ def analyze_stock(data):
     count_sell_signals = sum(signal.endswith("(Sell Signal)") for signal in buy_or_sell_signals)
 
     # Determine whether to consider buy or sell based on the count of signals
-    if count_buy_signals >= 3:
+    if count_buy_signals >= 4:
         decision = "Consider Buy"
-    elif count_sell_signals >= 3:
+    elif count_sell_signals >= 4:
         decision = "Consider Sell"
     else:
         decision = "Hold"
@@ -249,7 +249,7 @@ def main(perform_backtesting=False):
     today = datetime.now() + timedelta(days=1)
     start_date = date_back.strftime("%Y-%m-%d")
     end_date = today.strftime("%Y-%m-%d")
-    interval = '1d'
+    interval = '1h'
 
     count_profit = 0
     count_loss = 0
