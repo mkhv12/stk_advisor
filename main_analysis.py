@@ -4,6 +4,7 @@ import warnings
 from datetime import datetime, timedelta
 import colorama
 from colorama import Fore, Style
+import time
 
 
 # Suppress the specific warning from yfinance
@@ -330,4 +331,7 @@ def main(perform_backtesting=False):
     print("\n")
 
 if __name__ == "__main__":
-    main(perform_backtesting=False)  # Set to True to enable backtesting
+    while True:
+        main(perform_backtesting=False)  # Set to True to enable backtesting
+        print("Waiting for 5 minutes before running again...")
+        time.sleep(300)  # Sleep for 300 seconds (5 minutes)
