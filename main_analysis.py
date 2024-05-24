@@ -140,7 +140,7 @@ def analyze_stock(data):
     count_sell_signals = sum(signal.endswith("(Sell Signal)") for signal in buy_or_sell_signals)
 
     # Determine whether to consider buy or sell based on the count of signals
-    if count_buy_signals >= 4:
+    if count_buy_signals >= 3:
         decision = "Consider Buy"
     elif count_sell_signals >= 4:
         decision = "Consider Sell"
@@ -305,7 +305,7 @@ def main(perform_backtesting=False):
                     if signal[1] == "Buy":
                         buy_price = signal[2]
                     if signal[1] =="Sell":
-                        print(f"Total Hold Time: {backtest_result['Total_Hold_Time'][hold_time_count]}")
+                        print(f"Total Hold Time: {backtest_result['Total_Hold_Time'][hold_time_count]:.0f}")
                         
                         if signal[2] > buy_price:
                             count_profit += 1
@@ -326,12 +326,12 @@ def main(perform_backtesting=False):
         perc_profit = (count_profit/(count_profit+count_loss))*100
         print(f"Total QTY Profit {count_profit} ({perc_profit:.0f}%)")
         print(f"Total QTY Loss {count_loss}")
-        print(f"Average Hold Time {round((total_hold_time)/(count_profit+count_loss),0)} Days")
+        print(f"Average Hold Time {round((total_hold_time)/(count_profit+count_loss),0):.0f} Days")
 
     print("\n")
 
 if __name__ == "__main__":
     while True:
-        main(perform_backtesting=False)  # Set to True to enable backtesting
+        main(perform_backtesting=True)  # Set to True to enable backtesting
         print("Waiting for 5 minutes before running again...")
         time.sleep(300)  # Sleep for 300 seconds (5 minutes)
