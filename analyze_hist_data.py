@@ -11,7 +11,7 @@ def calculate_fibonacci_levels(data):
 
     # Calculate Fibonacci levels
     fibonacci_levels = {
-        #0.382: low + 0.382 * (high - low),
+        0.382: low + 0.382 * (high - low),
         0.618: low + 0.618 * (high - low)
     }
 
