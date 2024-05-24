@@ -11,7 +11,7 @@ def calculate_fibonacci_levels(data):
 
     # Calculate Fibonacci levels
     fibonacci_levels = {
-        0.382: low + 0.382 * (high - low),
+        #0.382: low + 0.382 * (high - low),
         0.618: low + 0.618 * (high - low)
     }
 
@@ -65,7 +65,7 @@ def main():
     for index, row in portfolio_data.iterrows():
         symbol = row['Symbol']
         
-        print(f"\nAnalyzing historical data for {symbol}...")
+        print(f"\nHistorical data for {symbol}:")
 
         # Analyze historical data
         historical_data, fibonacci_levels = analyze_historical_data(symbol, start_date, end_date, interval)
@@ -78,16 +78,15 @@ def main():
             # Predict next 30 days VWAP based on historical data
             predicted_vwap = predict_next_30_days(symbol, start_date, end_date, interval)
             if predicted_vwap:
-                print(f"Current VWAP: {current_vwap:.2f}")
-                print(f"Predicted average VWAP for the next 30 days: {predicted_vwap:.2f}")
-
                 # Print current price
                 current_price = historical_data['Close'].iloc[-1]
                 print(f"Current Price: ${current_price:.2f}")
 
+                print(f"Current VWAP: {current_vwap:.2f} (Predicted AVG. VWAP next 30 days: {predicted_vwap:.2f})")
+
                 # Loop through each Fibonacci level
                 for level, price in fibonacci_levels.items():
-                    print(f"Fibonacci Level {level}: ${price:.2f} - {'Price is potentially bullish' if current_vwap < price else 'Price is potentially bearish'}")
+                    print(f"Fibonacci Level {level}: ${price:.2f} - {'Price is bullish' if current_vwap < price else 'Price is bearish'}")
             else:
                 print(f"Could not predict VWAP for the next 30 days for {symbol}")
         else:
