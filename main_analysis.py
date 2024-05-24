@@ -322,11 +322,12 @@ def main(perform_backtesting=False):
 
     if perform_backtesting:
         print("\n")
-        print(f"Total QTY Profit {count_profit}")
+        perc_profit = (count_profit/(count_profit+count_loss))*100
+        print(f"Total QTY Profit {count_profit} ({perc_profit:.0f}%)")
         print(f"Total QTY Loss {count_loss}")
         print(f"Average Hold Time {round((total_hold_time)/(count_profit+count_loss),0)} Days")
 
     print("\n")
 
 if __name__ == "__main__":
-    main(perform_backtesting=True)  # Set to True to enable backtesting
+    main(perform_backtesting=False)  # Set to True to enable backtesting
