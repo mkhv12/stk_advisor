@@ -333,5 +333,6 @@ def main(perform_backtesting=False):
 if __name__ == "__main__":
     while True:
         main(perform_backtesting=False)  # Set to True to enable backtesting
-        print("Waiting for 5 minutes before running again...")
+        print("***********************************************************")
+        print("5 minutes before running again...")
         time.sleep(300)  # Sleep for 300 seconds (5 minutes)
