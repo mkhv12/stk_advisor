@@ -271,24 +271,25 @@ def main(perform_backtesting=False):
 
         print(f"\nAnalyzing {symbol}  ${analysis['Current_Price']:.2f}")
 
-        if analysis:
-            if analysis['Decision'] != "Hold":
-                    print(f"RSI Status: {analysis['RSI_Status']}")
-                    print(f"MACD Status: {analysis['MACD_Status']}")
-                    print(f"MACD Histogram: {analysis['MACD_Histogram_Status']}")
-                    print(f"VWAP: {analysis['VWAP']:.2f} ({analysis['VWAP_Status']})")
-                    print(f"Golden Cross Status: {analysis['Golden_Cross_Status']}")
-                    print(f"Volume Trend: {analysis['Volume_Trend']}")
-                    if analysis['Decision'] == "Consider Sell":
-                        print_with_color(f"Decision: {analysis['Decision']}", "red")
-                    if analysis['Decision'] == "Consider Buy":
-                        print_with_color(f"Decision: {analysis['Decision']}", "green")
-            else:
-                print_with_color(f"Decision: {analysis['Decision']}", "cyan")
-                
+        if not perform_backtesting:
+            if analysis:
+                if analysis['Decision'] != "Hold":
+                        print(f"RSI Status: {analysis['RSI_Status']}")
+                        print(f"MACD Status: {analysis['MACD_Status']}")
+                        print(f"MACD Histogram: {analysis['MACD_Histogram_Status']}")
+                        print(f"VWAP: {analysis['VWAP']:.2f} ({analysis['VWAP_Status']})")
+                        print(f"Golden Cross Status: {analysis['Golden_Cross_Status']}")
+                        print(f"Volume Trend: {analysis['Volume_Trend']}")
+                        if analysis['Decision'] == "Consider Sell":
+                            print_with_color(f"Decision: {analysis['Decision']}", "red")
+                        if analysis['Decision'] == "Consider Buy":
+                            print_with_color(f"Decision: {analysis['Decision']}", "green")
+                else:
+                    print_with_color(f"Decision: {analysis['Decision']}", "cyan")
+                    
 
-        else:
-            print(f"Could not analyze {symbol}")
+            else:
+                print(f"Could not analyze {symbol}")
 
         # Perform backtesting if flag is set
         if perform_backtesting:
