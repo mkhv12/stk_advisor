@@ -140,7 +140,7 @@ def analyze_stock(data):
     count_sell_signals = sum(signal.endswith("(Sell Signal)") for signal in buy_or_sell_signals)
 
     # Determine whether to consider buy or sell based on the count of signals
-    if count_buy_signals >= 3:
+    if count_buy_signals >= 4:
         decision = "Consider Buy"
     elif count_sell_signals >= 4:
         decision = "Consider Sell"
@@ -160,7 +160,7 @@ def analyze_stock(data):
         'Current_Price': current_price 
     }
 
-def backtest(ticker, start_date, end_date, interval, profit_threshold=0.10, stop_loss_threshold=0.05):
+def backtest(ticker, start_date, end_date, interval, profit_threshold=0.10, stop_loss_threshold=0.03):
     # Fetch stock data
     data = fetch_stock_data(ticker, start_date, end_date, interval, progress=False)
 
