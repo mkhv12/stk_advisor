@@ -169,7 +169,7 @@ def backtest(ticker, start_date, end_date, interval, profit_threshold=0.10, stop
         return None
 
     # Prepare for backtesting
-    initial_capital = 10000  # Initial capital for backtesting
+    initial_capital = 500 # Initial capital for backtesting
     position = 0  # Current position (number of shares held)
     cash = initial_capital  # Remaining cash
     signals = []
@@ -256,6 +256,7 @@ def main(perform_backtesting=False):
     count_loss = 0
     total_hold_time = 0
     hold_time = 0
+    end_value= 0
 
 
     print(f"\nDate range: {start_date} to {end_date} and {interval} chart")
@@ -310,9 +311,12 @@ def main(perform_backtesting=False):
                         
                         if signal[2] > buy_price:
                             count_profit += 1
+                            end_value += backtest_result['Profit_or_Loss']
                         elif signal[2] < buy_price:
                             count_loss += 1
+                            end_value -= backtest_result['Profit_or_Loss']
 
+                        
                         hold_time += backtest_result['Total_Hold_Time'][hold_time_count]
                         hold_time_count += 1
 
@@ -328,6 +332,7 @@ def main(perform_backtesting=False):
         print(f"Total QTY Profit {count_profit} ({perc_profit:.0f}%)")
         print(f"Total QTY Loss {count_loss}")
         print(f"Average Hold Time {round((total_hold_time)/(count_profit+count_loss),0):.0f} Days")
+        print(f"Total Profit ${round(end_value,0):.2f}")
 
     print("\n")
 
