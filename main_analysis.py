@@ -160,7 +160,7 @@ def analyze_stock(data):
         'Current_Price': current_price 
     }
 
-def backtest(ticker, start_date, end_date, interval, profit_threshold=0.10, stop_loss_threshold=0.03):
+def backtest(ticker, start_date, end_date, interval, profit_threshold=0.05, stop_loss_threshold=0.02):
     # Fetch stock data
     data = fetch_stock_data(ticker, start_date, end_date, interval, progress=False)
 
