@@ -5,6 +5,8 @@ from datetime import datetime, timedelta
 import colorama
 from colorama import Fore, Style
 import time
+import tech_analysis_tools 
+import back_test 
 
 
 # Suppress the specific warning from yfinance
@@ -16,78 +18,26 @@ colorama.init()
 # Load portfolio data from Excel
 portfolio_data = pd.read_excel('portfolio.xlsx')
 
-def calculate_rsi(data, window=14):
-    delta = data['Close'].diff(1)
-    gain = delta.where(delta > 0, 0)
-    loss = -delta.where(delta < 0, 0)
-
-    avg_gain = gain.rolling(window=window, min_periods=1).mean()
-    avg_loss = loss.rolling(window=window, min_periods=1).mean()
-
-    rs = avg_gain / avg_loss
-    rsi = 100 - (100 / (1 + rs))
-
-    return rsi
-
-def calculate_ema(data, window):
-    return data['Close'].ewm(span=window, adjust=False).mean()
-
-def calculate_macd(data):
-    ema12 = calculate_ema(data, 12)
-    ema26 = calculate_ema(data, 26)
-    macd_line = ema12 - ema26
-    signal_line = macd_line.ewm(span=9, adjust=False).mean()
-    macd_histogram = macd_line - signal_line
-    return macd_histogram, macd_line, signal_line
-
-def calculate_vwap(data):
-    typical_price = (data['High'] + data['Low'] + data['Close']) / 3
-    vwap = (typical_price * data['Volume']).cumsum() / data['Volume'].cumsum()
-    return vwap
-
-def calculate_sma(data, window):
-    return data['Close'].rolling(window=window).mean()
-
-def check_golden_cross(data):
-    sma_50 = calculate_sma(data, 50)
-    sma_200 = calculate_sma(data, 200)
-    golden_cross = (sma_50.iloc[-1] > sma_200.iloc[-1]) and (sma_50.iloc[-2] <= sma_200.iloc[-2])
-    return golden_cross
 
 def fetch_stock_data(ticker, start_date, end_date, interval, progress=False):
     stock_data = yf.download(ticker, start=start_date, end=end_date, interval=interval, progress=progress)
     return stock_data
 
-def calculate_vma(data, window=20):
-    return data['Volume'].rolling(window=window).mean()
-
-def analyze_volume_trend(data, window=20):
-    data['VMA'] = calculate_vma(data, window)
-    latest_volume = data['Volume'].iloc[-1]
-    vma = data['VMA'].iloc[-1]
-
-    if latest_volume > vma:
-        volume_trend = 'Increasing Volume (Buy Signal)'
-    else:
-        volume_trend = 'Decreasing Volume (Sell Signal)'
-
-    return volume_trend
-
 def analyze_stock(data):
     # Calculate RSI
-    data.loc[:, 'RSI'] = calculate_rsi(data)
+    data.loc[:, 'RSI'] = tech_analysis_tools.calculate_rsi(data)
 
     # Calculate MACD
-    macd_histogram, macd_line, signal_line = calculate_macd(data)
+    macd_histogram, macd_line, signal_line = tech_analysis_tools.calculate_macd(data)
 
     # Calculate VWAP
-    data.loc[:, 'VWAP'] = calculate_vwap(data)
+    data.loc[:, 'VWAP'] = tech_analysis_tools.calculate_vwap(data)
 
     # Check for Golden Cross
-    golden_cross = check_golden_cross(data)
+    golden_cross = tech_analysis_tools.check_golden_cross(data)
 
     # Analyze Volume Trend
-    volume_trend = analyze_volume_trend(data)
+    volume_trend = tech_analysis_tools.analyze_volume_trend(data)
 
     # Get the latest values
     latest_rsi = data['RSI'].iloc[-1]
@@ -160,80 +110,24 @@ def analyze_stock(data):
         'Current_Price': current_price 
     }
 
-def backtest(ticker, start_date, end_date, interval, profit_threshold=0.04, stop_loss_threshold=0.02):
-    # Fetch stock data
-    data = fetch_stock_data(ticker, start_date, end_date, interval, progress=False)
+def calculate_tax_implications(purchase_date, purchase_price, current_price, quantity):
+    """
+    Calculate potential tax implications.
+    """
+    purchase_date = datetime.strptime(purchase_date, "%Y-%m-%d")
+    holding_period = (datetime.now() - purchase_date).days
+    gain_or_loss = (current_price - purchase_price) * quantity
 
-    if data.empty:
-        print(f"No data found for {ticker}")
-        return None
+    # Assuming tax rates: short-term is 30%, long-term is 15%
+    if holding_period < 365:
+        tax_rate = 0.30
+        holding_type = "Short-term"
+    else:
+        tax_rate = 0.15
+        holding_type = "Long-term"
 
-    # Prepare for backtesting
-    initial_capital = 500 # Initial capital for backtesting
-    position = 0  # Current position (number of shares held)
-    cash = initial_capital  # Remaining cash
-    signals = []
-    entry_timestamp = None
-    total_hold_time = []
-    entry_price = None  # Track the price at which we entered the position
-
-    # Loop through the data to generate signals and simulate trades
-    for i in range(len(data)):
-        subset_data = data.iloc[:i+1].copy()  # Current subset of data up to the current date
-        if len(subset_data) < 2:
-            continue
-
-        analysis = analyze_stock(subset_data)
-        decision = analysis['Decision']
-
-        current_price = subset_data['Close'].iloc[-1]
-        date = subset_data.index[-1]
-
-        if decision == "Consider Buy" and cash >= current_price:
-            if position == 0:
-                entry_timestamp = date  # Record entry timestamp if entering a new position
-                entry_price = current_price
-            position += cash // current_price
-            cash %= current_price
-            signals.append((date, "Buy", current_price))
-
-        elif decision == "Consider Sell" and position > 0:
-            # Check if the current price has moved by the threshold percentage
-            price_increase = (current_price - entry_price) / entry_price
-            price_decrease = (entry_price - current_price) / entry_price
-
-            if price_increase >= profit_threshold or price_decrease >= stop_loss_threshold:
-                cash += position * current_price
-                position = 0
-                exit_timestamp = date  # Record exit timestamp if exiting a position
-                if exit_timestamp:
-                    hold_time = exit_timestamp - entry_timestamp  # Calculate hold time
-                    total_hold_time.append(hold_time.total_seconds() / (60 * 60 * 24))  # Convert to days and accumulate
-                entry_timestamp = None  # Reset entry timestamp
-                entry_price = None  # Reset entry price
-                signals.append((date, "Sell", current_price))
-
-    # Calculate final portfolio value
-    final_portfolio_value = cash + position * data['Close'].iloc[-1]
-    profit_or_loss = final_portfolio_value - initial_capital
-
-    # Count the number of buy or sell signals, including volume trend analysis
-    buy_or_sell_signals = [
-        signal[2] for signal in signals
-    ]
-    count_buy_signals = sum(signal == "Buy" for signal in buy_or_sell_signals)
-    count_sell_signals = sum(signal == "Sell" for signal in buy_or_sell_signals)
-
-    return {
-        'Initial_Capital': initial_capital,
-        'Final_Portfolio_Value': final_portfolio_value,
-        'Profit_or_Loss': profit_or_loss,
-        'Total_Hold_Time': total_hold_time,  # Include total hold time in the result
-        'Signals': signals,
-        'Count_Buy_Signals': count_buy_signals,  # Include buy signals count
-        'Count_Sell_Signals': count_sell_signals,  # Include sell signals count
-    }
-
+    tax_implication = gain_or_loss * tax_rate
+    return holding_type, gain_or_loss, tax_implication
 
 def print_with_color(text, color):
     """
@@ -264,6 +158,10 @@ def main(perform_backtesting=False):
     # Loop through each row in the portfolio data
     for index, row in portfolio_data.iterrows():
         symbol = row['Symbol']
+        status = row['STATUS']
+        purchase_date = row['PURCHASE _DATE']
+        purchase_price = row['PURCHASE_PRICE']
+        purchase_qty = row['PURCHASE_QTY']
         hold_time_count = 0
 
         # Analyze stock
@@ -275,26 +173,37 @@ def main(perform_backtesting=False):
         if not perform_backtesting:
             if analysis:
                 if analysis['Decision'] != "Hold":
-                        print(f"RSI Status: {analysis['RSI_Status']}")
-                        print(f"MACD Status: {analysis['MACD_Status']}")
-                        print(f"MACD Histogram: {analysis['MACD_Histogram_Status']}")
-                        print(f"VWAP: {analysis['VWAP']:.2f} ({analysis['VWAP_Status']})")
-                        print(f"Golden Cross Status: {analysis['Golden_Cross_Status']}")
-                        print(f"Volume Trend: {analysis['Volume_Trend']}")
-                        if analysis['Decision'] == "Consider Sell":
-                            print_with_color(f"Decision: {analysis['Decision']}", "red")
-                        if analysis['Decision'] == "Consider Buy":
-                            print_with_color(f"Decision: {analysis['Decision']}", "green")
+                    print(f"RSI Status: {analysis['RSI_Status']}")
+                    print(f"MACD Status: {analysis['MACD_Status']}")
+                    print(f"MACD Histogram: {analysis['MACD_Histogram_Status']}")
+                    print(f"VWAP: {analysis['VWAP']:.2f} ({analysis['VWAP_Status']})")
+                    print(f"Golden Cross Status: {analysis['Golden_Cross_Status']}")
+                    print(f"Volume Trend: {analysis['Volume_Trend']}")
+                
+
+                    if analysis['Decision'] == "Consider Sell":
+                        print_with_color(f"Decision: {analysis['Decision']}", "red")
+
+                        if status == "HOLDING" and purchase_date and purchase_price and purchase_qty:
+                            holding_type, gain_or_loss, tax_implication = calculate_tax_implications(
+                                purchase_date, purchase_price, analysis['Current_Price'], purchase_qty
+                            )
+                            print("***********")
+                            print(f"Holding Type: {holding_type}")
+                            print(f"Potential Gain/Loss: ${gain_or_loss:.2f}")
+                            print(f"Estimated Tax Implication: ${tax_implication:.2f}")
+                            print("***********")
+
+                    if analysis['Decision'] == "Consider Buy":
+                        print_with_color(f"Decision: {analysis['Decision']}", "green")
                 else:
                     print_with_color(f"Decision: {analysis['Decision']}", "cyan")
-                    
-
             else:
                 print(f"Could not analyze {symbol}")
 
         # Perform backtesting if flag is set
         if perform_backtesting:
-            backtest_result = backtest(symbol, start_date, end_date, interval)
+            backtest_result = back_test.backtest(symbol, start_date, end_date, interval)
 
             if backtest_result:
                 print(f"\nBacktesting Results for {symbol}:")

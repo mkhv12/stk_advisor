@@ -1,20 +1,4 @@
-# import yfinance as yf
-# import pandas as pd
-# import warnings
-# from datetime import datetime, timedelta
-# import colorama
-# from colorama import Fore, Style
-# import time
 
-
-# # Suppress the specific warning from yfinance
-# warnings.filterwarnings("ignore", category=FutureWarning, module="yfinance")
-
-# # Initialize colorama
-# colorama.init()
-
-# # Load portfolio data from Excel
-# portfolio_data = pd.read_excel('portfolio.xlsx')
 
 def calculate_rsi(data, window=14):
     delta = data['Close'].diff(1)
