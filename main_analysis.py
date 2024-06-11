@@ -117,6 +117,7 @@ def calculate_tax_implications(purchase_date, purchase_price, current_price, qua
     purchase_date = datetime.strptime(purchase_date, "%Y-%m-%d")
     holding_period = (datetime.now() - purchase_date).days
     gain_or_loss = (current_price - purchase_price) * quantity
+    gain_or_loss_perc = (gain_or_loss / (purchase_price * quantity)) * 100
 
     # Assuming tax rates: short-term is 30%, long-term is 15%
     if holding_period < 365:
@@ -127,7 +128,7 @@ def calculate_tax_implications(purchase_date, purchase_price, current_price, qua
         holding_type = "Long-term"
 
     tax_implication = gain_or_loss * tax_rate
-    return holding_type, gain_or_loss, tax_implication
+    return holding_type, gain_or_loss, tax_implication, gain_or_loss_perc
 
 def print_with_color(text, color):
     """
@@ -185,12 +186,12 @@ def main(perform_backtesting=False):
                         print_with_color(f"Decision: {analysis['Decision']}", "red")
 
                         if status == "HOLDING" and purchase_date and purchase_price and purchase_qty:
-                            holding_type, gain_or_loss, tax_implication = calculate_tax_implications(
+                            holding_type, gain_or_loss, tax_implication, gain_or_loss_perc = calculate_tax_implications(
                                 purchase_date, purchase_price, analysis['Current_Price'], purchase_qty
                             )
                             print("***********")
                             print(f"Holding Type: {holding_type}")
-                            print(f"Potential Gain/Loss: ${gain_or_loss:.2f}")
+                            print(f"Potential Gain/Loss: ${gain_or_loss:.2f} ({gain_or_loss_perc:.0f}%)")
                             print(f"Estimated Tax Implication: ${tax_implication:.2f}")
                             print("***********")
 
