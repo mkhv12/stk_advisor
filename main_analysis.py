@@ -1,3 +1,4 @@
+import sys
 import yfinance as yf
 import pandas as pd
 import warnings
@@ -248,7 +249,11 @@ def main(perform_backtesting=False):
 
 if __name__ == "__main__":
     while True:
-        main(perform_backtesting=False)  # Set to True to enable backtesting
+        if len(sys.argv) > 1 and sys.argv[1].lower() == "true":
+            main(perform_backtesting=True)  # Set to True to enable backtesting
+        else:
+            main(perform_backtesting=False)  # Set to True to enable backtesting
+
         print("***********************************************************")
         print("5 minutes before running again...")
         time.sleep(300)  # Sleep for 300 seconds (5 minutes)
