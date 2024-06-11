@@ -142,7 +142,7 @@ def print_with_color(text, color):
 
 def main(perform_backtesting=False):
     # Step 1: Define the date range
-    date_back = datetime.now() - timedelta(days=425)
+    date_back = datetime.now() - timedelta(days=700)
     today = datetime.now() + timedelta(days=1)
     start_date = date_back.strftime("%Y-%m-%d")
     end_date = today.strftime("%Y-%m-%d")
