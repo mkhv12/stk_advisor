@@ -1,6 +1,7 @@
 import pandas as pd
 from datetime import datetime, timedelta
-from main_analysis import fetch_stock_data, calculate_vwap
+from main_analysis import fetch_stock_data
+import tech_analysis_tools
 
 # Load portfolio data from Excel
 portfolio_data = pd.read_excel('portfolio.xlsx')
@@ -26,7 +27,7 @@ def analyze_historical_data(symbol, start_date, end_date, interval):
         return None
 
     # Calculate VWAP for historical data
-    historical_data['VWAP'] = calculate_vwap(historical_data)
+    historical_data['VWAP'] = tech_analysis_tools.calculate_vwap(historical_data)
 
     # Calculate Fibonacci retracement levels
     fibonacci_levels = calculate_fibonacci_levels(historical_data)
@@ -42,7 +43,7 @@ def predict_next_30_days(symbol, start_date, end_date, interval):
         return None
 
     # Calculate VWAP for historical data
-    historical_data['VWAP'] = calculate_vwap(historical_data)
+    historical_data['VWAP'] = tech_analysis_tools.calculate_vwap(historical_data)
 
     # Smooth the data using a moving average to reduce noise
     historical_data['VWAP_MA'] = historical_data['VWAP'].rolling(window=30, min_periods=1).mean()
@@ -72,7 +73,7 @@ def main():
 
         if historical_data is not None:
             # Calculate current VWAP
-            historical_data['VWAP'] = calculate_vwap(historical_data)
+            historical_data['VWAP'] = tech_analysis_tools.calculate_vwap(historical_data)
             current_vwap = historical_data['VWAP'].iloc[-1]
 
             # Predict next 30 days VWAP based on historical data
