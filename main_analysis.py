@@ -91,9 +91,9 @@ def analyze_stock(data):
     count_sell_signals = sum(signal.endswith("(Sell Signal)") for signal in buy_or_sell_signals)
 
     # Determine whether to consider buy or sell based on the count of signals
-    if count_buy_signals >= 4:
+    if count_buy_signals >= 3:
         decision = "Consider Buy"
-    elif count_sell_signals >= 4:
+    elif count_sell_signals >= 5:
         decision = "Consider Sell"
     else:
         decision = "Hold"
@@ -249,14 +249,20 @@ def main(perform_backtesting, qdays, interval):
     print("\n")
 
 if __name__ == "__main__":
-    while True:
-        if len(sys.argv) > 1 and sys.argv[1].lower() == "true":
-            main(True, 700, "1h")  # Set to True to enable backtesting
-            main(True, 59, "15m")   #max 59 days on 15m 
-        else:
-           main(False, 700, "1h")   
-           main(False, 59, "15m")   #max 59 days on 15m
-
+    if len(sys.argv) > 1 and sys.argv[1].lower() == "true":
+        main(True, 1095, "1d")  
+        main(True, 700, "1h")  # Set to True to enable backtesting
+        main(True, 59, "15m")   #max 59 days on 15m 
+        main(True, 59, "5m")   #max 59 days on 15m 
         print("***********************************************************")
-        print("5 minutes before running again...")
-        time.sleep(300)  # Sleep for 300 seconds (5 minutes)
+        print("FINISHED")
+    else:
+        while True:
+            main(False, 1095, "1d")
+            main(False, 700, "1h")   
+            main(False, 59, "15m")   #max 59 days on 15m
+            main(False, 59, "5m")   #max 59 days on 15m
+            print("***********************************************************")
+            print("5 minutes before running again...")
+            time.sleep(300)  # Sleep for 300 seconds (5 minutes)
+
