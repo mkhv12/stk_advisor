@@ -140,13 +140,13 @@ def print_with_color(text, color):
     print(f"{color_code}{text}{reset_code}")
 
 
-def main(perform_backtesting=False):
+def main(perform_backtesting, qdays, interval):
     # Step 1: Define the date range
-    date_back = datetime.now() - timedelta(days=700)
+    date_back = datetime.now() - timedelta(days=qdays)
     today = datetime.now() + timedelta(days=1)
     start_date = date_back.strftime("%Y-%m-%d")
     end_date = today.strftime("%Y-%m-%d")
-    interval = '1h'
+    #interval = '1h'
 
     count_profit = 0
     count_loss = 0
@@ -154,8 +154,9 @@ def main(perform_backtesting=False):
     hold_time = 0
     end_value= 0
 
-
+    
     print(f"\nDate range: {start_date} to {end_date} and {interval} chart")
+    print("***********")
 
     # Loop through each row in the portfolio data
     for index, row in portfolio_data.iterrows():
@@ -250,9 +251,11 @@ def main(perform_backtesting=False):
 if __name__ == "__main__":
     while True:
         if len(sys.argv) > 1 and sys.argv[1].lower() == "true":
-            main(perform_backtesting=True)  # Set to True to enable backtesting
+            main(True, 700, "1h")  # Set to True to enable backtesting
+            main(True, 30, "15m") 
         else:
-            main(perform_backtesting=False)  # Set to True to enable backtesting
+           main(False, 700, "1h")   # Set to True to enable backtesting
+           main(False, 30, "15m")  
 
         print("***********************************************************")
         print("5 minutes before running again...")
