@@ -252,10 +252,10 @@ if __name__ == "__main__":
     while True:
         if len(sys.argv) > 1 and sys.argv[1].lower() == "true":
             main(True, 700, "1h")  # Set to True to enable backtesting
-            main(True, 30, "15m") 
+            main(True, 59, "15m")   #max 59 days on 15m 
         else:
-           main(False, 700, "1h")   # Set to True to enable backtesting
-           main(False, 30, "15m")  
+           main(False, 700, "1h")   
+           main(False, 59, "15m")   #max 59 days on 15m
 
         print("***********************************************************")
         print("5 minutes before running again...")
