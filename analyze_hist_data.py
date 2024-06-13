@@ -57,7 +57,7 @@ def main():
     # Step 1: Define the date range and interval
     today = datetime.now() + timedelta(days=1)
     end_date = today.strftime("%Y-%m-%d")
-    start_date = (today - timedelta(days=30)).strftime("%Y-%m-%d")
+    start_date = (today - timedelta(days=45)).strftime("%Y-%m-%d")
     interval = '1d'
 
     print(f"\nDate range: {start_date} to {end_date} and {interval} chart")
