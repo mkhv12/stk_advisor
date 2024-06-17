@@ -261,7 +261,7 @@ if __name__ == "__main__":
             #main(False, 1095, "1d")
             main(False, 700, "1h")   
             main(False, 59, "15m")   #max 59 days on 15m
-            #main(False, 59, "5m")   #max 59 days on 15m
+            main(False, 59, "5m")   #max 59 days on 15m
             print("***********************************************************")
             print("5 minutes before running again...")
             time.sleep(300)  # Sleep for 300 seconds (5 minutes)
