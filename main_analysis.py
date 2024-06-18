@@ -34,6 +34,12 @@ def analyze_stock(data):
     # Calculate VWAP
     data.loc[:, 'VWAP'] = tech_analysis_tools.calculate_vwap(data)
 
+    # Calculate Parabolic SAR
+    data = tech_analysis_tools.calculate_parabolic_sar(data)
+
+    # Analyze Parabolic SAR
+    parabolic_sar_status = tech_analysis_tools.analyze_parabolic_sar(data)
+
     # Check for Golden Cross
     golden_cross = tech_analysis_tools.check_golden_cross(data)
 
@@ -85,7 +91,7 @@ def analyze_stock(data):
     # Count the number of buy or sell signals
     buy_or_sell_signals = [
         rsi_status, macd_status, macd_histogram_status, 
-        vwap_status, golden_cross_status, volume_trend
+        vwap_status, golden_cross_status, parabolic_sar_status, volume_trend
     ]
     count_buy_signals = sum(signal.endswith("(Buy Signal)") for signal in buy_or_sell_signals)
     count_sell_signals = sum(signal.endswith("(Sell Signal)") for signal in buy_or_sell_signals)
@@ -107,6 +113,7 @@ def analyze_stock(data):
         'VWAP_Status': vwap_status,
         'Golden_Cross_Status': golden_cross_status,
         'Volume_Trend': volume_trend,
+        'Parabolic_SAR_Status': parabolic_sar_status,
         'Decision': decision,
         'Current_Price': current_price 
     }
@@ -179,8 +186,9 @@ def main(perform_backtesting, qdays, interval):
                     print(f"RSI Status: {analysis['RSI_Status']}")
                     print(f"MACD Status: {analysis['MACD_Status']}")
                     print(f"MACD Histogram: {analysis['MACD_Histogram_Status']}")
-                    print(f"VWAP: {analysis['VWAP']:.2f} ({analysis['VWAP_Status']})")
+                    print(f"Parabolic_SAR_Status: {analysis['Parabolic_SAR_Status']}")
                     print(f"Golden Cross Status: {analysis['Golden_Cross_Status']}")
+                    print(f"VWAP: {analysis['VWAP']:.2f} ({analysis['VWAP_Status']})")
                     print(f"Volume Trend: {analysis['Volume_Trend']}")
                 
 
