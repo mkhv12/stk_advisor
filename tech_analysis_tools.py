@@ -111,3 +111,41 @@ def analyze_parabolic_sar(data):
     else:
         return "No Clear Reversal"
 
+
+def calculate_bollinger_bands(data, window=20, num_std_dev=2):
+    """
+    Calculate Bollinger Bands for the given data.
+
+    :param data: DataFrame containing the stock price data.
+    :param window: The window size for the moving average (default is 20).
+    :param num_std_dev: Number of standard deviations for the bands (default is 2).
+    :return: Series for upper and lower Bollinger Bands.
+    """
+    rolling_mean = data['Close'].rolling(window).mean()
+    rolling_std = data['Close'].rolling(window).std()
+
+    bollinger_upper = rolling_mean + (rolling_std * num_std_dev)
+    bollinger_lower = rolling_mean - (rolling_std * num_std_dev)
+
+    return bollinger_upper, bollinger_lower
+
+
+def calculate_stochastic_oscillator(data, window=14, smooth_k=3, smooth_d=3):
+    """
+    Calculate Stochastic Oscillator for the given data.
+
+    :param data: DataFrame containing the stock price data.
+    :param window: The look-back period for %K (default is 14).
+    :param smooth_k: The smoothing period for %K (default is 3).
+    :param smooth_d: The smoothing period for %D (default is 3).
+    :return: Series for %K and %D.
+    """
+    low_min = data['Low'].rolling(window=window).min()
+    high_max = data['High'].rolling(window=window).max()
+
+    stochastic_k = 100 * ((data['Close'] - low_min) / (high_max - low_min))
+    stochastic_k = stochastic_k.rolling(window=smooth_k).mean()
+    stochastic_d = stochastic_k.rolling(window=smooth_d).mean()
+
+    return stochastic_k, stochastic_d
+
