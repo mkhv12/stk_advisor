@@ -114,7 +114,7 @@ def analyze_stock(data):
     else:
         stochastic_status = 'Neutral'
 
-    # Define weights for each indicator
+    # # Define weights for each indicator
     weights = {
         'RSI_Status': 1,
         'MACD_Status': 2,
