@@ -26,13 +26,13 @@ def fetch_stock_data(ticker, start_date, end_date, interval, progress=False):
 
 def analyze_stock(data):
     # Calculate RSI
-    data.loc[:, 'RSI'] = tech_analysis_tools.calculate_rsi(data)
+    data['RSI'] = tech_analysis_tools.calculate_rsi(data)
 
     # Calculate MACD
     macd_histogram, macd_line, signal_line = tech_analysis_tools.calculate_macd(data)
 
     # Calculate VWAP
-    data.loc[:, 'VWAP'] = tech_analysis_tools.calculate_vwap(data)
+    data['VWAP'] = tech_analysis_tools.calculate_vwap(data)
 
     # Calculate Parabolic SAR
     data = tech_analysis_tools.calculate_parabolic_sar(data)
@@ -45,6 +45,12 @@ def analyze_stock(data):
 
     # Analyze Volume Trend
     volume_trend = tech_analysis_tools.analyze_volume_trend(data)
+
+    # Calculate Bollinger Bands
+    data['Bollinger_Upper'], data['Bollinger_Lower'] = tech_analysis_tools.calculate_bollinger_bands(data)
+
+    # Calculate Stochastic Oscillator
+    data['Stochastic_%K'], data['Stochastic_%D'] = tech_analysis_tools.calculate_stochastic_oscillator(data)
 
     # Get the latest values
     latest_rsi = data['RSI'].iloc[-1]
@@ -88,18 +94,65 @@ def analyze_stock(data):
     else:
         golden_cross_status = 'No Golden Cross'
 
-    # Count the number of buy or sell signals
-    buy_or_sell_signals = [
-        rsi_status, macd_status, macd_histogram_status, 
-        vwap_status, golden_cross_status, parabolic_sar_status, volume_trend
-    ]
-    count_buy_signals = sum(signal.endswith("(Buy Signal)") for signal in buy_or_sell_signals)
-    count_sell_signals = sum(signal.endswith("(Sell Signal)") for signal in buy_or_sell_signals)
+    # Analyze Bollinger Bands status
+    bollinger_upper = data['Bollinger_Upper'].iloc[-1]
+    bollinger_lower = data['Bollinger_Lower'].iloc[-1]
+    if current_price >= bollinger_upper:
+        bollinger_status = 'Price near Upper Bollinger Band (Sell Signal)'
+    elif current_price <= bollinger_lower:
+        bollinger_status = 'Price near Lower Bollinger Band (Buy Signal)'
+    else:
+        bollinger_status = 'Price within Bollinger Bands (Neutral)'
 
-    # Determine whether to consider buy or sell based on the count of signals
-    if count_buy_signals >= 3:
+    # Analyze Stochastic Oscillator status
+    stochastic_k = data['Stochastic_%K'].iloc[-1]
+    stochastic_d = data['Stochastic_%D'].iloc[-1]
+    if stochastic_k > 80 and stochastic_d > 80:
+        stochastic_status = 'Overbought (Sell Signal)'
+    elif stochastic_k < 20 and stochastic_d < 20:
+        stochastic_status = 'Oversold (Buy Signal)'
+    else:
+        stochastic_status = 'Neutral'
+
+    # Define weights for each indicator
+    weights = {
+        'RSI_Status': 1,
+        'MACD_Status': 2,
+        'MACD_Histogram_Status': 1.5,
+        'VWAP_Status': 1,
+        'Golden_Cross_Status': 3,
+        'Parabolic_SAR_Status': 1,
+        'Volume_Trend': 1,
+        'Bollinger_Status': 1,
+        'Stochastic_Status': 1
+    }
+
+    # Calculate weighted scores for buy and sell signals
+    weighted_buy_score = 0
+    weighted_sell_score = 0
+
+    indicators = {
+        'RSI_Status': rsi_status,
+        'MACD_Status': macd_status,
+        'MACD_Histogram_Status': macd_histogram_status,
+        'VWAP_Status': vwap_status,
+        'Golden_Cross_Status': golden_cross_status,
+        'Parabolic_SAR_Status': parabolic_sar_status,
+        'Volume_Trend': volume_trend,
+        'Bollinger_Status': bollinger_status,
+        'Stochastic_Status': stochastic_status
+    }
+
+    for indicator, status in indicators.items():
+        if 'Buy Signal' in status:
+            weighted_buy_score += weights[indicator]
+        elif 'Sell Signal' in status:
+            weighted_sell_score += weights[indicator]
+
+    # Determine the final decision based on weighted scores
+    if weighted_buy_score > weighted_sell_score:
         decision = "Consider Buy"
-    elif count_sell_signals >= 5:
+    elif weighted_sell_score > weighted_buy_score:
         decision = "Consider Sell"
     else:
         decision = "Hold"
@@ -114,9 +167,12 @@ def analyze_stock(data):
         'Golden_Cross_Status': golden_cross_status,
         'Volume_Trend': volume_trend,
         'Parabolic_SAR_Status': parabolic_sar_status,
+        'Bollinger_Status': bollinger_status,
+        'Stochastic_Status': stochastic_status,
         'Decision': decision,
-        'Current_Price': current_price 
+        'Current_Price': current_price
     }
+
 
 def calculate_tax_implications(purchase_date, purchase_price, current_price, quantity):
     """
@@ -190,7 +246,8 @@ def main(perform_backtesting, qdays, interval):
                     print(f"Golden Cross Status: {analysis['Golden_Cross_Status']}")
                     print(f"VWAP: {analysis['VWAP']:.2f} ({analysis['VWAP_Status']})")
                     print(f"Volume Trend: {analysis['Volume_Trend']}")
-                
+                    print(f"Bollinger Status: {analysis['Bollinger_Status']}")
+                    print(f"Stochastic Status: {analysis['Stochastic_Status']}")
 
                     if analysis['Decision'] == "Consider Sell":
                         print_with_color(f"Decision: {analysis['Decision']}", "red")
