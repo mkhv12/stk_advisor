@@ -140,7 +140,7 @@ def analyze_stock(data, weights):
             weighted_sell_score += weights[indicator]
 
     # Determine the final decision based on weighted scores
-    x = 6 # to make sure that multiple technicals are making the decision addition to weight
+    x = 7 # to make sure that multiple technicals are making the decision in addition to weight
     if weighted_buy_score > weighted_sell_score and weighted_buy_score > x:
         decision = "Consider Buy"
     elif weighted_sell_score > weighted_buy_score and weighted_sell_score > x:
@@ -209,10 +209,10 @@ def real_time_analysis(qdays, interval, weights):
                 print(f"Bollinger Status: {analysis['Bollinger_Status']}")
                 print(f"Stochastic Status: {analysis['Stochastic_Status']}")
 
-                if analysis['Decision'] == "Consider Sell":
+                if analysis['Decision'] == "Consider Sell" and status == "HOLDING":
                     print_with_color(f"Decision: {analysis['Decision']}", "red")
 
-                    if status == "HOLDING" and purchase_date and purchase_price and purchase_qty:
+                    if purchase_date and purchase_price and purchase_qty:
                         holding_type, gain_or_loss, tax_implication, gain_or_loss_perc = tech_analysis_tools.calculate_tax_implications(
                             purchase_date, purchase_price, analysis['Current_Price'], purchase_qty
                         )
@@ -221,7 +221,9 @@ def real_time_analysis(qdays, interval, weights):
                         print(f"Potential Gain/Loss: ${gain_or_loss:.2f} ({gain_or_loss_perc:.0f}%)")
                         print(f"Estimated Tax Implication: ${tax_implication:.2f}")
                         print("***********")
-
+                else:
+                    print_with_color(f"Decision: Possible Opportunity", "cyan")
+                    
                 if analysis['Decision'] == "Consider Buy":
                     print_with_color(f"Decision: {analysis['Decision']}", "green")
             else:
@@ -287,11 +289,11 @@ def main(backtest=False):
     }
 
     if backtest:
-        backtest_analysis(365, "1h", weights)
+        backtest_analysis(700, "1h", weights)
     else:
         while True:
             real_time_analysis(700, "1h", weights)
-            real_time_analysis(59, "15m", weights)  # max 59 days on 15m
+            #real_time_analysis(59, "15m", weights)  # max 59 days on 15m
             #real_time_analysis(59, "5m", weights)   # max 59 days on 15m
             print("***********************************************************")
             print("5 minutes before running again...")
