@@ -6,9 +6,13 @@ from datetime import datetime, timedelta
 import colorama
 from colorama import Fore, Style
 import time
-import tech_analysis_tools 
-import back_test 
-
+import tech_analysis_tools
+import back_test
+import argparse
+# import random
+# import multiprocessing
+# from multiprocessing import Pool, Manager
+import pprint  # Import pprint for pretty printing
 
 # Suppress the specific warning from yfinance
 warnings.filterwarnings("ignore", category=FutureWarning, module="yfinance")
@@ -19,20 +23,19 @@ colorama.init()
 # Load portfolio data from Excel
 portfolio_data = pd.read_excel('portfolio.xlsx')
 
-
 def fetch_stock_data(ticker, start_date, end_date, interval, progress=False):
     stock_data = yf.download(ticker, start=start_date, end=end_date, interval=interval, progress=progress)
     return stock_data
 
-def analyze_stock(data):
+def analyze_stock(data, weights):
     # Calculate RSI
-    data['RSI'] = tech_analysis_tools.calculate_rsi(data)
+    data.loc[:, 'RSI'] = tech_analysis_tools.calculate_rsi(data)
 
     # Calculate MACD
     macd_histogram, macd_line, signal_line = tech_analysis_tools.calculate_macd(data)
 
     # Calculate VWAP
-    data['VWAP'] = tech_analysis_tools.calculate_vwap(data)
+    data.loc[:, 'VWAP'] = tech_analysis_tools.calculate_vwap(data)
 
     # Calculate Parabolic SAR
     data = tech_analysis_tools.calculate_parabolic_sar(data)
@@ -47,10 +50,10 @@ def analyze_stock(data):
     volume_trend = tech_analysis_tools.analyze_volume_trend(data)
 
     # Calculate Bollinger Bands
-    data['Bollinger_Upper'], data['Bollinger_Lower'] = tech_analysis_tools.calculate_bollinger_bands(data)
+    data.loc[:, 'Bollinger_Upper'], data.loc[:, 'Bollinger_Lower'] = tech_analysis_tools.calculate_bollinger_bands(data)
 
     # Calculate Stochastic Oscillator
-    data['Stochastic_%K'], data['Stochastic_%D'] = tech_analysis_tools.calculate_stochastic_oscillator(data)
+    data.loc[:, 'Stochastic_%K'], data.loc[:, 'Stochastic_%D'] = tech_analysis_tools.calculate_stochastic_oscillator(data)
 
     # Get the latest values
     latest_rsi = data['RSI'].iloc[-1]
@@ -114,19 +117,6 @@ def analyze_stock(data):
     else:
         stochastic_status = 'Neutral'
 
-    # # Define weights for each indicator
-    weights = {
-        'RSI_Status': 1,
-        'MACD_Status': 2,
-        'MACD_Histogram_Status': 1.5,
-        'VWAP_Status': 1,
-        'Golden_Cross_Status': 3,
-        'Parabolic_SAR_Status': 1,
-        'Volume_Trend': 1,
-        'Bollinger_Status': 1,
-        'Stochastic_Status': 1
-    }
-
     # Calculate weighted scores for buy and sell signals
     weighted_buy_score = 0
     weighted_sell_score = 0
@@ -174,26 +164,6 @@ def analyze_stock(data):
     }
 
 
-def calculate_tax_implications(purchase_date, purchase_price, current_price, quantity):
-    """
-    Calculate potential tax implications.
-    """
-    purchase_date = datetime.strptime(purchase_date, "%Y-%m-%d")
-    holding_period = (datetime.now() - purchase_date).days
-    gain_or_loss = (current_price - purchase_price) * quantity
-    gain_or_loss_perc = (gain_or_loss / (purchase_price * quantity)) * 100
-
-    # Assuming tax rates: short-term is 30%, long-term is 15%
-    if holding_period < 365:
-        tax_rate = 0.30
-        holding_type = "Short-term"
-    else:
-        tax_rate = 0.15
-        holding_type = "Long-term"
-
-    tax_implication = gain_or_loss * tax_rate
-    return holding_type, gain_or_loss, tax_implication, gain_or_loss_perc
-
 def print_with_color(text, color):
     """
     Print text with specified color using colorama
@@ -202,22 +172,13 @@ def print_with_color(text, color):
     reset_code = Style.RESET_ALL
     print(f"{color_code}{text}{reset_code}")
 
-
-def main(perform_backtesting, qdays, interval):
+def real_time_analysis(qdays, interval, weights):
     # Step 1: Define the date range
     date_back = datetime.now() - timedelta(days=qdays)
     today = datetime.now() + timedelta(days=1)
     start_date = date_back.strftime("%Y-%m-%d")
     end_date = today.strftime("%Y-%m-%d")
-    #interval = '1h'
 
-    count_profit = 0
-    count_loss = 0
-    total_hold_time = 0
-    hold_time = 0
-    end_value= 0
-
-    
     print(f"\nDate range: {start_date} to {end_date} and {interval} chart")
     print("***********")
 
@@ -228,106 +189,124 @@ def main(perform_backtesting, qdays, interval):
         purchase_date = row['PURCHASE _DATE']
         purchase_price = row['PURCHASE_PRICE']
         purchase_qty = row['PURCHASE_QTY']
-        hold_time_count = 0
 
         # Analyze stock
         stock_data = fetch_stock_data(symbol, start_date, end_date, interval, progress=False)
-        analysis = analyze_stock(stock_data)
+        analysis = analyze_stock(stock_data, weights)
 
         print(f"\nAnalyzing {symbol}  ${analysis['Current_Price']:.2f}")
 
-        if not perform_backtesting:
-            if analysis:
-                if analysis['Decision'] != "Hold":
-                    print(f"RSI Status: {analysis['RSI_Status']}")
-                    print(f"MACD Status: {analysis['MACD_Status']}")
-                    print(f"MACD Histogram: {analysis['MACD_Histogram_Status']}")
-                    print(f"Parabolic_SAR_Status: {analysis['Parabolic_SAR_Status']}")
-                    print(f"Golden Cross Status: {analysis['Golden_Cross_Status']}")
-                    print(f"VWAP: {analysis['VWAP']:.2f} ({analysis['VWAP_Status']})")
-                    print(f"Volume Trend: {analysis['Volume_Trend']}")
-                    print(f"Bollinger Status: {analysis['Bollinger_Status']}")
-                    print(f"Stochastic Status: {analysis['Stochastic_Status']}")
+        if analysis:
+            if analysis['Decision'] != "Hold":
+                print(f"RSI Status: {analysis['RSI_Status']}")
+                print(f"MACD Status: {analysis['MACD_Status']}")
+                print(f"MACD Histogram: {analysis['MACD_Histogram_Status']}")
+                print(f"Parabolic_SAR_Status: {analysis['Parabolic_SAR_Status']}")
+                print(f"Golden Cross Status: {analysis['Golden_Cross_Status']}")
+                print(f"VWAP: {analysis['VWAP']:.2f} ({analysis['VWAP_Status']})")
+                print(f"Volume Trend: {analysis['Volume_Trend']}")
+                print(f"Bollinger Status: {analysis['Bollinger_Status']}")
+                print(f"Stochastic Status: {analysis['Stochastic_Status']}")
 
-                    if analysis['Decision'] == "Consider Sell":
-                        print_with_color(f"Decision: {analysis['Decision']}", "red")
+                if analysis['Decision'] == "Consider Sell":
+                    print_with_color(f"Decision: {analysis['Decision']}", "red")
 
-                        if status == "HOLDING" and purchase_date and purchase_price and purchase_qty:
-                            holding_type, gain_or_loss, tax_implication, gain_or_loss_perc = calculate_tax_implications(
-                                purchase_date, purchase_price, analysis['Current_Price'], purchase_qty
-                            )
-                            print("***********")
-                            print(f"Holding Type: {holding_type}")
-                            print(f"Potential Gain/Loss: ${gain_or_loss:.2f} ({gain_or_loss_perc:.0f}%)")
-                            print(f"Estimated Tax Implication: ${tax_implication:.2f}")
-                            print("***********")
+                    if status == "HOLDING" and purchase_date and purchase_price and purchase_qty:
+                        holding_type, gain_or_loss, tax_implication, gain_or_loss_perc = tech_analysis_tools.calculate_tax_implications(
+                            purchase_date, purchase_price, analysis['Current_Price'], purchase_qty
+                        )
+                        print("***********")
+                        print(f"Holding Type: {holding_type}")
+                        print(f"Potential Gain/Loss: ${gain_or_loss:.2f} ({gain_or_loss_perc:.0f}%)")
+                        print(f"Estimated Tax Implication: ${tax_implication:.2f}")
+                        print("***********")
 
-                    if analysis['Decision'] == "Consider Buy":
-                        print_with_color(f"Decision: {analysis['Decision']}", "green")
-                else:
-                    print_with_color(f"Decision: {analysis['Decision']}", "cyan")
+                if analysis['Decision'] == "Consider Buy":
+                    print_with_color(f"Decision: {analysis['Decision']}", "green")
             else:
-                print(f"Could not analyze {symbol}")
-
-        # Perform backtesting if flag is set
-        if perform_backtesting:
-            backtest_result = back_test.backtest(symbol, start_date, end_date, interval)
-
-            if backtest_result:
-                print(f"\nBacktesting Results for {symbol}:")
-                print(f"Initial Capital: ${backtest_result['Initial_Capital']:.2f}")
-                print(f"Final Portfolio Value: ${backtest_result['Final_Portfolio_Value']:.2f}")
-                print(f"Profit or Loss: ${backtest_result['Profit_or_Loss']:.2f}")
-                print("Trade Signals:")
-                for signal in backtest_result['Signals']:
-                    print(f"Date: {signal[0]}, Action: {signal[1]}, Price: ${signal[2]:.2f}")
-                    if signal[1] == "Buy":
-                        buy_price = signal[2]
-                    if signal[1] =="Sell":
-                        print(f"Total Hold Time: {backtest_result['Total_Hold_Time'][hold_time_count]:.0f}")
-                        
-                        if signal[2] > buy_price:
-                            count_profit += 1
-                            end_value += backtest_result['Profit_or_Loss']
-                        elif signal[2] < buy_price:
-                            count_loss += 1
-                            end_value -= backtest_result['Profit_or_Loss']
-
-                        
-                        hold_time += backtest_result['Total_Hold_Time'][hold_time_count]
-                        hold_time_count += 1
-
-                total_hold_time += hold_time
-
-            else:
-                print(f"Could not perform backtesting for {symbol}")
-
-
-    if perform_backtesting:
-        print("\n")
-        perc_profit = (count_profit/(count_profit+count_loss))*100
-        print(f"Total QTY Profit {count_profit} ({perc_profit:.0f}%)")
-        print(f"Total QTY Loss {count_loss}")
-        print(f"Average Hold Time {round((total_hold_time)/(count_profit+count_loss),0):.0f} Days")
-        print(f"Total Profit ${round(end_value,0):.2f}")
+                print_with_color(f"Decision: {analysis['Decision']}", "cyan")
+        else:
+            print(f"Could not analyze {symbol}")
 
     print("\n")
 
-if __name__ == "__main__":
-    if len(sys.argv) > 1 and sys.argv[1].lower() == "true":
-        main(True, 1095, "1d")  
-        main(True, 700, "1h")  # Set to True to enable backtesting
-        main(True, 59, "15m")   #max 59 days on 15m 
-        main(True, 59, "5m")   #max 59 days on 15m 
-        print("***********************************************************")
-        print("FINISHED")
+def backtest_analysis(qdays, interval, weights):
+    # Step 1: Define the date range
+    date_back = datetime.now() - timedelta(days=qdays)
+    today = datetime.now() + timedelta(days=1)
+    start_date = date_back.strftime("%Y-%m-%d")
+    end_date = today.strftime("%Y-%m-%d")
+
+    symb_count_wins_signals = 0
+    symb_percentage_total = 0
+
+    print(f"\nDate range: {start_date} to {end_date} and {interval} chart")
+    print("***********")
+
+    # backtest_results = back_test.backtest_analysis(start_date, end_date, interval, weights)
+    # # Print backtest results with pprint for better formatting
+    # pprint.pprint(backtest_results)
+
+    # Loop through each row in the portfolio data
+    for index, row in portfolio_data.iterrows():
+        symbol = row['Symbol']
+        # status = row['STATUS']
+        # purchase_date = row['PURCHASE _DATE']
+        purchase_price = row['PURCHASE_PRICE']
+        # purchase_qty = row['PURCHASE_QTY']
+
+        analysis = back_test.backtest(symbol, start_date, end_date, interval, weights, profit_threshold=0.04, stop_loss_threshold=0.02)
+
+        print(f"\nAnalyzing {symbol} Current ${analysis['Current_Price']:.2f}")
+
+        # Loop through each signal and print it in a cleaner format
+        # for signal in analysis['Signals']:
+        #     timestamp, action, price = signal
+        #     print(f"Date: {timestamp}, Action: {action}, Price: {price:.2f}")
+
+        print(f"Total Buy Signals: {analysis['Count_Buy_Signals']}")
+        print(f"Total Sell Signals: {analysis['Count_Sell_Signals']}")
+        print(f"Profit or Loss: ${analysis['Profit_or_Loss']:.2f}")
+        print(f"Total Wins:{analysis['Total_Wins']} ({(analysis['Total_Wins']/analysis['Count_Buy_Signals'])*100:.0f}%)")
+
+        symb_percentage_total += (analysis['Total_Wins']/analysis['Count_Buy_Signals'])*100
+        symb_count_wins_signals += 1
+
+    print("\n")
+
+    print(f"Overall Average Win Percentage = {symb_percentage_total/symb_count_wins_signals:.0f}%")
+    
+    print("\n")
+
+def main(backtest=False):
+    # Default weights for real-time analysis
+    #emphasis on reversal
+    weights = {
+        'RSI_Status': 3,
+        'MACD_Status': 3,
+        'MACD_Histogram_Status': 2,
+        'VWAP_Status': 1,
+        'Golden_Cross_Status': 1,
+        'Parabolic_SAR_Status': 2,
+        'Volume_Trend': 2,
+        'Bollinger_Status': 2,
+        'Stochastic_Status': 3
+    }
+
+    if backtest:
+        backtest_analysis(365, "1h", weights)
     else:
         while True:
-            #main(False, 1095, "1d")
-            main(False, 700, "1h")   
-            main(False, 59, "15m")   #max 59 days on 15m
-            main(False, 59, "5m")   #max 59 days on 15m
+            real_time_analysis(700, "1h", weights)
+            #real_time_analysis(59, "15m", weights)  # max 59 days on 15m
+            #real_time_analysis(59, "5m", weights)   # max 59 days on 15m
             print("***********************************************************")
             print("5 minutes before running again...")
             time.sleep(300)  # Sleep for 300 seconds (5 minutes)
 
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Stock Analysis Tool')
+    parser.add_argument('--backtest', action='store_true', help='Run backtesting and optimization')
+    args = parser.parse_args()
+
+    main(args.backtest)

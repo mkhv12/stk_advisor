@@ -1,4 +1,4 @@
-
+from datetime import datetime, timedelta
 
 def calculate_rsi(data, window=14):
     delta = data['Close'].diff(1)
@@ -149,3 +149,22 @@ def calculate_stochastic_oscillator(data, window=14, smooth_k=3, smooth_d=3):
 
     return stochastic_k, stochastic_d
 
+
+def calculate_tax_implications(purchase_date, purchase_price, current_price, quantity):
+    """
+    Calculate potential tax implications.
+    """
+    purchase_date = datetime.strptime(purchase_date, "%Y-%m-%d")
+    holding_period = (datetime.now() - purchase_date).days
+    gain_or_loss = (current_price - purchase_price) * quantity
+    gain_or_loss_perc = (gain_or_loss / (purchase_price * quantity)) * 100
+
+    if holding_period < 365:
+        tax_rate = 0.30
+        holding_type = "Short-term"
+    else:
+        tax_rate = 0.15
+        holding_type = "Long-term"
+
+    tax_implication = gain_or_loss * tax_rate
+    return holding_type, gain_or_loss, tax_implication, gain_or_loss_perc
