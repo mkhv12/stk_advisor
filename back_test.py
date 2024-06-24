@@ -1,7 +1,7 @@
 import main_analysis
 
 
-def backtest(ticker, start_date, end_date, interval, weights, profit_threshold=0.04, stop_loss_threshold=0.02):
+def backtest(ticker, start_date, end_date, interval, weights, profit_threshold=0.04, stop_loss_threshold=0.03):
     # Fetch stock data
     data = main_analysis.fetch_stock_data(ticker, start_date, end_date, interval, progress=False)
 
