@@ -243,10 +243,6 @@ def backtest_analysis(qdays, interval, weights):
     print(f"\nDate range: {start_date} to {end_date} and {interval} chart")
     print("***********")
 
-    # backtest_results = back_test.backtest_analysis(start_date, end_date, interval, weights)
-    # # Print backtest results with pprint for better formatting
-    # pprint.pprint(backtest_results)
-
     # Loop through each row in the portfolio data
     for index, row in portfolio_data.iterrows():
         symbol = row['Symbol']
