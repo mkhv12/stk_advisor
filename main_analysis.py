@@ -250,14 +250,10 @@ def backtest_analysis(qdays, interval, weights):
     # Loop through each row in the portfolio data
     for index, row in portfolio_data.iterrows():
         symbol = row['Symbol']
-        # status = row['STATUS']
-        # purchase_date = row['PURCHASE _DATE']
-        purchase_price = row['PURCHASE_PRICE']
-        # purchase_qty = row['PURCHASE_QTY']
 
         analysis = back_test.backtest(symbol, start_date, end_date, interval, weights, profit_threshold=0.04, stop_loss_threshold=0.02)
 
-        print(f"\nAnalyzing {symbol} Current ${analysis['Current_Price']:.2f}")
+        print(f"\nAnalyzing {symbol} ${analysis['Current_Price']:.2f}")
 
         # Loop through each signal and print it in a cleaner format
         # for signal in analysis['Signals']:
@@ -284,7 +280,7 @@ def main(backtest=False):
     weights = {
         'RSI_Status': 3,
         'MACD_Status': 3,
-        'MACD_Histogram_Status': 2,
+        'MACD_Histogram_Status': 1,
         'VWAP_Status': 1,
         'Golden_Cross_Status': 1,
         'Parabolic_SAR_Status': 2,
@@ -298,7 +294,7 @@ def main(backtest=False):
     else:
         while True:
             real_time_analysis(700, "1h", weights)
-            #real_time_analysis(59, "15m", weights)  # max 59 days on 15m
+            real_time_analysis(59, "15m", weights)  # max 59 days on 15m
             #real_time_analysis(59, "5m", weights)   # max 59 days on 15m
             print("***********************************************************")
             print("5 minutes before running again...")
