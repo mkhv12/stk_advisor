@@ -221,8 +221,8 @@ def real_time_analysis(qdays, interval, weights):
                         print(f"Potential Gain/Loss: ${gain_or_loss:.2f} ({gain_or_loss_perc:.0f}%)")
                         print(f"Estimated Tax Implication: ${tax_implication:.2f}")
                         print("***********")
-                else:
-                    print_with_color(f"Decision: Possible Opportunity", "cyan")
+                elif analysis['Decision'] == "Consider Sell" and status != "HOLDING":
+                    print_with_color(f"Decision: Possible Opportunity Coming", "cyan")
                     
                 if analysis['Decision'] == "Consider Buy":
                     print_with_color(f"Decision: {analysis['Decision']}", "green")
