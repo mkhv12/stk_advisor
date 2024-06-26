@@ -222,7 +222,7 @@ def real_time_analysis(qdays, interval, weights):
                         print(f"Estimated Tax Implication: ${tax_implication:.2f}")
                         print("***********")
                 elif analysis['Decision'] == "Consider Sell" and status != "HOLDING":
-                    print_with_color(f"Decision: Possible Opportunity Coming", "cyan")
+                    print_with_color(f"Decision: ****Possible Opportunity Coming****", "yellow")
                     
                 if analysis['Decision'] == "Consider Buy":
                     print_with_color(f"Decision: {analysis['Decision']}", "green")
@@ -290,7 +290,7 @@ def main(backtest=False):
 
     if backtest:
         backtest_analysis(504, "1h", weights)
-        #backtest_analysis(59, "15m", weights)
+        backtest_analysis(59, "15m", weights)
     else:
         while True:
             real_time_analysis(504, "1h", weights)
