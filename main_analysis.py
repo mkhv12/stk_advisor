@@ -297,8 +297,8 @@ def main(backtest=False):
             real_time_analysis(59, "15m", weights)  # max 59 days on 15m
             #real_time_analysis(59, "5m", weights)   # max 59 days on 15m
             print("***********************************************************")
-            print("3 minutes before running again...")
-            time.sleep(180)  # Sleep for 180 seconds (3 minutes)
+            print("5 minutes before running again...")
+            time.sleep(300)  # Sleep for 300 seconds (5 minutes)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Stock Analysis Tool')
