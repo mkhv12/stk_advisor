@@ -276,6 +276,7 @@ def backtest_analysis(qdays, interval, weights):
 def main(backtest=False):
     # Default weights for real-time analysis
     #emphasis on reversal
+
     weights = {
         'RSI_Status': 3,
         'MACD_Status': 3,
@@ -287,6 +288,7 @@ def main(backtest=False):
         'Bollinger_Status': 2,
         'Stochastic_Status': 3
     }
+
 
     if backtest:
         backtest_analysis(504, "1h", weights)
