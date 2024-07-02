@@ -262,10 +262,15 @@ def backtest_analysis(qdays, interval, weights):
         print(f"Total Buy Signals: {analysis['Count_Buy_Signals']}")
         print(f"Total Sell Signals: {analysis['Count_Sell_Signals']}")
         print(f"Profit or Loss: ${analysis['Profit_or_Loss']:.2f}")
-        print(f"Total Wins:{analysis['Total_Wins']} ({(analysis['Total_Wins']/analysis['Count_Buy_Signals'])*100:.0f}%)")
 
-        symb_percentage_total += (analysis['Total_Wins']/analysis['Count_Buy_Signals'])*100
-        symb_count_wins_signals += 1
+        if analysis['Count_Buy_Signals'] != 0:
+            print(f"Total Wins:{analysis['Total_Wins']} ({(analysis['Total_Wins']/analysis['Count_Buy_Signals'])*100:.0f}%)")
+            symb_percentage_total += (analysis['Total_Wins']/analysis['Count_Buy_Signals'])*100
+            symb_count_wins_signals += 1
+        else:
+            print(f"Total Wins:{analysis['Total_Wins']} ({0}%)")
+            symb_percentage_total += 0
+            symb_count_wins_signals += 0
 
     print("\n")
 
@@ -278,17 +283,16 @@ def main(backtest=False):
     #emphasis on reversal
 
     weights = {
-        'RSI_Status': 3,
-        'MACD_Status': 3,
-        'MACD_Histogram_Status': 1,
-        'VWAP_Status': 1,
-        'Golden_Cross_Status': 1,
-        'Parabolic_SAR_Status': 2,
-        'Volume_Trend': 2,
-        'Bollinger_Status': 2,
-        'Stochastic_Status': 3
+        'RSI_Status': 0.70,           
+        'MACD_Status': 1.75,          
+        'MACD_Histogram_Status': 2,   
+        'VWAP_Status': 1.74,          
+        'Golden_Cross_Status': 2,     
+        'Parabolic_SAR_Status': 1.70, 
+        'Volume_Trend': 2,            
+        'Bollinger_Status': 2,       
+        'Stochastic_Status': 2.80     
     }
-
 
     if backtest:
         backtest_analysis(504, "1h", weights)
