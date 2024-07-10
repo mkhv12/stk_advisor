@@ -140,7 +140,7 @@ def analyze_stock(data, weights):
             weighted_sell_score += weights[indicator]
 
     # Determine the final decision based on weighted scores
-    x = 8 # to make sure that multiple technicals are making the decision in addition to weight
+    x = 8.5 # to make sure that multiple technicals are making the decision in addition to weight
     if weighted_buy_score > weighted_sell_score and weighted_buy_score > x:
         decision = "Consider Buy"
     elif weighted_sell_score > weighted_buy_score and weighted_sell_score > x:
