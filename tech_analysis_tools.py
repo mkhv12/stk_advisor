@@ -168,3 +168,6 @@ def calculate_tax_implications(purchase_date, purchase_price, current_price, qua
 
     tax_implication = gain_or_loss * tax_rate
     return holding_type, gain_or_loss, tax_implication, gain_or_loss_perc
+
+
+

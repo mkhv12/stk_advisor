@@ -9,9 +9,6 @@ import time
 import tech_analysis_tools
 import back_test
 import argparse
-# import random
-# import multiprocessing
-# from multiprocessing import Pool, Manager
 import pprint  # Import pprint for pretty printing
 
 # Suppress the specific warning from yfinance
@@ -55,7 +52,7 @@ def analyze_stock(data, weights):
     # Calculate Stochastic Oscillator
     data.loc[:, 'Stochastic_%K'], data.loc[:, 'Stochastic_%D'] = tech_analysis_tools.calculate_stochastic_oscillator(data)
 
-    # Get the latest values
+    # # Get the latest values
     latest_rsi = data['RSI'].iloc[-1]
     latest_macd_histogram = macd_histogram.iloc[-1]
 
@@ -66,6 +63,7 @@ def analyze_stock(data, weights):
         rsi_status = 'Oversold (Buy Signal)'
     else:
         rsi_status = 'Neutral'
+
 
     # Determine MACD status
     if macd_line.iloc[-1] > signal_line.iloc[-1]:
@@ -120,7 +118,7 @@ def analyze_stock(data, weights):
     # Calculate weighted scores for buy and sell signals
     weighted_buy_score = 0
     weighted_sell_score = 0
-
+    
     indicators = {
         'RSI_Status': rsi_status,
         'MACD_Status': macd_status,
@@ -133,6 +131,7 @@ def analyze_stock(data, weights):
         'Stochastic_Status': stochastic_status
     }
 
+
     for indicator, status in indicators.items():
         if 'Buy Signal' in status:
             weighted_buy_score += weights[indicator]
@@ -140,13 +139,14 @@ def analyze_stock(data, weights):
             weighted_sell_score += weights[indicator]
 
     # Determine the final decision based on weighted scores
-    x = 8.5 # to make sure that multiple technicals are making the decision in addition to weight
+    x = 5 # to make sure that multiple technicals are making the decision in addition to weight
     if weighted_buy_score > weighted_sell_score and weighted_buy_score > x:
         decision = "Consider Buy"
     elif weighted_sell_score > weighted_buy_score and weighted_sell_score > x:
         decision = "Consider Sell"
     else:
         decision = "Hold"
+
 
     return {
         'RSI': latest_rsi,
@@ -278,25 +278,36 @@ def backtest_analysis(qdays, interval, weights):
     
     print("\n")
 
-def main(backtest=False):
+
+def optimized_analysis():
+
+    back_test.run_optimization()
+
+
+def main(backtest=False, opt=False):
     # Default weights for real-time analysis
     #emphasis on reversal
 
     weights = {
-        'RSI_Status': 0.70,           
-        'MACD_Status': 1.75,          
+        'RSI_Status': 1.70,         
+        'MACD_Status': 3.0,          
         'MACD_Histogram_Status': 2,   
-        'VWAP_Status': 1.74,          
-        'Golden_Cross_Status': 2,     
-        'Parabolic_SAR_Status': 1.70, 
-        'Volume_Trend': 2,            
-        'Bollinger_Status': 2,       
-        'Stochastic_Status': 2.80     
+        'VWAP_Status': 3.0,          
+        'Golden_Cross_Status': 3.0,     
+        'Parabolic_SAR_Status': 3.0, 
+        'Volume_Trend': 2.16,            
+        'Bollinger_Status': 0.5,       
+        'Stochastic_Status': 2.13   
     }
 
+
     if backtest:
-        backtest_analysis(504, "1h", weights)
+        backtest_analysis(504, "1d", weights)
         backtest_analysis(59, "15m", weights)
+        #backtest_analysis(59, "5m", weights)
+    elif opt:
+        # Run the optimization
+        optimized_analysis()
     else:
         while True:
             real_time_analysis(504, "1h", weights)
@@ -309,6 +320,7 @@ def main(backtest=False):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Stock Analysis Tool')
     parser.add_argument('--backtest', action='store_true', help='Run backtesting and optimization')
+    parser.add_argument('--opt', action='store_true', help='Optimize weights')
     args = parser.parse_args()
 
-    main(args.backtest)
+    main(backtest=args.backtest, opt=args.opt)

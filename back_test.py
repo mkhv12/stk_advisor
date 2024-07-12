@@ -1,4 +1,7 @@
+import argparse
+from bayes_opt import BayesianOptimization
 import main_analysis
+from datetime import datetime, timedelta
 
 
 def backtest(ticker, start_date, end_date, interval, weights, profit_threshold=0.04, stop_loss_threshold=0.03):
@@ -72,7 +75,7 @@ def backtest(ticker, start_date, end_date, interval, weights, profit_threshold=0
     ]
     count_buy_signals = sum(signal == "Buy" for signal in buy_or_sell_signals)
     count_sell_signals = sum(signal == "Sell" for signal in buy_or_sell_signals)
-    
+
     return {
         'Initial_Capital': initial_capital,
         'Final_Portfolio_Value': final_portfolio_value,
@@ -86,3 +89,59 @@ def backtest(ticker, start_date, end_date, interval, weights, profit_threshold=0
         'Decision': decision,  # Include sell signals count
     }
 
+
+    # Wrapper function for optimization
+def optimize_weights(RSI_Status, MACD_Status, MACD_Histogram_Status, VWAP_Status,
+                     Golden_Cross_Status, Parabolic_SAR_Status, Volume_Trend, 
+                     Bollinger_Status, Stochastic_Status):
+    weights = {
+        'RSI_Status': RSI_Status,
+        'MACD_Status': MACD_Status,
+        'MACD_Histogram_Status': MACD_Histogram_Status,
+        'VWAP_Status': VWAP_Status,
+        'Golden_Cross_Status': Golden_Cross_Status,
+        'Parabolic_SAR_Status': Parabolic_SAR_Status,
+        'Volume_Trend': Volume_Trend,
+        'Bollinger_Status': Bollinger_Status,
+        'Stochastic_Status': Stochastic_Status
+    }
+
+    date_back = datetime.now() - timedelta(days=504)
+    today = datetime.now() + timedelta(days=1)
+    start_date = date_back.strftime("%Y-%m-%d")
+    end_date = today.strftime("%Y-%m-%d")
+    
+    result = backtest('VTI', start_date, end_date, '1d', weights)  # Adjust ticker, dates, and interval as needed
+    
+    return result['Total_Wins']
+
+# Set the parameter bounds
+pbounds = {
+    'RSI_Status': (0.5, 3),
+    'MACD_Status': (0.5, 3),
+    'MACD_Histogram_Status': (0.5, 3),
+    'VWAP_Status': (0.5, 3),
+    'Golden_Cross_Status': (0.5, 3),
+    'Parabolic_SAR_Status': (0.5, 3),
+    'Volume_Trend': (0.5, 3),
+    'Bollinger_Status': (0.5, 3),
+    'Stochastic_Status': (0.5, 3)
+}
+
+def run_optimization():
+    # Initialize the optimizer
+    optimizer = BayesianOptimization(
+        f=optimize_weights,
+        pbounds=pbounds,
+        random_state=1
+    )
+
+    # Run the optimization
+    optimizer.maximize(
+        init_points=10,
+        n_iter=50
+    )
+
+    # Get the best weights
+    best_weights = optimizer.max['params']
+    print(best_weights)
