@@ -106,14 +106,14 @@ def optimize_weights(RSI_Status, MACD_Status, MACD_Histogram_Status, VWAP_Status
         'Stochastic_Status': Stochastic_Status
     }
 
-    date_back = datetime.now() - timedelta(days=504)
+    date_back = datetime.now() - timedelta(days=730)
     today = datetime.now() + timedelta(days=1)
     start_date = date_back.strftime("%Y-%m-%d")
     end_date = today.strftime("%Y-%m-%d")
     
     result = backtest('VTI', start_date, end_date, '1d', weights)  # Adjust ticker, dates, and interval as needed
     
-    return result['Total_Wins']
+    return result['Final_Portfolio_Value']
 
 # Set the parameter bounds
 pbounds = {
