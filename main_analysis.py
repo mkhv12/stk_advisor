@@ -139,7 +139,7 @@ def analyze_stock(data, weights):
             weighted_sell_score += weights[indicator]
 
     # Determine the final decision based on weighted scores
-    x = 8.50 # to make sure that multiple technicals are making the decision in addition to weight
+    x = 3 # to make sure that multiple technicals are making the decision in addition to weight
     if weighted_buy_score > weighted_sell_score and weighted_buy_score > x:
         decision = "Consider Buy"
     elif weighted_sell_score > weighted_buy_score and weighted_sell_score > x:
@@ -289,21 +289,22 @@ def main(backtest=False, opt=False):
     #emphasis on reversal
 
     weights = {
-        'RSI_Status': 3.5,         
-        'MACD_Status': 3.5,          
-        'MACD_Histogram_Status': 0.7,   
+        'RSI_Status': 3.0,         
+        'MACD_Status': 3.0,          
+        'MACD_Histogram_Status': 0.5,   
         'VWAP_Status': 0.5,          
-        'Golden_Cross_Status': 2.0,     
-        'Parabolic_SAR_Status': 2.0, 
-        'Volume_Trend': 2.0,            
-        'Bollinger_Status': 1.0,       
-        'Stochastic_Status': 1.0   
+        'Golden_Cross_Status': 1.75,     
+        'Parabolic_SAR_Status': 0.5, 
+        'Volume_Trend': 0.5,            
+        'Bollinger_Status': 0.5,       
+        'Stochastic_Status': 0.5   
     }
 
 
     if backtest:
         backtest_analysis(730, "1d", weights)
-        backtest_analysis(59, "15m", weights)
+        backtest_analysis(365, "1h", weights)
+        #backtest_analysis(59, "15m", weights)
         #backtest_analysis(59, "5m", weights)
     elif opt:
         # Run the optimization
@@ -311,7 +312,8 @@ def main(backtest=False, opt=False):
     else:
         while True:
             real_time_analysis(730, "1d", weights)
-            real_time_analysis(59, "15m", weights)  # max 59 days on 15m
+            real_time_analysis(365, "1h", weights)
+            #real_time_analysis(59, "15m", weights)  # max 59 days on 15m
             #real_time_analysis(59, "5m", weights)   # max 59 days on 15m
             print("***********************************************************")
             print("5 minutes before running again...")
