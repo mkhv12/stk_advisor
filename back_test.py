@@ -22,6 +22,7 @@ def backtest(ticker, start_date, end_date, interval, weights, profit_threshold=0
     entry_price = None  # Track the price at which we entered the position
     count_profit_wins = 0
 
+
     # Loop through the data to generate signals and simulate trades
     for i in range(len(data)):
         subset_data = data.iloc[:i+1].copy()  # Current subset of data up to the current date
@@ -63,8 +64,6 @@ def backtest(ticker, start_date, end_date, interval, weights, profit_threshold=0
                 signals.append((date, "Sell", current_price))
 
 
-
-
     # Calculate final portfolio value
     final_portfolio_value = cash + position * data['Close'].iloc[-1]
     profit_or_loss = final_portfolio_value - initial_capital
@@ -76,11 +75,18 @@ def backtest(ticker, start_date, end_date, interval, weights, profit_threshold=0
     count_buy_signals = sum(signal == "Buy" for signal in buy_or_sell_signals)
     count_sell_signals = sum(signal == "Sell" for signal in buy_or_sell_signals)
 
+
+    if len(total_hold_time) != 0:
+        average_hold_time = round(sum(total_hold_time) / len(total_hold_time),0)
+    else:
+        average_hold_time = 0
+
     return {
         'Initial_Capital': initial_capital,
         'Final_Portfolio_Value': final_portfolio_value,
         'Profit_or_Loss': profit_or_loss,
         'Total_Hold_Time': total_hold_time,  # Include total hold time in the result
+        'Average_Hold_Time': average_hold_time, 
         'Signals': signals,
         'Count_Buy_Signals': count_buy_signals,  # Include buy signals count
         'Count_Sell_Signals': count_sell_signals,  # Include sell signals count

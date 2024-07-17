@@ -180,8 +180,9 @@ def real_time_analysis(qdays, interval, weights):
     start_date = date_back.strftime("%Y-%m-%d")
     end_date = today.strftime("%Y-%m-%d")
 
-    print(f"\nDate range: {start_date} to {end_date} and {interval} chart")
-    print("***********")
+    print("********************************************************************")
+    print(f"\nDate range: {start_date} to {end_date} and {interval} chart\n")
+    print("********************************************************************")
 
     # Loop through each row in the portfolio data
     for index, row in portfolio_data.iterrows():
@@ -262,6 +263,7 @@ def backtest_analysis(qdays, interval, weights):
         print(f"Total Buy Signals: {analysis['Count_Buy_Signals']}")
         print(f"Total Sell Signals: {analysis['Count_Sell_Signals']}")
         print(f"Profit or Loss: ${analysis['Profit_or_Loss']:.2f}")
+        print(f"Average Hold Time: {analysis['Average_Hold_Time']:.0f} Day")
 
         if analysis['Count_Buy_Signals'] != 0:
             print(f"Total Wins:{analysis['Total_Wins']} ({(analysis['Total_Wins']/analysis['Count_Buy_Signals'])*100:.0f}%)")
@@ -289,10 +291,10 @@ def main(backtest=False, opt=False):
     #emphasis on reversal
 
     weights = {
-        'RSI_Status': 2.75,         
+        'RSI_Status': 3.0,         
         'MACD_Status': 3.0,          
         'MACD_Histogram_Status': 0.25,   
-        'VWAP_Status': 0.5,          
+        'VWAP_Status': 0.25,          
         'Golden_Cross_Status': 1.75,     
         'Parabolic_SAR_Status': 0.25, 
         'Volume_Trend': 0.25,            
@@ -304,8 +306,8 @@ def main(backtest=False, opt=False):
     if backtest:
         backtest_analysis(730, "1d", weights)
         backtest_analysis(365, "1h", weights)
-        #backtest_analysis(59, "15m", weights)
-        #backtest_analysis(59, "5m", weights)
+        # backtest_analysis(59, "15m", weights)
+        # backtest_analysis(59, "5m", weights)
     elif opt:
         # Run the optimization
         optimized_analysis()
