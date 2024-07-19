@@ -99,7 +99,7 @@ def backtest(ticker, start_date, end_date, interval, weights, profit_threshold=0
     # Wrapper function for optimization
 def optimize_weights(RSI_Status, MACD_Status, MACD_Histogram_Status, VWAP_Status,
                      Golden_Cross_Status, Parabolic_SAR_Status, Volume_Trend, 
-                     Bollinger_Status, Stochastic_Status):
+                     Bollinger_Status, Stochastic_Status, candlestick_pattern):
     weights = {
         'RSI_Status': RSI_Status,
         'MACD_Status': MACD_Status,
@@ -109,7 +109,8 @@ def optimize_weights(RSI_Status, MACD_Status, MACD_Histogram_Status, VWAP_Status
         'Parabolic_SAR_Status': Parabolic_SAR_Status,
         'Volume_Trend': Volume_Trend,
         'Bollinger_Status': Bollinger_Status,
-        'Stochastic_Status': Stochastic_Status
+        'Stochastic_Status': Stochastic_Status,
+        'CandleStick_Pattern_Status': candlestick_pattern
     }
 
     date_back = datetime.now() - timedelta(days=730)
@@ -119,7 +120,7 @@ def optimize_weights(RSI_Status, MACD_Status, MACD_Histogram_Status, VWAP_Status
     
     result = backtest('VTI', start_date, end_date, '1d', weights)  # Adjust ticker, dates, and interval as needed
     
-    return result['Final_Portfolio_Value']
+    return result['Total_Wins']
 
 # Set the parameter bounds
 pbounds = {
@@ -131,7 +132,8 @@ pbounds = {
     'Parabolic_SAR_Status': (0.5, 3),
     'Volume_Trend': (0.5, 3),
     'Bollinger_Status': (0.5, 3),
-    'Stochastic_Status': (0.5, 3)
+    'Stochastic_Status': (0.5, 3),
+    'candlestick_pattern': (0.5, 3)
 }
 
 def run_optimization():

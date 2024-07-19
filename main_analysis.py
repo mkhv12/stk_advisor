@@ -115,6 +115,9 @@ def analyze_stock(data, weights):
     else:
         stochastic_status = 'Neutral'
 
+    # Analyze Volume Trend
+    candlestick_pattern = tech_analysis_tools.analyze_candlestick_patterns(data)
+
     # Calculate weighted scores for buy and sell signals
     weighted_buy_score = 0
     weighted_sell_score = 0
@@ -128,7 +131,8 @@ def analyze_stock(data, weights):
         'Parabolic_SAR_Status': parabolic_sar_status,
         'Volume_Trend': volume_trend,
         'Bollinger_Status': bollinger_status,
-        'Stochastic_Status': stochastic_status
+        'Stochastic_Status': stochastic_status,
+        'CandleStick_Pattern_Status': candlestick_pattern
     }
 
 
@@ -139,7 +143,7 @@ def analyze_stock(data, weights):
             weighted_sell_score += weights[indicator]
 
     # Determine the final decision based on weighted scores
-    x = 3.5 # to make sure that multiple technicals are making the decision in addition to weight
+    x = 4 # to make sure that multiple technicals are making the decision in addition to weight
     if weighted_buy_score > weighted_sell_score and weighted_buy_score > x:
         decision = "Consider Buy"
     elif weighted_sell_score > weighted_buy_score and weighted_sell_score > x:
@@ -160,6 +164,7 @@ def analyze_stock(data, weights):
         'Parabolic_SAR_Status': parabolic_sar_status,
         'Bollinger_Status': bollinger_status,
         'Stochastic_Status': stochastic_status,
+        'CandleStick_Pattern_Status': candlestick_pattern,
         'Decision': decision,
         'Current_Price': current_price
     }
@@ -209,6 +214,8 @@ def real_time_analysis(qdays, interval, weights):
                 print(f"Volume Trend: {analysis['Volume_Trend']}")
                 print(f"Bollinger Status: {analysis['Bollinger_Status']}")
                 print(f"Stochastic Status: {analysis['Stochastic_Status']}")
+                print(f"CandleStick Pattern: {analysis['CandleStick_Pattern_Status']}")
+
 
                 if analysis['Decision'] == "Consider Sell" and status == "HOLDING":
                     print_with_color(f"Decision: {analysis['Decision']}", "red")
@@ -288,25 +295,26 @@ def optimized_analysis():
 
 def main(backtest=False, opt=False):
     # Default weights for real-time analysis
-    #emphasis on reversal
+    #emphasis on reversal and strength
 
     weights = {
-        'RSI_Status': 3.0,         
-        'MACD_Status': 3.0,          
-        'MACD_Histogram_Status': 0.25,   
-        'VWAP_Status': 0.25,          
-        'Golden_Cross_Status': 1.75,     
-        'Parabolic_SAR_Status': 0.25, 
-        'Volume_Trend': 0.25,            
+        'RSI_Status': 1.0,         
+        'MACD_Status': 2.75,          
+        'MACD_Histogram_Status': 0.5,   
+        'VWAP_Status': 0.5,          
+        'Golden_Cross_Status': 2.75,     
+        'Parabolic_SAR_Status': 1.75, 
+        'Volume_Trend': 0.75,            
         'Bollinger_Status': 0.5,       
-        'Stochastic_Status': 0.25   
+        'Stochastic_Status': 0.5,
+        'CandleStick_Pattern_Status': 2.75
     }
 
 
     if backtest:
         backtest_analysis(730, "1d", weights)
         backtest_analysis(365, "1h", weights)
-        # backtest_analysis(59, "15m", weights)
+        backtest_analysis(59, "15m", weights)
         # backtest_analysis(59, "5m", weights)
     elif opt:
         # Run the optimization

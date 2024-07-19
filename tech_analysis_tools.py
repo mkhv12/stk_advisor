@@ -170,4 +170,45 @@ def calculate_tax_implications(purchase_date, purchase_price, current_price, qua
     return holding_type, gain_or_loss, tax_implication, gain_or_loss_perc
 
 
+def is_hammer(data, index):
+    body = abs(data['Close'].iloc[index] - data['Open'].iloc[index])
+    lower_shadow = data['Open'].iloc[index] - data['Low'].iloc[index]
+    upper_shadow = data['High'].iloc[index] - data['Close'].iloc[index]
+    
+    return (lower_shadow > 2 * body) and (upper_shadow <= body)
 
+def is_shooting_star(data, index):
+    body = abs(data['Close'].iloc[index] - data['Open'].iloc[index])
+    upper_shadow = data['High'].iloc[index] - data['Close'].iloc[index]
+    lower_shadow = data['Open'].iloc[index] - data['Low'].iloc[index]
+    
+    return (upper_shadow > 2 * body) and (lower_shadow <= body)
+
+def is_engulfing(data, index):
+    current_body = abs(data['Close'].iloc[index] - data['Open'].iloc[index])
+    previous_body = abs(data['Close'].iloc[index - 1] - data['Open'].iloc[index - 1])
+    
+    return (data['Open'].iloc[index] < data['Close'].iloc[index] and
+            data['Open'].iloc[index - 1] > data['Close'].iloc[index - 1] and
+            data['Open'].iloc[index] < data['Close'].iloc[index - 1] and
+            data['Close'].iloc[index] > data['Open'].iloc[index - 1])
+
+def is_doji(data, index):
+    body = abs(data['Close'].iloc[index] - data['Open'].iloc[index])
+    return body <= (data['High'].iloc[index] - data['Low'].iloc[index]) * 0.1
+
+def analyze_candlestick_patterns(data):
+    signals = []
+    for i in range(1, len(data)):
+        if is_hammer(data, i):
+            signals.append("Hammer (Buy Signal)")
+        elif is_shooting_star(data, i):
+            signals.append("Shooting Star (Sell Signal)")
+        elif is_engulfing(data, i):
+            signals.append("Engulfing (Reversal Signal)")
+        elif is_doji(data, i):
+            signals.append("Doji (Potential Reversal)")
+    
+    if signals:
+        return signals[-1]  # Return only the most recent candlestick pattern signal
+    return "No pattern found"  # Return a message when no pattern is found
