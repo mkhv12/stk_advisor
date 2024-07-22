@@ -143,7 +143,7 @@ def analyze_stock(data, weights):
             weighted_sell_score += weights[indicator]
 
     # Determine the final decision based on weighted scores
-    x = 4 # to make sure that multiple technicals are making the decision in addition to weight
+    x = 4.0 # to make sure that multiple technicals are making the decision in addition to weight
     if weighted_buy_score > weighted_sell_score and weighted_buy_score > x:
         decision = "Consider Buy"
     elif weighted_sell_score > weighted_buy_score and weighted_sell_score > x:
@@ -298,7 +298,7 @@ def main(backtest=False, opt=False):
     #emphasis on reversal and strength
 
     weights = {
-        'RSI_Status': 1.0,         
+        'RSI_Status': 1.5,         
         'MACD_Status': 2.75,          
         'MACD_Histogram_Status': 0.5,   
         'VWAP_Status': 0.5,          
@@ -315,7 +315,7 @@ def main(backtest=False, opt=False):
         backtest_analysis(730, "1d", weights)
         backtest_analysis(365, "1h", weights)
         backtest_analysis(59, "15m", weights)
-        # backtest_analysis(59, "5m", weights)
+        backtest_analysis(59, "5m", weights)
     elif opt:
         # Run the optimization
         optimized_analysis()
