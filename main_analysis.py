@@ -143,7 +143,7 @@ def analyze_stock(data, weights):
             weighted_sell_score += weights[indicator]
 
     # Determine the final decision based on weighted scores
-    x = 4.0 # to make sure that multiple technicals are making the decision in addition to weight
+    x = 1.0 # to make sure that multiple technicals are making the decision in addition to weight
     if weighted_buy_score > weighted_sell_score and weighted_buy_score > x:
         decision = "Consider Buy"
     elif weighted_sell_score > weighted_buy_score and weighted_sell_score > x:
@@ -207,15 +207,14 @@ def real_time_analysis(qdays, interval, weights):
             if analysis['Decision'] != "Hold":
                 print(f"RSI Status: {analysis['RSI_Status']}")
                 print(f"MACD Status: {analysis['MACD_Status']}")
+                print(f"CandleStick Pattern: {analysis['CandleStick_Pattern_Status']}")
                 print(f"MACD Histogram: {analysis['MACD_Histogram_Status']}")
-                print(f"Parabolic_SAR_Status: {analysis['Parabolic_SAR_Status']}")
                 print(f"Golden Cross Status: {analysis['Golden_Cross_Status']}")
+                print(f"Parabolic_SAR_Status: {analysis['Parabolic_SAR_Status']}")
                 print(f"VWAP: {analysis['VWAP']:.2f} ({analysis['VWAP_Status']})")
                 print(f"Volume Trend: {analysis['Volume_Trend']}")
                 print(f"Bollinger Status: {analysis['Bollinger_Status']}")
                 print(f"Stochastic Status: {analysis['Stochastic_Status']}")
-                print(f"CandleStick Pattern: {analysis['CandleStick_Pattern_Status']}")
-
 
                 if analysis['Decision'] == "Consider Sell" and status == "HOLDING":
                     print_with_color(f"Decision: {analysis['Decision']}", "red")
@@ -298,24 +297,24 @@ def main(backtest=False, opt=False):
     #emphasis on reversal and strength
 
     weights = {
-        'RSI_Status': 1.5,         
-        'MACD_Status': 2.75,          
+        'RSI_Status': 0.5,         
+        'MACD_Status': 0.75,          
         'MACD_Histogram_Status': 0.5,   
         'VWAP_Status': 0.5,          
-        'Golden_Cross_Status': 2.75,     
-        'Parabolic_SAR_Status': 1.75, 
-        'Volume_Trend': 0.75,            
+        'Golden_Cross_Status': 0.75,     
+        'Parabolic_SAR_Status': 0.5, 
+        'Volume_Trend': 0.5,            
         'Bollinger_Status': 0.5,       
         'Stochastic_Status': 0.5,
-        'CandleStick_Pattern_Status': 2.75
+        'CandleStick_Pattern_Status': 0.75
     }
 
 
     if backtest:
         backtest_analysis(730, "1d", weights)
-        backtest_analysis(365, "1h", weights)
-        backtest_analysis(59, "15m", weights)
-        backtest_analysis(59, "5m", weights)
+        # backtest_analysis(365, "1h", weights)
+        # backtest_analysis(59, "15m", weights)
+        # backtest_analysis(59, "5m", weights)
     elif opt:
         # Run the optimization
         optimized_analysis()
