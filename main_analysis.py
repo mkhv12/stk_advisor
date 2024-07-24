@@ -121,6 +121,7 @@ def analyze_stock(data, weights):
     # Calculate weighted scores for buy and sell signals
     weighted_buy_score = 0
     weighted_sell_score = 0
+    weighted_hold_score = 0
     
     indicators = {
         'RSI_Status': rsi_status,
@@ -141,7 +142,10 @@ def analyze_stock(data, weights):
             weighted_buy_score += weights[indicator]
         elif 'Sell Signal' in status:
             weighted_sell_score += weights[indicator]
+        else:
+            weighted_hold_score += weights[indicator]
 
+    #print(f"{weighted_buy_score} / {weighted_sell_score}")
     # Determine the final decision based on weighted scores
     # x = 1.0 # to make sure that multiple technicals are making the decision in addition to weight
     # if weighted_buy_score > weighted_sell_score and weighted_buy_score > x:
@@ -151,11 +155,12 @@ def analyze_stock(data, weights):
     # else:
     #     decision = "Hold"
 
-    if weighted_buy_score > weighted_sell_score:
+    #print(f"\n{weighted_buy_score} / {weighted_sell_score} / {weighted_hold_score}")
+    if weighted_buy_score > weighted_sell_score and weighted_buy_score > weighted_hold_score:
         decision = "Consider Buy"
-    elif weighted_sell_score > weighted_buy_score:
+    elif weighted_sell_score > weighted_buy_score and weighted_sell_score > weighted_hold_score:
         decision = "Consider Sell"
-    else:
+    elif weighted_hold_score > weighted_buy_score and weighted_hold_score > weighted_sell_score:
         decision = "Hold"
 
 
@@ -213,16 +218,16 @@ def real_time_analysis(qdays, interval, weights):
         if analysis:
             if analysis['Decision'] != "Hold":
                 print(f"RSI Status: {analysis['RSI_Status']}")
+                print(f"Stochastic Status: {analysis['Stochastic_Status']}")
                 print(f"MACD Status: {analysis['MACD_Status']}")
-                print(f"CandleStick Pattern: {analysis['CandleStick_Pattern_Status']}")
                 print(f"MACD Histogram: {analysis['MACD_Histogram_Status']}")
+                print(f"CandleStick Pattern: {analysis['CandleStick_Pattern_Status']}")
                 print(f"Golden Cross Status: {analysis['Golden_Cross_Status']}")
                 print(f"Parabolic_SAR_Status: {analysis['Parabolic_SAR_Status']}")
                 print(f"VWAP: {analysis['VWAP']:.2f} ({analysis['VWAP_Status']})")
-                print(f"Volume Trend: {analysis['Volume_Trend']}")
                 print(f"Bollinger Status: {analysis['Bollinger_Status']}")
-                print(f"Stochastic Status: {analysis['Stochastic_Status']}")
-
+                print(f"Volume Trend: {analysis['Volume_Trend']}")
+                
                 if analysis['Decision'] == "Consider Sell" and status == "HOLDING":
                     print_with_color(f"Decision: {analysis['Decision']}", "red")
 
@@ -304,21 +309,21 @@ def main(backtest=False, opt=False):
     #emphasis on reversal and strength
 
     weights = {
-        'RSI_Status': 0.9,         
-        'MACD_Status': 0.9,          
+        'RSI_Status': 2.0,         
+        'MACD_Status': 2.5,          
         'MACD_Histogram_Status': 0.5,   
         'VWAP_Status': 0.5,          
-        'Golden_Cross_Status': 0.75,     
-        'Parabolic_SAR_Status': 0.5, 
-        'Volume_Trend': 0.5,            
-        'Bollinger_Status': 0.5,       
-        'Stochastic_Status': 0.5,
-        'CandleStick_Pattern_Status': 0.9
+        'Golden_Cross_Status': 1.75,     
+        'Parabolic_SAR_Status': 0.1, 
+        'Volume_Trend': 0.75,            
+        'Bollinger_Status': 0.75,       
+        'Stochastic_Status': 0.1,
+        'CandleStick_Pattern_Status': 2.5
     }
 
 
     if backtest:
-        backtest_analysis(730, "1d", weights)
+        backtest_analysis(365, "1d", weights)
         # backtest_analysis(365, "1h", weights)
         # backtest_analysis(59, "15m", weights)
         # backtest_analysis(59, "5m", weights)
@@ -327,8 +332,8 @@ def main(backtest=False, opt=False):
         optimized_analysis()
     else:
         while True:
-            real_time_analysis(730, "1d", weights)
-            real_time_analysis(365, "1h", weights)
+            real_time_analysis(365, "1d", weights)
+            #real_time_analysis(365, "1h", weights)
             #real_time_analysis(59, "15m", weights)  # max 59 days on 15m
             #real_time_analysis(59, "5m", weights)   # max 59 days on 15m
             print("***********************************************************")

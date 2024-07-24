@@ -205,10 +205,18 @@ def analyze_candlestick_patterns(data):
         elif is_shooting_star(data, i):
             signals.append("Shooting Star (Sell Signal)")
         elif is_engulfing(data, i):
-            signals.append("Engulfing (Reversal Signal)")
+            if data['Open'].iloc[i] < data['Close'].iloc[i]:
+                signals.append("Bullish Engulfing (Buy Signal)")
+            else:
+                signals.append("Bearish Engulfing (Sell Signal)")
         elif is_doji(data, i):
-            signals.append("Doji (Potential Reversal)")
-    
+            if data['Close'].iloc[i] > data['Open'].iloc[i]:
+                signals.append("Doji Bullish (Buy Signal)")
+            else:
+                signals.append("Doji Bearish (Sell Signal)")
+
     if signals:
         return signals[-1]  # Return only the most recent candlestick pattern signal
     return "No pattern found"  # Return a message when no pattern is found
+
+
