@@ -160,7 +160,7 @@ def analyze_stock(data, weights):
         decision = "Consider Buy"
     elif weighted_sell_score > weighted_buy_score and weighted_sell_score > weighted_hold_score:
         decision = "Consider Sell"
-    elif weighted_hold_score > weighted_buy_score and weighted_hold_score > weighted_sell_score:
+    else:
         decision = "Hold"
 
 
@@ -310,15 +310,15 @@ def main(backtest=False, opt=False):
 
     weights = {
         'RSI_Status': 2.0,         
-        'MACD_Status': 2.5,          
+        'MACD_Status': 2.0,          
         'MACD_Histogram_Status': 0.5,   
         'VWAP_Status': 0.5,          
         'Golden_Cross_Status': 1.75,     
-        'Parabolic_SAR_Status': 0.1, 
+        'Parabolic_SAR_Status': 0.3, 
         'Volume_Trend': 0.75,            
         'Bollinger_Status': 0.75,       
-        'Stochastic_Status': 0.1,
-        'CandleStick_Pattern_Status': 2.5
+        'Stochastic_Status': 0.3,
+        'CandleStick_Pattern_Status': 2.0
     }
 
 
