@@ -324,7 +324,7 @@ def main(backtest=False, opt=False):
 
     if backtest:
         backtest_analysis(365, "1d", weights)
-        # backtest_analysis(365, "1h", weights)
+        backtest_analysis(90, "1h", weights)
         # backtest_analysis(59, "15m", weights)
         # backtest_analysis(59, "5m", weights)
     elif opt:
@@ -333,7 +333,7 @@ def main(backtest=False, opt=False):
     else:
         while True:
             real_time_analysis(365, "1d", weights)
-            #real_time_analysis(365, "1h", weights)
+            real_time_analysis(90, "1h", weights)
             #real_time_analysis(59, "15m", weights)  # max 59 days on 15m
             #real_time_analysis(59, "5m", weights)   # max 59 days on 15m
             print("***********************************************************")
