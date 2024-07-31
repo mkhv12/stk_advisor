@@ -317,7 +317,7 @@ def main(backtest=False, opt=False):
         'Parabolic_SAR_Status': 0.3, 
         'Volume_Trend': 0.5,            
         'Bollinger_Status': 0.5,       
-        'Stochastic_Status': 0.3,
+        'Stochastic_Status': 0.7,
         'CandleStick_Pattern_Status': 1.5
     }
 
