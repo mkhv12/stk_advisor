@@ -122,7 +122,8 @@ def analyze_stock(data, weights):
     weighted_buy_score = 0
     weighted_sell_score = 0
     weighted_hold_score = 0
-    
+
+
     indicators = {
         'RSI_Status': rsi_status,
         'MACD_Status': macd_status,
@@ -144,6 +145,8 @@ def analyze_stock(data, weights):
             weighted_sell_score += weights[indicator]
         else:
             weighted_hold_score += weights[indicator]
+
+    weigth_scores = (f"B:{weighted_buy_score} /S:{weighted_sell_score} /H:{weighted_hold_score}")
 
     #print(f"{weighted_buy_score} / {weighted_sell_score}")
     # Determine the final decision based on weighted scores
@@ -178,7 +181,8 @@ def analyze_stock(data, weights):
         'Stochastic_Status': stochastic_status,
         'CandleStick_Pattern_Status': candlestick_pattern,
         'Decision': decision,
-        'Current_Price': current_price
+        'Current_Price': current_price,
+        'weigth_scores' : weigth_scores
     }
 
 
@@ -214,6 +218,7 @@ def real_time_analysis(qdays, interval, weights):
         analysis = analyze_stock(stock_data, weights)
 
         print(f"\nAnalyzing {symbol}  ${analysis['Current_Price']:.2f}")
+        print(f"Weight Scores {analysis['weigth_scores']}")
 
         if analysis:
             if analysis['Decision'] != "Hold":
@@ -317,7 +322,7 @@ def main(backtest=False, opt=False):
         'Parabolic_SAR_Status': 0.3, 
         'Volume_Trend': 0.5,            
         'Bollinger_Status': 0.5,       
-        'Stochastic_Status': 0.7,
+        'Stochastic_Status': 0.75,
         'CandleStick_Pattern_Status': 1.5
     }
 
