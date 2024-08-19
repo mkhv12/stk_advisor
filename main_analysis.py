@@ -330,7 +330,7 @@ def main(backtest=False, opt=False):
     if backtest:
         backtest_analysis(365, "1d", weights)
         backtest_analysis(90, "1h", weights)
-        # backtest_analysis(59, "15m", weights)
+        #backtest_analysis(59, "15m", weights)
         # backtest_analysis(59, "5m", weights)
     elif opt:
         # Run the optimization
