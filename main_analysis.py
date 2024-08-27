@@ -314,16 +314,16 @@ def main(backtest=False, opt=False):
     #emphasis on reversal and strength
 
     weights = {
-        'RSI_Status': 1.5,         
-        'MACD_Status': 1.5,          
+        'RSI_Status': 1.25,         
+        'MACD_Status': 1.25,          
         'MACD_Histogram_Status': 0.5,   
         'VWAP_Status': 0.5,          
-        'Golden_Cross_Status': 1.5,     
+        'Golden_Cross_Status': 1.25,     
         'Parabolic_SAR_Status': 0.3, 
         'Volume_Trend': 0.5,            
         'Bollinger_Status': 0.5,       
         'Stochastic_Status': 0.75,
-        'CandleStick_Pattern_Status': 1.5
+        'CandleStick_Pattern_Status': 1.25
     }
 
 
