@@ -222,15 +222,15 @@ def real_time_analysis(qdays, interval, weights):
 
         if analysis:
             if analysis['Decision'] != "Hold":
-                print(f"RSI Status: {analysis['RSI_Status']}")
-                print(f"Stochastic Status: {analysis['Stochastic_Status']}")
+                print(f"RSI: {analysis['RSI_Status']}")
+                print(f"Stochastic: {analysis['Stochastic_Status']}")
                 print(f"MACD Status: {analysis['MACD_Status']}")
                 print(f"MACD Histogram: {analysis['MACD_Histogram_Status']}")
                 print(f"CandleStick Pattern: {analysis['CandleStick_Pattern_Status']}")
-                print(f"Golden Cross Status: {analysis['Golden_Cross_Status']}")
-                print(f"Parabolic_SAR_Status: {analysis['Parabolic_SAR_Status']}")
+                print(f"Golden Cross: {analysis['Golden_Cross_Status']}")
+                print(f"Parabolic_SAR: {analysis['Parabolic_SAR_Status']}")
                 print(f"VWAP: {analysis['VWAP']:.2f} ({analysis['VWAP_Status']})")
-                print(f"Bollinger Status: {analysis['Bollinger_Status']}")
+                print(f"Bollinger: {analysis['Bollinger_Status']}")
                 print(f"Volume Trend: {analysis['Volume_Trend']}")
                 
                 if analysis['Decision'] == "Consider Sell" and status == "HOLDING":
