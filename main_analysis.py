@@ -118,6 +118,16 @@ def analyze_stock(data, weights):
     # Analyze Volume Trend
     candlestick_pattern = tech_analysis_tools.analyze_candlestick_patterns(data)
 
+    adx_analysis = tech_analysis_tools.analyze_adx(data)
+
+    # Example decision-making process using ADX
+    if adx_analysis.startswith("Strong Trend"):
+        #adx_decision = "Consider following MACD signal"
+        adx_status = macd_status
+    else:
+        #adx_decision = "Consider RSI/Stochastic signals"
+        adx_status = rsi_status
+
     # Calculate weighted scores for buy and sell signals
     weighted_buy_score = 0
     weighted_sell_score = 0
@@ -127,6 +137,7 @@ def analyze_stock(data, weights):
     indicators = {
         'RSI_Status': rsi_status,
         'MACD_Status': macd_status,
+        'ADX_Status': adx_status,
         'MACD_Histogram_Status': macd_histogram_status,
         'VWAP_Status': vwap_status,
         'Golden_Cross_Status': golden_cross_status,
@@ -148,17 +159,6 @@ def analyze_stock(data, weights):
 
     weigth_scores = (f"B:{weighted_buy_score} /S:{weighted_sell_score} /H:{weighted_hold_score}")
 
-    #print(f"{weighted_buy_score} / {weighted_sell_score}")
-    # Determine the final decision based on weighted scores
-    # x = 1.0 # to make sure that multiple technicals are making the decision in addition to weight
-    # if weighted_buy_score > weighted_sell_score and weighted_buy_score > x:
-    #     decision = "Consider Buy"
-    # elif weighted_sell_score > weighted_buy_score and weighted_sell_score > x:
-    #     decision = "Consider Sell"
-    # else:
-    #     decision = "Hold"
-
-    #print(f"\n{weighted_buy_score} / {weighted_sell_score} / {weighted_hold_score}")
     if weighted_buy_score > weighted_sell_score and weighted_buy_score > weighted_hold_score:
         decision = "Consider Buy"
     elif weighted_sell_score > weighted_buy_score and weighted_sell_score > weighted_hold_score:
@@ -171,6 +171,7 @@ def analyze_stock(data, weights):
         'RSI': latest_rsi,
         'RSI_Status': rsi_status,
         'MACD_Status': macd_status,
+        'ADX_Status': adx_status,
         'MACD_Histogram_Status': macd_histogram_status,
         'VWAP': vwap,
         'VWAP_Status': vwap_status,
@@ -225,6 +226,7 @@ def real_time_analysis(qdays, interval, weights):
                 print(f"RSI: {analysis['RSI_Status']}")
                 print(f"Stochastic: {analysis['Stochastic_Status']}")
                 print(f"MACD Status: {analysis['MACD_Status']}")
+                print(f"ADX Status: {analysis['ADX_Status']}")
                 print(f"MACD Histogram: {analysis['MACD_Histogram_Status']}")
                 print(f"CandleStick Pattern: {analysis['CandleStick_Pattern_Status']}")
                 print(f"Golden Cross: {analysis['Golden_Cross_Status']}")
@@ -315,15 +317,16 @@ def main(backtest=False, opt=False):
 
     weights = {
         'RSI_Status': 1.25,         
-        'MACD_Status': 1.25,          
-        'MACD_Histogram_Status': 0.5,   
+        'MACD_Status': 1.25,   
+        'ADX_Status': 1.50,        
+        'MACD_Histogram_Status': 0.75,   
         'VWAP_Status': 0.5,          
         'Golden_Cross_Status': 1.25,     
         'Parabolic_SAR_Status': 0.3, 
         'Volume_Trend': 0.5,            
         'Bollinger_Status': 0.5,       
         'Stochastic_Status': 0.75,
-        'CandleStick_Pattern_Status': 1.25
+        'CandleStick_Pattern_Status': 0.75
     }
 
 
