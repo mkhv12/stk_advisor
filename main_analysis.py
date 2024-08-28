@@ -157,7 +157,7 @@ def analyze_stock(data, weights):
         else:
             weighted_hold_score += weights[indicator]
 
-    weigth_scores = (f"B:{weighted_buy_score} /S:{weighted_sell_score} /H:{weighted_hold_score}")
+    weigth_scores = (f"B:{weighted_buy_score:.1f} /S:{weighted_sell_score:.1f} /H:{weighted_hold_score:.1f}")
 
     if weighted_buy_score > weighted_sell_score and weighted_buy_score > weighted_hold_score:
         decision = "Consider Buy"
@@ -318,7 +318,7 @@ def main(backtest=False, opt=False):
     weights = {
         'RSI_Status': 1.25,         
         'MACD_Status': 1.25,   
-        'ADX_Status': 1.50,        
+        'ADX_Status': 1.6,        
         'MACD_Histogram_Status': 0.75,   
         'VWAP_Status': 0.5,          
         'Golden_Cross_Status': 1.25,     
@@ -342,7 +342,7 @@ def main(backtest=False, opt=False):
         while True:
             real_time_analysis(365, "1d", weights)
             real_time_analysis(90, "1h", weights)
-            #real_time_analysis(59, "15m", weights)  # max 59 days on 15m
+            real_time_analysis(59, "15m", weights)  # max 59 days on 15m
             #real_time_analysis(59, "5m", weights)   # max 59 days on 15m
             print("***********************************************************")
             print("5 minutes before running again...")
