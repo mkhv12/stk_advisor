@@ -318,8 +318,8 @@ def main(backtest=False, opt=False):
     weights = {
         'RSI_Status': 1.25,         
         'MACD_Status': 1.25,   
-        'ADX_Status': 1.6,        
-        'MACD_Histogram_Status': 0.75,   
+        'ADX_Status': 1.75,        
+        'MACD_Histogram_Status': 1.0,   
         'VWAP_Status': 0.5,          
         'Golden_Cross_Status': 1.25,     
         'Parabolic_SAR_Status': 0.3, 
@@ -342,7 +342,7 @@ def main(backtest=False, opt=False):
         while True:
             real_time_analysis(365, "1d", weights)
             real_time_analysis(90, "1h", weights)
-            real_time_analysis(59, "15m", weights)  # max 59 days on 15m
+            #real_time_analysis(59, "15m", weights)  # max 59 days on 15m
             #real_time_analysis(59, "5m", weights)   # max 59 days on 15m
             print("***********************************************************")
             print("5 minutes before running again...")
