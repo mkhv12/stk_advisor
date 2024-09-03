@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import pandas as pd
 
 def calculate_rsi(data, window=14):
     delta = data['Close'].diff(1)
@@ -219,4 +220,38 @@ def analyze_candlestick_patterns(data):
         return signals[-1]  # Return only the most recent candlestick pattern signal
     return "No pattern found"  # Return a message when no pattern is found
 
+def calculate_adx(data, window=14):
+    high = data['High']
+    low = data['Low']
+    close = data['Close']
+
+    plus_dm = high.diff()
+    minus_dm = low.diff()
+
+    plus_dm[plus_dm < 0] = 0
+    minus_dm[minus_dm > 0] = 0
+
+    tr1 = high - low
+    tr2 = abs(high - close.shift(1))
+    tr3 = abs(low - close.shift(1))
+    true_range = tr1.combine(tr2, max).combine(tr3, max)
+
+    atr = true_range.rolling(window=window).mean()
+
+    plus_di = 100 * (plus_dm.rolling(window=window).mean() / atr)
+    minus_di = 100 * (abs(minus_dm).rolling(window=window).mean() / atr)
+
+    dx = 100 * (abs(plus_di - minus_di) / (plus_di + minus_di))
+    adx = dx.rolling(window=window).mean()
+
+    return adx
+
+def analyze_adx(data, adx_threshold=25):
+    adx = calculate_adx(data)
+    latest_adx = adx.iloc[-1]
+
+    if latest_adx >= adx_threshold:
+        return f"Strong Trend (ADX: {latest_adx:.2f})"
+    else:
+        return f"Weak/No Trend (ADX: {latest_adx:.2f})"
 
