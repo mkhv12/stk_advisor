@@ -97,12 +97,13 @@ def backtest(ticker, start_date, end_date, interval, weights, profit_threshold=0
 
 
     # Wrapper function for optimization
-def optimize_weights(RSI_Status, MACD_Status, MACD_Histogram_Status, VWAP_Status,
+def optimize_weights(RSI_Status, MACD_Status, ADX_Status, MACD_Histogram_Status, VWAP_Status,
                      Golden_Cross_Status, Parabolic_SAR_Status, Volume_Trend, 
                      Bollinger_Status, Stochastic_Status, candlestick_pattern):
     weights = {
         'RSI_Status': RSI_Status,
         'MACD_Status': MACD_Status,
+        'ADX_Status': ADX_Status,
         'MACD_Histogram_Status': MACD_Histogram_Status,
         'VWAP_Status': VWAP_Status,
         'Golden_Cross_Status': Golden_Cross_Status,
@@ -126,6 +127,7 @@ def optimize_weights(RSI_Status, MACD_Status, MACD_Histogram_Status, VWAP_Status
 pbounds = {
     'RSI_Status': (0.5, 3),
     'MACD_Status': (0.5, 3),
+    'ADX_Status': (0.5, 3), 
     'MACD_Histogram_Status': (0.5, 3),
     'VWAP_Status': (0.5, 3),
     'Golden_Cross_Status': (0.5, 3),
@@ -135,6 +137,7 @@ pbounds = {
     'Stochastic_Status': (0.5, 3),
     'candlestick_pattern': (0.5, 3)
 }
+
 
 def run_optimization():
     # Initialize the optimizer

@@ -318,13 +318,13 @@ def main(backtest=False, opt=False):
     weights = {
         'RSI_Status': 1.25,         
         'MACD_Status': 1.25,   
-        'ADX_Status': 1.75,        
+        'ADX_Status': 0.75,        
         'MACD_Histogram_Status': 1.0,   
         'VWAP_Status': 0.5,          
         'Golden_Cross_Status': 1.25,     
         'Parabolic_SAR_Status': 0.3, 
         'Volume_Trend': 0.5,            
-        'Bollinger_Status': 0.5,       
+        'Bollinger_Status': 1.50,       
         'Stochastic_Status': 0.75,
         'CandleStick_Pattern_Status': 0.75
     }
