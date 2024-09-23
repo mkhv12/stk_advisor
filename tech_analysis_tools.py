@@ -255,3 +255,30 @@ def analyze_adx(data, adx_threshold=25):
     else:
         return f"Weak/No Trend (ADX: {latest_adx:.2f})"
 
+
+def analyze_price_drop(data, drop_threshold=0.30):
+    """
+    Check if the current price is a certain percentage below the max high in the provided data.
+    
+    :param data: DataFrame containing the stock price data.
+    :param drop_threshold: The percentage drop threshold.
+    :return: A message indicating if the price has dropped by the threshold percentage or more.
+    """
+    # Get the maximum high from the provided data
+    max_high = data['High'].max()
+    
+    # Get the current close price
+    current_price = data['Close'].iloc[-1]
+    
+    # Calculate the percentage drop from the max high
+    drop_percentage = (max_high - current_price) / max_high
+    
+    return f"Max high is ${max_high:.2f} difference of {drop_percentage * 100:.0f}%"
+
+    # # Determine if the price drop is greater than or equal to the threshold
+    # if drop_percentage >= drop_threshold:
+    #     return f"Price is {drop_percentage * 100:.0f}% more than max high"
+    # else:
+    #     return f"Price is less than {drop_threshold * 100:.0f}% below the max high"
+
+

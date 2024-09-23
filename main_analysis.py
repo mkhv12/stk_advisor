@@ -133,6 +133,7 @@ def analyze_stock(data, weights):
     weighted_sell_score = 0
     weighted_hold_score = 0
 
+    price_drop = tech_analysis_tools.analyze_price_drop(data, drop_threshold=0.20)
 
     indicators = {
         'RSI_Status': rsi_status,
@@ -183,7 +184,8 @@ def analyze_stock(data, weights):
         'CandleStick_Pattern_Status': candlestick_pattern,
         'Decision': decision,
         'Current_Price': current_price,
-        'weigth_scores' : weigth_scores
+        'weigth_scores' : weigth_scores,
+        'Price_Drop':price_drop
     }
 
 
@@ -220,6 +222,7 @@ def real_time_analysis(qdays, interval, weights):
 
         print(f"\nAnalyzing {symbol}  ${analysis['Current_Price']:.2f}")
         print(f"Weight Scores {analysis['weigth_scores']}")
+        print(f"Price Action: {analysis['Price_Drop']}")
 
         if analysis:
             if analysis['Decision'] != "Hold":
@@ -320,28 +323,28 @@ def main(backtest=False, opt=False):
         'MACD_Status': 1.25,   
         'ADX_Status': 0.75,        
         'MACD_Histogram_Status': 1.0,   
-        'VWAP_Status': 0.5,          
+        'VWAP_Status': 0.75,          
         'Golden_Cross_Status': 1.25,     
         'Parabolic_SAR_Status': 0.3, 
-        'Volume_Trend': 0.5,            
+        'Volume_Trend': 0.75,            
         'Bollinger_Status': 1.50,       
-        'Stochastic_Status': 0.75,
+        'Stochastic_Status': 1.0,
         'CandleStick_Pattern_Status': 0.75
     }
 
 
     if backtest:
-        backtest_analysis(365, "1d", weights)
-        backtest_analysis(90, "1h", weights)
+        backtest_analysis(730, "1d", weights)
+        #backtest_analysis(180, "1h", weights)
         #backtest_analysis(59, "15m", weights)
-        # backtest_analysis(59, "5m", weights)
+        #backtest_analysis(59, "5m", weights)
     elif opt:
         # Run the optimization
         optimized_analysis()
     else:
         while True:
-            real_time_analysis(365, "1d", weights)
-            real_time_analysis(90, "1h", weights)
+            real_time_analysis(730, "1d", weights)
+            real_time_analysis(180, "1h", weights)
             #real_time_analysis(59, "15m", weights)  # max 59 days on 15m
             #real_time_analysis(59, "5m", weights)   # max 59 days on 15m
             print("***********************************************************")
