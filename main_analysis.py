@@ -222,10 +222,11 @@ def real_time_analysis(qdays, interval, weights):
 
         print(f"\nAnalyzing {symbol}  ${analysis['Current_Price']:.2f}")
         print(f"Weight Scores {analysis['weigth_scores']}")
-        print(f"Price Action: {analysis['Price_Drop']}")
+        
 
         if analysis:
             if analysis['Decision'] != "Hold":
+                print(f"Price Action: {analysis['Price_Drop']}")
                 print(f"RSI: {analysis['RSI_Status']}")
                 print(f"Stochastic: {analysis['Stochastic_Status']}")
                 print(f"MACD Status: {analysis['MACD_Status']}")
@@ -322,7 +323,7 @@ def main(backtest=False, opt=False):
         'RSI_Status': 1.25,         
         'MACD_Status': 1.25,   
         'ADX_Status': 0.75,        
-        'MACD_Histogram_Status': 1.0,   
+        'MACD_Histogram_Status': 1.20,   
         'VWAP_Status': 0.75,          
         'Golden_Cross_Status': 1.25,     
         'Parabolic_SAR_Status': 0.3, 

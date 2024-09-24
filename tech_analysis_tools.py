@@ -273,7 +273,7 @@ def analyze_price_drop(data, drop_threshold=0.30):
     # Calculate the percentage drop from the max high
     drop_percentage = (max_high - current_price) / max_high
     
-    return f"Max high is ${max_high:.2f} difference of {drop_percentage * 100:.0f}%"
+    return f"Max high is ${max_high:.2f} difference of {drop_percentage * 100:.1f}%"
 
     # # Determine if the price drop is greater than or equal to the threshold
     # if drop_percentage >= drop_threshold:
