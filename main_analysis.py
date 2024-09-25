@@ -128,6 +128,9 @@ def analyze_stock(data, weights):
         #adx_decision = "Consider RSI/Stochastic signals"
         adx_status = rsi_status
 
+
+    divergance_status = tech_analysis_tools.detect_rsi_divergence(data)
+    
     # Calculate weighted scores for buy and sell signals
     weighted_buy_score = 0
     weighted_sell_score = 0
@@ -146,7 +149,8 @@ def analyze_stock(data, weights):
         'Volume_Trend': volume_trend,
         'Bollinger_Status': bollinger_status,
         'Stochastic_Status': stochastic_status,
-        'CandleStick_Pattern_Status': candlestick_pattern
+        'CandleStick_Pattern_Status': candlestick_pattern,
+        'Divergance_status':divergance_status
     }
 
 
@@ -185,7 +189,8 @@ def analyze_stock(data, weights):
         'Decision': decision,
         'Current_Price': current_price,
         'weigth_scores' : weigth_scores,
-        'Price_Drop':price_drop
+        'Price_Drop':price_drop,
+        'Divergance_status':divergance_status
     }
 
 
@@ -238,6 +243,8 @@ def real_time_analysis(qdays, interval, weights):
                 print(f"VWAP: {analysis['VWAP']:.2f} ({analysis['VWAP_Status']})")
                 print(f"Bollinger: {analysis['Bollinger_Status']}")
                 print(f"Volume Trend: {analysis['Volume_Trend']}")
+                print(f"Divergance Detection: {analysis['Divergance_status']}")
+
                 
                 if analysis['Decision'] == "Consider Sell" and status == "HOLDING":
                     print_with_color(f"Decision: {analysis['Decision']}", "red")
@@ -323,14 +330,15 @@ def main(backtest=False, opt=False):
         'RSI_Status': 1.25,         
         'MACD_Status': 1.25,   
         'ADX_Status': 0.75,        
-        'MACD_Histogram_Status': 1.20,   
+        'MACD_Histogram_Status': 0.75,   
         'VWAP_Status': 0.75,          
         'Golden_Cross_Status': 1.25,     
         'Parabolic_SAR_Status': 0.3, 
         'Volume_Trend': 0.75,            
-        'Bollinger_Status': 1.50,       
+        'Bollinger_Status': 1.25,       
         'Stochastic_Status': 1.0,
-        'CandleStick_Pattern_Status': 0.75
+        'CandleStick_Pattern_Status': 0.75,
+        'Divergance_status':0.5
     }
 
 
@@ -349,8 +357,8 @@ def main(backtest=False, opt=False):
             #real_time_analysis(59, "15m", weights)  # max 59 days on 15m
             #real_time_analysis(59, "5m", weights)   # max 59 days on 15m
             print("***********************************************************")
-            print("5 minutes before running again...")
-            time.sleep(300)  # Sleep for 300 seconds (5 minutes)
+            print("3 minutes before running again...")
+            time.sleep(180)  # Sleep for 180 seconds (3 minutes)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Stock Analysis Tool')

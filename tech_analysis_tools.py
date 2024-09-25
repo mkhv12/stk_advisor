@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 import pandas as pd
+import numpy as np
 
 def calculate_rsi(data, window=14):
     delta = data['Close'].diff(1)
@@ -254,6 +255,33 @@ def analyze_adx(data, adx_threshold=25):
         return f"Strong Trend (ADX: {latest_adx:.2f})"
     else:
         return f"Weak/No Trend (ADX: {latest_adx:.2f})"
+
+
+def detect_rsi_divergence(data):
+    rsi = calculate_rsi(data)
+    price_highs = data['High'].rolling(window=3).apply(lambda x: x.iloc[1] if (x.iloc[1] > x.iloc[0] and x.iloc[1] > x.iloc[2]) else np.nan, raw=False)
+    rsi_highs = rsi.rolling(window=3).apply(lambda x: x.iloc[1] if (x.iloc[1] > x.iloc[0] and x.iloc[1] > x.iloc[2]) else np.nan, raw=False)
+
+    last_signal = "No Divergence"
+
+    for i in range(2, len(rsi)):
+        price_high = price_highs.iloc[i]
+        rsi_high = rsi_highs.iloc[i]
+
+        # Check if price_high and rsi_high are not NaN
+        if pd.notna(price_high) and pd.notna(rsi_high):
+            # Bearish divergence: Price makes a higher high, RSI makes a lower high
+            if data['High'].iloc[i] > data['High'].iloc[i-2] and rsi.iloc[i] < rsi.iloc[i-2]:
+                last_signal = "Bearish Divergence (Sell Signal)"
+            # Bullish divergence: Price makes a lower low, RSI makes a higher low
+            elif data['Low'].iloc[i] < data['Low'].iloc[i-2] and rsi.iloc[i] > rsi.iloc[i-2]:
+                last_signal = "Bullish Divergence (Buy Signal)"
+    
+    # Return the last signal or "No Divergence"
+    return last_signal
+
+
+
 
 
 def analyze_price_drop(data, drop_threshold=0.30):
