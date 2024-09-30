@@ -333,8 +333,8 @@ def main(backtest=False, opt=False):
         'MACD_Histogram_Status': 0.75, # Indicates momentum shifts, useful for timing entries/exits
         'Parabolic_SAR_Status': 0.75, # Reversal detection; provides clear signals for exits
         'Stochastic_Status': 1.25,   # Helps identify overbought/oversold conditions for entries/exits
-        'Volume_Trend': 0.75,        # Confirms trends, enhances reliability of entry/exit signals
-        'VWAP_Status': 0.5,         # Provides context for average price; can indicate entry/exit zones
+        'Volume_Trend': 0.25,        # Confirms trends, enhances reliability of entry/exit signals
+        'VWAP_Status': 0.75,         # Provides context for average price; can indicate entry/exit zones
         'Bollinger_Status': 1.50,    # Identifies volatility; price touching bands can signal entries/exits
         'Golden_Cross_Status': 1.25, # Bullish signal; indicates entry points when short-term crosses above long-term
         'CandleStick_Pattern_Status': 0.75 # Market sentiment indicators for potential entry/exit signals
