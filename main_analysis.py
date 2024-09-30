@@ -236,15 +236,14 @@ def real_time_analysis(qdays, interval, weights):
                 print(f"Stochastic: {analysis['Stochastic_Status']}")
                 print(f"MACD Status: {analysis['MACD_Status']}")
                 print(f"ADX Status: {analysis['ADX_Status']}")
+                print(f"Divergance Detection: {analysis['Divergance_status']}")
                 print(f"MACD Histogram: {analysis['MACD_Histogram_Status']}")
                 print(f"CandleStick Pattern: {analysis['CandleStick_Pattern_Status']}")
                 print(f"Golden Cross: {analysis['Golden_Cross_Status']}")
                 print(f"Parabolic_SAR: {analysis['Parabolic_SAR_Status']}")
-                print(f"VWAP: {analysis['VWAP']:.2f} ({analysis['VWAP_Status']})")
                 print(f"Bollinger: {analysis['Bollinger_Status']}")
+                print(f"VWAP: {analysis['VWAP']:.2f} ({analysis['VWAP_Status']})")
                 print(f"Volume Trend: {analysis['Volume_Trend']}")
-                print(f"Divergance Detection: {analysis['Divergance_status']}")
-
                 
                 if analysis['Decision'] == "Consider Sell" and status == "HOLDING":
                     print_with_color(f"Decision: {analysis['Decision']}", "red")
@@ -327,24 +326,27 @@ def main(backtest=False, opt=False):
     #emphasis on reversal and strength
 
     weights = {
-        'RSI_Status': 1.25,         
-        'MACD_Status': 1.25,   
-        'ADX_Status': 0.75,        
-        'MACD_Histogram_Status': 0.75,   
-        'VWAP_Status': 0.75,          
-        'Golden_Cross_Status': 1.25,     
-        'Parabolic_SAR_Status': 0.3, 
-        'Volume_Trend': 0.75,            
-        'Bollinger_Status': 1.25,       
-        'Stochastic_Status': 1.0,
-        'CandleStick_Pattern_Status': 0.75,
-        'Divergance_status':0.5
+        'RSI_Status': 1.25,          # Strong overbought/oversold signals for potential entries/exits
+        'MACD_Status': 1.25,         # Momentum indicator; a crossover can signal entry/exit points
+        'ADX_Status': 1.0,           # Trend strength; confirms whether to enter or exit based on trend robustness
+        'Divergance_status': 0.75,    # Reversal emphasis; divergence can indicate potential entry/exit points
+        'MACD_Histogram_Status': 0.75, # Indicates momentum shifts, useful for timing entries/exits
+        'Parabolic_SAR_Status': 0.75, # Reversal detection; provides clear signals for exits
+        'Stochastic_Status': 1.25,   # Helps identify overbought/oversold conditions for entries/exits
+        'Volume_Trend': 0.75,        # Confirms trends, enhances reliability of entry/exit signals
+        'VWAP_Status': 0.5,         # Provides context for average price; can indicate entry/exit zones
+        'Bollinger_Status': 1.50,    # Identifies volatility; price touching bands can signal entries/exits
+        'Golden_Cross_Status': 1.25, # Bullish signal; indicates entry points when short-term crosses above long-term
+        'CandleStick_Pattern_Status': 0.75 # Market sentiment indicators for potential entry/exit signals
     }
 
 
+    hr_period_length = 90
+    year_period_length = 730
+
     if backtest:
-        backtest_analysis(730, "1d", weights)
-        #backtest_analysis(180, "1h", weights)
+        backtest_analysis(year_period_length, "1d", weights)
+        #backtest_analysis(hr_period_length, "1h", weights)
         #backtest_analysis(59, "15m", weights)
         #backtest_analysis(59, "5m", weights)
     elif opt:
@@ -352,8 +354,8 @@ def main(backtest=False, opt=False):
         optimized_analysis()
     else:
         while True:
-            real_time_analysis(730, "1d", weights)
-            real_time_analysis(180, "1h", weights)
+            real_time_analysis(year_period_length, "1d", weights)
+            real_time_analysis(hr_period_length, "1h", weights)
             #real_time_analysis(59, "15m", weights)  # max 59 days on 15m
             #real_time_analysis(59, "5m", weights)   # max 59 days on 15m
             print("***********************************************************")
