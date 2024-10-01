@@ -343,12 +343,13 @@ def main(backtest=False, opt=False):
 
     hr_period_length = 90
     year_period_length = 730
+    Minute_period_length = 30
 
     if backtest:
         backtest_analysis(year_period_length, "1d", weights)
         #backtest_analysis(hr_period_length, "1h", weights)
-        #backtest_analysis(59, "15m", weights)
-        #backtest_analysis(59, "5m", weights)
+        #backtest_analysis(Minute_period_length, "15m", weights)
+        #backtest_analysis(Minute_period_length, "5m", weights)
     elif opt:
         # Run the optimization
         optimized_analysis()
@@ -356,8 +357,8 @@ def main(backtest=False, opt=False):
         while True:
             real_time_analysis(year_period_length, "1d", weights)
             real_time_analysis(hr_period_length, "1h", weights)
-            #real_time_analysis(59, "15m", weights)  # max 59 days on 15m
-            #real_time_analysis(59, "5m", weights)   # max 59 days on 15m
+            #real_time_analysis(Minute_period_length, "15m", weights)  # max 59 days on 15m
+            #real_time_analysis(Minute_period_length, "5m", weights)   # max 59 days on 15m
             print("***********************************************************")
             print("3 minutes before running again...")
             time.sleep(180)  # Sleep for 180 seconds (3 minutes)
