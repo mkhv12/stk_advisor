@@ -18,13 +18,14 @@ def calculate_rsi(data, window=14):
 def calculate_ema(data, window):
     return data['Close'].ewm(span=window, adjust=False).mean()
 
-def calculate_macd(data):
-    ema12 = calculate_ema(data, 12)
-    ema26 = calculate_ema(data, 26)
-    macd_line = ema12 - ema26
-    signal_line = macd_line.ewm(span=9, adjust=False).mean()
+def calculate_macd(data, fast_length=12, slow_length=26, signal_length=9):
+    ema_fast = calculate_ema(data, fast_length)
+    ema_slow = calculate_ema(data, slow_length)
+    macd_line = ema_fast - ema_slow
+    signal_line = macd_line.ewm(span=signal_length, adjust=False).mean()
     macd_histogram = macd_line - signal_line
     return macd_histogram, macd_line, signal_line
+
 
 def calculate_vwap(data):
     typical_price = (data['High'] + data['Low'] + data['Close']) / 3

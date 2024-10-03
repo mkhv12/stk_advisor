@@ -120,24 +120,24 @@ def optimize_weights(RSI_Status, MACD_Status, ADX_Status, MACD_Histogram_Status,
     start_date = date_back.strftime("%Y-%m-%d")
     end_date = today.strftime("%Y-%m-%d")
     
-    result = backtest('VTI', start_date, end_date, '1d', weights)  # Adjust ticker, dates, and interval as needed
+    result = backtest('QQQ', start_date, end_date, '1d', weights)  # Adjust ticker, dates, and interval as needed
     
     return result['Total_Wins']
 
 # Set the parameter bounds
 pbounds = {
-    'RSI_Status': (0.5, 3),
-    'MACD_Status': (0.5, 3),
-    'ADX_Status': (0.5, 3), 
-    'MACD_Histogram_Status': (0.5, 3),
-    'VWAP_Status': (0.5, 3),
-    'Golden_Cross_Status': (0.5, 3),
-    'Parabolic_SAR_Status': (0.5, 3),
-    'Volume_Trend': (0.5, 3),
-    'Bollinger_Status': (0.5, 3),
-    'Stochastic_Status': (0.5, 3),
-    'candlestick_pattern': (0.5, 3),
-    'Divergance_status': (0.5, 3)
+    'RSI_Status': (0.25, 3),
+    'MACD_Status': (0.25, 3),
+    'ADX_Status': (0.25, 3), 
+    'MACD_Histogram_Status': (0.25, 3),
+    'VWAP_Status': (0.25, 3),
+    'Golden_Cross_Status': (0.25, 3),
+    'Parabolic_SAR_Status': (0.25, 3),
+    'Volume_Trend': (0.25, 3),
+    'Bollinger_Status': (0.25, 3),
+    'Stochastic_Status': (0.25, 3),
+    'candlestick_pattern': (0.25, 3),
+    'Divergance_status': (0.25, 3)
 }
 
 

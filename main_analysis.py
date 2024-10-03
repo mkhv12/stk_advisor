@@ -278,6 +278,8 @@ def backtest_analysis(qdays, interval, weights):
 
     symb_count_wins_signals = 0
     symb_percentage_total = 0
+    buy_signals_list = []
+    hold_time_list = []
 
     print(f"\nDate range: {start_date} to {end_date} and {interval} chart")
     print("***********")
@@ -299,11 +301,13 @@ def backtest_analysis(qdays, interval, weights):
         print(f"Total Sell Signals: {analysis['Count_Sell_Signals']}")
         print(f"Profit or Loss: ${analysis['Profit_or_Loss']:.2f}")
         print(f"Average Hold Time: {analysis['Average_Hold_Time']:.0f} Day")
+        hold_time_list.append(analysis['Average_Hold_Time'])
 
         if analysis['Count_Buy_Signals'] != 0:
             print(f"Total Wins:{analysis['Total_Wins']} ({(analysis['Total_Wins']/analysis['Count_Buy_Signals'])*100:.0f}%)")
             symb_percentage_total += (analysis['Total_Wins']/analysis['Count_Buy_Signals'])*100
             symb_count_wins_signals += 1
+            buy_signals_list.append(analysis['Count_Buy_Signals'])
         else:
             print(f"Total Wins:{analysis['Total_Wins']} ({0}%)")
             symb_percentage_total += 0
@@ -311,7 +315,10 @@ def backtest_analysis(qdays, interval, weights):
 
     print("\n")
 
+
     print(f"Overall Average Win Percentage = {symb_percentage_total/symb_count_wins_signals:.0f}%")
+    print(f"Overall Average = {sum(buy_signals_list) / len(buy_signals_list):.0f} Signals")
+    print(f"Overall Average Hold Time = {sum(hold_time_list) / len(hold_time_list):.0f} Days")
     
     print("\n")
 
@@ -325,19 +332,52 @@ def main(backtest=False, opt=False):
     # Default weights for real-time analysis
     #emphasis on reversal and strength
 
+    #backtest 10/03/24 = 79% - average 4-5 signals in 2 years
+    # weights = {
+    #     'RSI_Status': 1.0,          # Strong overbought/oversold signals for potential entries/exits
+    #     'MACD_Status': 1.25,         # Momentum indicator; a crossover can signal entry/exit points
+    #     'ADX_Status': 0.75,           # Trend strength; confirms whether to enter or exit based on trend robustness
+    #     'Divergance_status': 0.75,    # Reversal emphasis; divergence can indicate potential entry/exit points
+    #     'MACD_Histogram_Status': 0.75, # Indicates momentum shifts, useful for timing entries/exits
+    #     'Parabolic_SAR_Status': 0.75, # Reversal detection; provides clear signals for exits
+    #     'Stochastic_Status': 1.0,   # Helps identify overbought/oversold conditions for entries/exits
+    #     'Volume_Trend': 0.25,        # Confirms trends, enhances reliability of entry/exit signals
+    #     'VWAP_Status': 1.0,         # Provides context for average price; can indicate entry/exit zones
+    #     'Bollinger_Status': 1.5,    # Identifies volatility; price touching bands can signal entries/exits
+    #     'Golden_Cross_Status': 1.25, # Bullish signal; indicates entry points when short-term crosses above long-term
+    #     'CandleStick_Pattern_Status': 0.75 # Market sentiment indicators for potential entry/exit signals
+    # }
+
+    #backtest 10/03/24 = 50% - average 32-33 signals in 2 years
+    # weights = {
+    #     'RSI_Status': 1.65,      
+    #     'MACD_Status': 0.25,         
+    #     'ADX_Status': 0.25,           
+    #     'Divergance_status': 2.13,    
+    #     'MACD_Histogram_Status': 1.70, 
+    #     'Parabolic_SAR_Status': 0.25, 
+    #     'Stochastic_Status': 0.25,  
+    #     'Volume_Trend': 3.0,        
+    #     'VWAP_Status': 3.0,         
+    #     'Bollinger_Status': 0.25,    
+    #     'Golden_Cross_Status': 0.25, 
+    #     'CandleStick_Pattern_Status': 3.0 
+    # }
+
+    #backtest 10/03/24 = 51% - average 22 signals in 2 years
     weights = {
-        'RSI_Status': 1.25,          # Strong overbought/oversold signals for potential entries/exits
-        'MACD_Status': 1.25,         # Momentum indicator; a crossover can signal entry/exit points
-        'ADX_Status': 1.0,           # Trend strength; confirms whether to enter or exit based on trend robustness
-        'Divergance_status': 0.75,    # Reversal emphasis; divergence can indicate potential entry/exit points
-        'MACD_Histogram_Status': 0.75, # Indicates momentum shifts, useful for timing entries/exits
-        'Parabolic_SAR_Status': 0.75, # Reversal detection; provides clear signals for exits
-        'Stochastic_Status': 1.25,   # Helps identify overbought/oversold conditions for entries/exits
-        'Volume_Trend': 0.25,        # Confirms trends, enhances reliability of entry/exit signals
-        'VWAP_Status': 0.75,         # Provides context for average price; can indicate entry/exit zones
-        'Bollinger_Status': 1.50,    # Identifies volatility; price touching bands can signal entries/exits
-        'Golden_Cross_Status': 1.25, # Bullish signal; indicates entry points when short-term crosses above long-term
-        'CandleStick_Pattern_Status': 0.75 # Market sentiment indicators for potential entry/exit signals
+        'RSI_Status': 1.50,         
+        'MACD_Status': 1.0,         
+        'ADX_Status': 0.90,           
+        'Divergance_status': 1.80,    
+        'MACD_Histogram_Status': 1.50, 
+        'Parabolic_SAR_Status': 0.50, 
+        'Stochastic_Status': 0.50,  
+        'Volume_Trend': 2.25,        
+        'VWAP_Status': 2.25,         
+        'Bollinger_Status': 0.75,    
+        'Golden_Cross_Status': 0.90, 
+        'CandleStick_Pattern_Status': 2.25 
     }
 
 
