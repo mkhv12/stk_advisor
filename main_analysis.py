@@ -332,52 +332,20 @@ def main(backtest=False, opt=False):
     # Default weights for real-time analysis
     #emphasis on reversal and strength
 
-    #backtest 10/03/24 = 79% - average 4-5 signals in 2 years
-    # weights = {
-    #     'RSI_Status': 1.0,          # Strong overbought/oversold signals for potential entries/exits
-    #     'MACD_Status': 1.25,         # Momentum indicator; a crossover can signal entry/exit points
-    #     'ADX_Status': 0.75,           # Trend strength; confirms whether to enter or exit based on trend robustness
-    #     'Divergance_status': 0.75,    # Reversal emphasis; divergence can indicate potential entry/exit points
-    #     'MACD_Histogram_Status': 0.75, # Indicates momentum shifts, useful for timing entries/exits
-    #     'Parabolic_SAR_Status': 0.75, # Reversal detection; provides clear signals for exits
-    #     'Stochastic_Status': 1.0,   # Helps identify overbought/oversold conditions for entries/exits
-    #     'Volume_Trend': 0.25,        # Confirms trends, enhances reliability of entry/exit signals
-    #     'VWAP_Status': 1.0,         # Provides context for average price; can indicate entry/exit zones
-    #     'Bollinger_Status': 1.5,    # Identifies volatility; price touching bands can signal entries/exits
-    #     'Golden_Cross_Status': 1.25, # Bullish signal; indicates entry points when short-term crosses above long-term
-    #     'CandleStick_Pattern_Status': 0.75 # Market sentiment indicators for potential entry/exit signals
-    # }
-
-    #backtest 10/03/24 = 50% - average 32-33 signals in 2 years
-    # weights = {
-    #     'RSI_Status': 1.65,      
-    #     'MACD_Status': 0.25,         
-    #     'ADX_Status': 0.25,           
-    #     'Divergance_status': 2.13,    
-    #     'MACD_Histogram_Status': 1.70, 
-    #     'Parabolic_SAR_Status': 0.25, 
-    #     'Stochastic_Status': 0.25,  
-    #     'Volume_Trend': 3.0,        
-    #     'VWAP_Status': 3.0,         
-    #     'Bollinger_Status': 0.25,    
-    #     'Golden_Cross_Status': 0.25, 
-    #     'CandleStick_Pattern_Status': 3.0 
-    # }
-
-    #backtest 10/03/24 = 51% - average 22 signals in 2 years
+    #backtest 10/03/24 = 72% - average 7 signals and 57 days holding time in 2 years
     weights = {
-        'RSI_Status': 1.50,         
-        'MACD_Status': 1.0,         
-        'ADX_Status': 0.90,           
-        'Divergance_status': 1.80,    
-        'MACD_Histogram_Status': 1.50, 
-        'Parabolic_SAR_Status': 0.50, 
-        'Stochastic_Status': 0.50,  
-        'Volume_Trend': 2.25,        
-        'VWAP_Status': 2.25,         
-        'Bollinger_Status': 0.75,    
-        'Golden_Cross_Status': 0.90, 
-        'CandleStick_Pattern_Status': 2.25 
+        'RSI_Status': 0.5,          # Strong overbought/oversold signals for potential entries/exits
+        'MACD_Status': 1.25,         # Momentum indicator; a crossover can signal entry/exit points
+        'ADX_Status': 1.0,           # Trend strength; confirms whether to enter or exit based on trend robustness
+        'Divergance_status': 0.75,    # Reversal emphasis; divergence can indicate potential entry/exit points
+        'MACD_Histogram_Status': 0.75, # Indicates momentum shifts, useful for timing entries/exits
+        'Parabolic_SAR_Status': 0.5, # Reversal detection; provides clear signals for exits
+        'Stochastic_Status': 1.0,   # Helps identify overbought/oversold conditions for entries/exits
+        'Volume_Trend': 1.0,        # Confirms trends, enhances reliability of entry/exit signals
+        'VWAP_Status': 1.0,         # Provides context for average price; can indicate entry/exit zones
+        'Bollinger_Status': 1.5,    # Identifies volatility; price touching bands can signal entries/exits
+        'Golden_Cross_Status': 1.25, # Bullish signal; indicates entry points when short-term crosses above long-term
+        'CandleStick_Pattern_Status': 1.0 # Market sentiment indicators for potential entry/exit signals
     }
 
 
@@ -396,13 +364,12 @@ def main(backtest=False, opt=False):
     else:
         while True:
             real_time_analysis(year_period_length, "1d", weights)
-            real_time_analysis(hr_period_length, "1h", weights)
+            #real_time_analysis(hr_period_length, "1h", weights)
             #real_time_analysis(Minute_period_length, "15m", weights)  # max 59 days on 15m
             #real_time_analysis(Minute_period_length, "5m", weights)   # max 59 days on 15m
             print("***********************************************************")
-            print("3 minutes before running again...")
-            time.sleep(180)  # Sleep for 180 seconds (3 minutes)
-
+            print("5 minutes before running again...")
+            time.sleep(300)  # Sleep in seconds
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Stock Analysis Tool')
     parser.add_argument('--backtest', action='store_true', help='Run backtesting and optimization')
