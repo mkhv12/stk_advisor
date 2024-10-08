@@ -332,20 +332,20 @@ def main(backtest=False, opt=False):
     # Default weights for real-time analysis
     #emphasis on reversal and strength
 
-    #backtest 10/03/24 = 72% - average 7 signals and 57 days holding time in 2 years
+    #backtest 10/07/24 = 73% - average 7 signals and 56 days holding time in 2 years
     weights = {
-        'RSI_Status': 0.5,          # Strong overbought/oversold signals for potential entries/exits
-        'MACD_Status': 1.25,         # Momentum indicator; a crossover can signal entry/exit points
-        'ADX_Status': 1.0,           # Trend strength; confirms whether to enter or exit based on trend robustness
+        'RSI_Status': 1.25,          # Strong overbought/oversold signals for potential entries/exits
+        'MACD_Status': 1.5,         # Momentum indicator; a crossover can signal entry/exit points
+        'ADX_Status': 0.75,           # Trend strength; confirms whether to enter or exit based on trend robustness
         'Divergance_status': 0.75,    # Reversal emphasis; divergence can indicate potential entry/exit points
-        'MACD_Histogram_Status': 0.75, # Indicates momentum shifts, useful for timing entries/exits
+        'MACD_Histogram_Status': 0.5, # Indicates momentum shifts, useful for timing entries/exits
         'Parabolic_SAR_Status': 0.5, # Reversal detection; provides clear signals for exits
-        'Stochastic_Status': 1.0,   # Helps identify overbought/oversold conditions for entries/exits
-        'Volume_Trend': 1.0,        # Confirms trends, enhances reliability of entry/exit signals
-        'VWAP_Status': 1.0,         # Provides context for average price; can indicate entry/exit zones
+        'Stochastic_Status': 0.5,   # Helps identify overbought/oversold conditions for entries/exits
+        'Volume_Trend': 0.75,        # Confirms trends, enhances reliability of entry/exit signals
+        'VWAP_Status': 0.5,         # Provides context for average price; can indicate entry/exit zones
         'Bollinger_Status': 1.5,    # Identifies volatility; price touching bands can signal entries/exits
         'Golden_Cross_Status': 1.25, # Bullish signal; indicates entry points when short-term crosses above long-term
-        'CandleStick_Pattern_Status': 1.0 # Market sentiment indicators for potential entry/exit signals
+        'CandleStick_Pattern_Status': 1.25 # Market sentiment indicators for potential entry/exit signals
     }
 
 
@@ -355,7 +355,7 @@ def main(backtest=False, opt=False):
 
     if backtest:
         backtest_analysis(year_period_length, "1d", weights)
-        #backtest_analysis(hr_period_length, "1h", weights)
+        backtest_analysis(hr_period_length, "1h", weights)
         #backtest_analysis(Minute_period_length, "15m", weights)
         #backtest_analysis(Minute_period_length, "5m", weights)
     elif opt:
@@ -364,7 +364,7 @@ def main(backtest=False, opt=False):
     else:
         while True:
             real_time_analysis(year_period_length, "1d", weights)
-            #real_time_analysis(hr_period_length, "1h", weights)
+            real_time_analysis(hr_period_length, "1h", weights)
             #real_time_analysis(Minute_period_length, "15m", weights)  # max 59 days on 15m
             #real_time_analysis(Minute_period_length, "5m", weights)   # max 59 days on 15m
             print("***********************************************************")
