@@ -67,6 +67,7 @@ def backtest(ticker, start_date, end_date, interval, weights, profit_threshold=0
     # Calculate final portfolio value
     final_portfolio_value = cash + position * data['Close'].iloc[-1]
     profit_or_loss = final_portfolio_value - initial_capital
+    win_percentage = (profit_or_loss/initial_capital)*100
 
     # Count the number of buy or sell signals, including volume trend analysis
     buy_or_sell_signals = [
@@ -85,6 +86,7 @@ def backtest(ticker, start_date, end_date, interval, weights, profit_threshold=0
         'Initial_Capital': initial_capital,
         'Final_Portfolio_Value': final_portfolio_value,
         'Profit_or_Loss': profit_or_loss,
+        'Win_perc': win_percentage,
         'Total_Hold_Time': total_hold_time,  # Include total hold time in the result
         'Average_Hold_Time': average_hold_time, 
         'Signals': signals,
@@ -122,22 +124,24 @@ def optimize_weights(RSI_Status, MACD_Status, ADX_Status, MACD_Histogram_Status,
     
     result = backtest('QQQ', start_date, end_date, '1d', weights)  # Adjust ticker, dates, and interval as needed
     
-    return result['Total_Wins']
+    return result['Win_perc']
 
+low_bound = 0.25
+high_bound = 2    
 # Set the parameter bounds
 pbounds = {
-    'RSI_Status': (0.25, 3),
-    'MACD_Status': (0.25, 3),
-    'ADX_Status': (0.25, 3), 
-    'MACD_Histogram_Status': (0.25, 3),
-    'VWAP_Status': (0.25, 3),
-    'Golden_Cross_Status': (0.25, 3),
-    'Parabolic_SAR_Status': (0.25, 3),
-    'Volume_Trend': (0.25, 3),
-    'Bollinger_Status': (0.25, 3),
-    'Stochastic_Status': (0.25, 3),
-    'candlestick_pattern': (0.25, 3),
-    'Divergance_status': (0.25, 3)
+    'RSI_Status': (low_bound, high_bound),
+    'MACD_Status': (low_bound, high_bound),
+    'ADX_Status': (low_bound, high_bound),
+    'MACD_Histogram_Status': (low_bound, high_bound),
+    'VWAP_Status': (low_bound, high_bound),
+    'Golden_Cross_Status': (low_bound, high_bound),
+    'Parabolic_SAR_Status': (low_bound, high_bound),
+    'Volume_Trend': (low_bound, high_bound),
+    'Bollinger_Status': (low_bound, high_bound),
+    'Stochastic_Status': (low_bound, high_bound),
+    'candlestick_pattern': (low_bound, high_bound),
+    'Divergance_status': (low_bound, high_bound),
 }
 
 
@@ -152,7 +156,7 @@ def run_optimization():
     # Run the optimization
     optimizer.maximize(
         init_points=10,
-        n_iter=50
+        n_iter=60
     )
 
     # Get the best weights

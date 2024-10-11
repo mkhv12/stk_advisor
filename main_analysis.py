@@ -280,6 +280,7 @@ def backtest_analysis(qdays, interval, weights):
     symb_percentage_total = 0
     buy_signals_list = []
     hold_time_list = []
+    win_perc_list =[]
 
     print(f"\nDate range: {start_date} to {end_date} and {interval} chart")
     print("***********")
@@ -299,9 +300,10 @@ def backtest_analysis(qdays, interval, weights):
 
         print(f"Total Buy Signals: {analysis['Count_Buy_Signals']}")
         print(f"Total Sell Signals: {analysis['Count_Sell_Signals']}")
-        print(f"Profit or Loss: ${analysis['Profit_or_Loss']:.2f}")
+        print(f"Profit or Loss: ${analysis['Profit_or_Loss']:.2f} ({analysis['Win_perc']:.2f}%)")
         print(f"Average Hold Time: {analysis['Average_Hold_Time']:.0f} Day")
         hold_time_list.append(analysis['Average_Hold_Time'])
+        win_perc_list.append(analysis['Win_perc'])
 
         if analysis['Count_Buy_Signals'] != 0:
             print(f"Total Wins:{analysis['Total_Wins']} ({(analysis['Total_Wins']/analysis['Count_Buy_Signals'])*100:.0f}%)")
@@ -316,9 +318,10 @@ def backtest_analysis(qdays, interval, weights):
     print("\n")
 
 
-    print(f"Overall Average Win Percentage = {symb_percentage_total/symb_count_wins_signals:.0f}%")
-    print(f"Overall Average = {sum(buy_signals_list) / len(buy_signals_list):.0f} Signals")
-    print(f"Overall Average Hold Time = {sum(hold_time_list) / len(hold_time_list):.0f} Days")
+    print(f"Overall AVG Signal Win Percentage = {symb_percentage_total/symb_count_wins_signals:.0f}%")
+    print(f"Overall AVG Win $ Percentage = {sum(win_perc_list) / len(win_perc_list):.0f} %")
+    print(f"Overall AVG  = {sum(buy_signals_list) / len(buy_signals_list):.0f} Signals")
+    print(f"Overall AVG  Hold Time = {sum(hold_time_list) / len(hold_time_list):.0f} Days")
     
     print("\n")
 
@@ -334,7 +337,7 @@ def main(backtest=False, opt=False):
 
     #backtest 10/07/24 = 73% - average 7 signals and 56 days holding time in 2 years
     weights = {
-        'RSI_Status': 1.25,          # Strong overbought/oversold signals for potential entries/exits
+        'RSI_Status': 0.75,          # Strong overbought/oversold signals for potential entries/exits
         'MACD_Status': 1.5,         # Momentum indicator; a crossover can signal entry/exit points
         'ADX_Status': 0.75,           # Trend strength; confirms whether to enter or exit based on trend robustness
         'Divergance_status': 0.75,    # Reversal emphasis; divergence can indicate potential entry/exit points
@@ -343,8 +346,8 @@ def main(backtest=False, opt=False):
         'Stochastic_Status': 0.5,   # Helps identify overbought/oversold conditions for entries/exits
         'Volume_Trend': 0.75,        # Confirms trends, enhances reliability of entry/exit signals
         'VWAP_Status': 0.5,         # Provides context for average price; can indicate entry/exit zones
-        'Bollinger_Status': 1.5,    # Identifies volatility; price touching bands can signal entries/exits
-        'Golden_Cross_Status': 1.25, # Bullish signal; indicates entry points when short-term crosses above long-term
+        'Bollinger_Status': 0.75,    # Identifies volatility; price touching bands can signal entries/exits
+        'Golden_Cross_Status': 0.75, # Bullish signal; indicates entry points when short-term crosses above long-term
         'CandleStick_Pattern_Status': 1.25 # Market sentiment indicators for potential entry/exit signals
     }
 
