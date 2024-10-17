@@ -318,10 +318,10 @@ def backtest_analysis(qdays, interval, weights):
     print("\n")
 
 
-    print(f"Overall AVG Signal Win Percentage = {symb_percentage_total/symb_count_wins_signals:.0f}%")
-    print(f"Overall AVG Win $ Percentage = {sum(win_perc_list) / len(win_perc_list):.0f} %")
-    print(f"Overall AVG  = {sum(buy_signals_list) / len(buy_signals_list):.0f} Signals")
-    print(f"Overall AVG  Hold Time = {sum(hold_time_list) / len(hold_time_list):.0f} Days")
+    print(f"Overall AVG Win Signal = {symb_percentage_total/symb_count_wins_signals:.0f}%")
+    print(f"Overall AVG Win $ = {sum(win_perc_list) / len(win_perc_list):.0f}%")
+    print(f"Overall AVG = {sum(buy_signals_list) / len(buy_signals_list):.0f} Signals")
+    print(f"Overall AVG Hold Time = {sum(hold_time_list) / len(hold_time_list):.0f} Days")
     
     print("\n")
 
@@ -335,20 +335,21 @@ def main(backtest=False, opt=False):
     # Default weights for real-time analysis
     #emphasis on reversal and strength
 
-    #backtest 10/07/24 = 73% - average 7 signals and 56 days holding time in 2 years
+    #backtest 10/17/24 (1d) = 62% - average 8 signals and 53 days holding time in 2 years
+    #backtest 10/17/24 (1h )= 55% - average 5 signals and 19 days holding time in 90 days
     weights = {
-        'RSI_Status': 0.75,          # Strong overbought/oversold signals for potential entries/exits
-        'MACD_Status': 1.5,         # Momentum indicator; a crossover can signal entry/exit points
-        'ADX_Status': 0.75,           # Trend strength; confirms whether to enter or exit based on trend robustness
-        'Divergance_status': 0.75,    # Reversal emphasis; divergence can indicate potential entry/exit points
-        'MACD_Histogram_Status': 0.5, # Indicates momentum shifts, useful for timing entries/exits
-        'Parabolic_SAR_Status': 0.5, # Reversal detection; provides clear signals for exits
-        'Stochastic_Status': 0.5,   # Helps identify overbought/oversold conditions for entries/exits
-        'Volume_Trend': 0.75,        # Confirms trends, enhances reliability of entry/exit signals
-        'VWAP_Status': 0.5,         # Provides context for average price; can indicate entry/exit zones
-        'Bollinger_Status': 0.75,    # Identifies volatility; price touching bands can signal entries/exits
-        'Golden_Cross_Status': 0.75, # Bullish signal; indicates entry points when short-term crosses above long-term
-        'CandleStick_Pattern_Status': 1.25 # Market sentiment indicators for potential entry/exit signals
+        'RSI_Status': 0.5,                     # Strong overbought/oversold signals for potential entries/exits
+        'MACD_Status': 0.75,                    # Momentum indicator; a crossover can signal entry/exit points
+        'ADX_Status': 0.5,                      # Trend strength; confirms whether to enter or exit based on trend robustness
+        'Divergance_status': 0.5,               # Reversal emphasis; divergence can indicate potential entry/exit points
+        'MACD_Histogram_Status': 0.5,           # Indicates momentum shifts, useful for timing entries/exits
+        'Parabolic_SAR_Status': 0.5,            # Reversal detection; provides clear signals for exits
+        'Stochastic_Status': 0.5,               # Helps identify overbought/oversold conditions for entries/exits
+        'Volume_Trend': 0.75,                    # Confirms trends, enhances reliability of entry/exit signals
+        'VWAP_Status': 0.5,                     # Provides context for average price; can indicate entry/exit zones
+        'Bollinger_Status': 1.0,               # Identifies volatility; price touching bands can signal entries/exits
+        'Golden_Cross_Status': 0.75,             # Bullish signal; indicates entry points when short-term crosses above long-term
+        'CandleStick_Pattern_Status': 0.75       # Market sentiment indicators for potential entry/exit signals
     }
 
 
