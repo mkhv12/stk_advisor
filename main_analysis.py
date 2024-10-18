@@ -335,21 +335,38 @@ def main(backtest=False, opt=False):
     # Default weights for real-time analysis
     #emphasis on reversal and strength
 
-    #backtest 10/17/24 (1d) = 62% - average 8 signals and 53 days holding time in 2 years
-    #backtest 10/17/24 (1h )= 55% - average 5 signals and 19 days holding time in 90 days
-    weights = {
-        'RSI_Status': 0.5,                     # Strong overbought/oversold signals for potential entries/exits
-        'MACD_Status': 0.75,                    # Momentum indicator; a crossover can signal entry/exit points
-        'ADX_Status': 0.5,                      # Trend strength; confirms whether to enter or exit based on trend robustness
-        'Divergance_status': 0.5,               # Reversal emphasis; divergence can indicate potential entry/exit points
-        'MACD_Histogram_Status': 0.5,           # Indicates momentum shifts, useful for timing entries/exits
-        'Parabolic_SAR_Status': 0.5,            # Reversal detection; provides clear signals for exits
-        'Stochastic_Status': 0.5,               # Helps identify overbought/oversold conditions for entries/exits
-        'Volume_Trend': 0.75,                    # Confirms trends, enhances reliability of entry/exit signals
-        'VWAP_Status': 0.5,                     # Provides context for average price; can indicate entry/exit zones
-        'Bollinger_Status': 1.0,               # Identifies volatility; price touching bands can signal entries/exits
-        'Golden_Cross_Status': 0.75,             # Bullish signal; indicates entry points when short-term crosses above long-term
-        'CandleStick_Pattern_Status': 0.75       # Market sentiment indicators for potential entry/exit signals
+    # long term stragedy
+    # backtest 10/17/24 (1d) = 62% - average 8 signals and 53 days holding time in 2 years
+    weights_long_term = {
+        'RSI_Status': 0.65,                      # Detect overbought/oversold signals for potential reversals
+        'MACD_Status': 0.65,                     # Momentum shifts, but reduce to minimize false signals
+        'ADX_Status': 0.75,                      # Strong trend confirmation to validate reversals
+        'Divergance_status': 0.85,               # Strong emphasis on reversals through divergence
+        'MACD_Histogram_Status': 0.60,           # Detect momentum shifts, but balanced for reliability
+        'Parabolic_SAR_Status': 0.75,            # Reliable exit signals, useful in trend reversals
+        'Stochastic_Status': 0.65,               # Overbought/oversold levels but reduce for false signals
+        'Volume_Trend': 0.80,                    # Confirm reversals with volume trends to reduce fake signals
+        'VWAP_Status': 0.50,                     # Add context to price positioning in the reversal
+        'Bollinger_Status': 0.85,                # Capture volatility for timing entries/exits at reversals
+        'Golden_Cross_Status': 0.65,             # Longer-term trend confirmation
+        'CandleStick_Pattern_Status': 0.75       # Detect sentiment and reversal patterns reliably
+    }
+
+    #short term stragedy
+    #backtest 10/18/24 (1h )= 49% - average 8 signals and 14 days holding time in 90 days
+    weights_short_term = {
+        'RSI_Status': 0.25,                      # Still useful for identifying overbought/oversold conditions, but slightly reduced to focus more on trend strength
+        'MACD_Status': 0.5,                     # Useful for momentum shifts, but not as crucial in volatile, short-term trades
+        'ADX_Status': 0.75,                      # Increased focus on trend strength to filter out noise
+        'Divergance_status': 0.75,               # Strong reversal emphasis, especially when backed by volume
+        'MACD_Histogram_Status': 0.5,           # Momentum shifts for confirmation, balanced with other factors
+        'Parabolic_SAR_Status': 0.75,            # Reliable exit indicator for reversals
+        'Stochastic_Status': 0.25,               # Lowered weight for short-term, as stochastic can give fake signals in choppy markets
+        'Volume_Trend': 1.25,                    # Stronger emphasis on volume trends to confirm trade reliability
+        'VWAP_Status': 0.75,                     # Adds context for price action, helps to validate trades in short timeframes
+        'Bollinger_Status': 0.75,                # Volatility check to ensure we act on strong shifts
+        'Golden_Cross_Status': 1.0,             # Less important on short timeframes, more useful for longer trend confirmations
+        'CandleStick_Pattern_Status': 1.0       # Visual confirmation of market sentiment and reversal opportunities
     }
 
 
@@ -358,19 +375,19 @@ def main(backtest=False, opt=False):
     Minute_period_length = 30
 
     if backtest:
-        backtest_analysis(year_period_length, "1d", weights)
-        backtest_analysis(hr_period_length, "1h", weights)
-        #backtest_analysis(Minute_period_length, "15m", weights)
-        #backtest_analysis(Minute_period_length, "5m", weights)
+        backtest_analysis(year_period_length, "1d", weights_long_term)
+        backtest_analysis(hr_period_length, "1h", weights_short_term)
+        #backtest_analysis(Minute_period_length, "15m", weights_short_term)
+        #backtest_analysis(Minute_period_length, "5m", weights_short_term)
     elif opt:
         # Run the optimization
         optimized_analysis()
     else:
         while True:
-            real_time_analysis(year_period_length, "1d", weights)
-            real_time_analysis(hr_period_length, "1h", weights)
-            #real_time_analysis(Minute_period_length, "15m", weights)  # max 59 days on 15m
-            #real_time_analysis(Minute_period_length, "5m", weights)   # max 59 days on 15m
+            real_time_analysis(year_period_length, "1d", weights_long_term)
+            real_time_analysis(hr_period_length, "1h", weights_short_term)
+            #real_time_analysis(Minute_period_length, "15m", weights_short_term)  # max 59 days on 15m
+            #real_time_analysis(Minute_period_length, "5m", weights_short_term)   # max 59 days on 15m
             print("***********************************************************")
             print("5 minutes before running again...")
             time.sleep(300)  # Sleep in seconds
