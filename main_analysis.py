@@ -355,16 +355,16 @@ def main(backtest=False, opt=False):
     #short term stragedy
     #backtest 10/18/24 (1h )= 49% - average 8 signals and 14 days holding time in 90 days
     weights_short_term = {
-        'RSI_Status': 0.25,                      # Still useful for identifying overbought/oversold conditions, but slightly reduced to focus more on trend strength
+        'RSI_Status': 0.5,                      # Still useful for identifying overbought/oversold conditions, but slightly reduced to focus more on trend strength
         'MACD_Status': 1.25,                     # Useful for momentum shifts, but not as crucial in volatile, short-term trades
         'ADX_Status': 0.75,                      # Increased focus on trend strength to filter out noise
         'Divergance_status': 0.75,               # Strong reversal emphasis, especially when backed by volume
         'MACD_Histogram_Status': 0.75,           # Momentum shifts for confirmation, balanced with other factors
-        'Parabolic_SAR_Status': 0.25,            # Reliable exit indicator for reversals
-        'Stochastic_Status': 0.25,               # Lowered weight for short-term, as stochastic can give fake signals in choppy markets
+        'Parabolic_SAR_Status': 0.5,            # Reliable exit indicator for reversals
+        'Stochastic_Status': 0.5,               # Lowered weight for short-term, as stochastic can give fake signals in choppy markets
         'Volume_Trend': 1.25,                    # Stronger emphasis on volume trends to confirm trade reliability
         'VWAP_Status': 0.5,                     # Adds context for price action, helps to validate trades in short timeframes
-        'Bollinger_Status': 0.9,                # Volatility check to ensure we act on strong shifts
+        'Bollinger_Status': 0.25,                # Volatility check to ensure we act on strong shifts
         'Golden_Cross_Status': 0.75,             # Less important on short timeframes, more useful for longer trend confirmations
         'CandleStick_Pattern_Status': 0.75       # Visual confirmation of market sentiment and reversal opportunities
     }

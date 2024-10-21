@@ -18,7 +18,7 @@ def calculate_rsi(data, window=14):
 def calculate_ema(data, window):
     return data['Close'].ewm(span=window, adjust=False).mean()
 
-def calculate_macd(data, fast_length=12, slow_length=26, signal_length=9):
+def calculate_macd(data, fast_length=8, slow_length=21, signal_length=5):
     ema_fast = calculate_ema(data, fast_length)
     ema_slow = calculate_ema(data, slow_length)
     macd_line = ema_fast - ema_slow
