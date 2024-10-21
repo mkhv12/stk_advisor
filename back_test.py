@@ -156,7 +156,7 @@ def run_optimization():
     # Run the optimization
     optimizer.maximize(
         init_points=10,
-        n_iter=60
+        n_iter=30
     )
 
     # Get the best weights
