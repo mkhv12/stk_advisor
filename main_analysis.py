@@ -130,6 +130,8 @@ def analyze_stock(data, weights):
 
 
     divergance_status = tech_analysis_tools.detect_rsi_divergence(data)
+
+    head_and_shoulder_detect = tech_analysis_tools.detect_head_and_shoulders(data)
     
     # Calculate weighted scores for buy and sell signals
     weighted_buy_score = 0
@@ -150,7 +152,8 @@ def analyze_stock(data, weights):
         'Bollinger_Status': bollinger_status,
         'Stochastic_Status': stochastic_status,
         'CandleStick_Pattern_Status': candlestick_pattern,
-        'Divergance_status':divergance_status
+        'Divergance_status':divergance_status,
+        'Head_and_Shoulder_detect':head_and_shoulder_detect
     }
 
 
@@ -190,7 +193,8 @@ def analyze_stock(data, weights):
         'Current_Price': current_price,
         'weigth_scores' : weigth_scores,
         'Price_Drop':price_drop,
-        'Divergance_status':divergance_status
+        'Divergance_status':divergance_status,
+        'Head_and_Shoulder_detect':head_and_shoulder_detect
     }
 
 
@@ -244,6 +248,7 @@ def real_time_analysis(qdays, interval, weights):
                 print(f"Bollinger: {analysis['Bollinger_Status']}")
                 print(f"VWAP: {analysis['VWAP']:.2f} ({analysis['VWAP_Status']})")
                 print(f"Volume Trend: {analysis['Volume_Trend']}")
+                print(f"Head and Shoulder Pattern: {analysis['Head_and_Shoulder_detect']}")
                 
                 if analysis['Decision'] == "Consider Sell" and status == "HOLDING":
                     print_with_color(f"Decision: {analysis['Decision']}", "red")
@@ -333,49 +338,62 @@ def optimized_analysis():
 
 def main(backtest=False, opt=False):
     # Default weights for real-time analysis
-    #emphasis on reversal and strength
-
+    #RSI_Status - Detect overbought/oversold signals for potential reversals
+    #MACD_Status - Momentum shifts, but reduce to minimize false signals
+    #ADX_Status - Strong trend confirmation to validate reversals
+    #Divergance_status - Strong emphasis on reversals through divergence
+    #MACD_Histogram_Status - Detect momentum shifts, but balanced for reliability
+    #Parabolic_SAR_Status - Reliable exit signals, useful in trend reversals
+    #Stochastic_Status - Overbought/oversold levels but reduce for false signals
+    #Volume_Trend - Confirm reversals with volume trends to reduce fake signals
+    #VWAP_Status - Add context to price positioning in the reversal
+    #Bollinger_Status - Capture volatility for timing entries/exits at reversals
+    #Golden_Cross_Status - Longer-term trend confirmation
+    #CandleStick_Pattern_Status - Detect sentiment and reversal patterns reliably
+  
     # long term stragedy
-    # backtest 10/17/24 (1d) = 62% - average 8 signals and 53 days holding time in 2 years
+    # backtest 10/22/24 (1d) = 72% - average win $ 27% - Average 6 signals and 91 days holding time in 2 years
     weights_long_term = {
-        'RSI_Status': 0.9,                      # Detect overbought/oversold signals for potential reversals
-        'MACD_Status': 1.5,                     # Momentum shifts, but reduce to minimize false signals
-        'ADX_Status': 0.5,                      # Strong trend confirmation to validate reversals
-        'Divergance_status': 0.5,               # Strong emphasis on reversals through divergence
-        'MACD_Histogram_Status': 0.75,           # Detect momentum shifts, but balanced for reliability
-        'Parabolic_SAR_Status': 0.25,            # Reliable exit signals, useful in trend reversals
-        'Stochastic_Status': 0.25,               # Overbought/oversold levels but reduce for false signals
-        'Volume_Trend': 0.5,                    # Confirm reversals with volume trends to reduce fake signals
-        'VWAP_Status': 0.5,                     # Add context to price positioning in the reversal
-        'Bollinger_Status': 1.5,                # Capture volatility for timing entries/exits at reversals
-        'Golden_Cross_Status': 1.25,             # Longer-term trend confirmation
-        'CandleStick_Pattern_Status': 1.25       # Detect sentiment and reversal patterns reliably
+        'RSI_Status': 0.95,                    
+        'MACD_Status': 1.5,                     
+        'ADX_Status': 0.75,                      
+        'Divergance_status': 0.5,               
+        'MACD_Histogram_Status': 0.75,          
+        'Parabolic_SAR_Status': 0.65,            
+        'Stochastic_Status': 0.75,               
+        'Volume_Trend': 0.75,                    
+        'VWAP_Status': 0.5,                     
+        'Bollinger_Status': 1.5,                
+        'Golden_Cross_Status': 1.25,             
+        'CandleStick_Pattern_Status': 1.25,
+        'Head_and_Shoulder_detect': 0.5     
     }
 
     #short term stragedy
-    #backtest 10/18/24 (1h )= 49% - average 8 signals and 14 days holding time in 90 days
+    # backtest 10/22/24 (1h) = 48% - average win $ 3% - Average 9 signals and 18 days holding time in 90 days
     weights_short_term = {
-        'RSI_Status': 0.5,                      # Still useful for identifying overbought/oversold conditions, but slightly reduced to focus more on trend strength
-        'MACD_Status': 1.25,                     # Useful for momentum shifts, but not as crucial in volatile, short-term trades
-        'ADX_Status': 0.75,                      # Increased focus on trend strength to filter out noise
-        'Divergance_status': 0.75,               # Strong reversal emphasis, especially when backed by volume
-        'MACD_Histogram_Status': 0.75,           # Momentum shifts for confirmation, balanced with other factors
-        'Parabolic_SAR_Status': 0.5,            # Reliable exit indicator for reversals
-        'Stochastic_Status': 0.5,               # Lowered weight for short-term, as stochastic can give fake signals in choppy markets
-        'Volume_Trend': 1.25,                    # Stronger emphasis on volume trends to confirm trade reliability
-        'VWAP_Status': 0.5,                     # Adds context for price action, helps to validate trades in short timeframes
-        'Bollinger_Status': 0.25,                # Volatility check to ensure we act on strong shifts
-        'Golden_Cross_Status': 0.75,             # Less important on short timeframes, more useful for longer trend confirmations
-        'CandleStick_Pattern_Status': 0.75       # Visual confirmation of market sentiment and reversal opportunities
+        'RSI_Status': 0.5,                      
+        'MACD_Status': 1.5,                     
+        'ADX_Status': 0.75,                      
+        'Divergance_status': 0.75,               
+        'MACD_Histogram_Status': 0.75,           
+        'Parabolic_SAR_Status': 0.85,            
+        'Stochastic_Status': 0.75,               
+        'Volume_Trend': 1.25,                    
+        'VWAP_Status': 0.5,                     
+        'Bollinger_Status': 0.75,                
+        'Golden_Cross_Status': 0.75,            
+        'CandleStick_Pattern_Status': 0.75,
+        'Head_and_Shoulder_detect': 0.9        
     }
 
 
-    hr_period_length = 90
+    hr_period_length = 120
     year_period_length = 730
     Minute_period_length = 30
 
     if backtest:
-        backtest_analysis(year_period_length, "1d", weights_long_term)
+        #backtest_analysis(year_period_length, "1d", weights_long_term)
         backtest_analysis(hr_period_length, "1h", weights_short_term)
         #backtest_analysis(Minute_period_length, "15m", weights_short_term)
         #backtest_analysis(Minute_period_length, "5m", weights_short_term)

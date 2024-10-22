@@ -282,6 +282,39 @@ def detect_rsi_divergence(data):
     return last_signal
 
 
+def detect_head_and_shoulders(data):
+    """
+    Detects Head and Shoulders (Bearish) or Inverse Head and Shoulders (Bullish) pattern.
+    Returns a signal if pattern is found.
+    """
+
+    # Find local peaks and troughs (using rolling window approach)
+    data['Peak'] = data['High'].rolling(window=3).apply(lambda x: x.iloc[1] if x.iloc[1] > x.iloc[0] and x.iloc[1] > x.iloc[2] else np.nan)
+    data['Trough'] = data['Low'].rolling(window=3).apply(lambda x: x.iloc[1] if x.iloc[1] < x.iloc[0] and x.iloc[1] < x.iloc[2] else np.nan)
+
+    # Collect the peaks and troughs for pattern detection
+    peaks = data['Peak'].dropna()
+    troughs = data['Trough'].dropna()
+
+    if len(peaks) >= 3 and len(troughs) >= 3:
+        # We assume peaks and troughs follow the pattern sequence
+        left_shoulder_peak = peaks.iloc[-3]
+        head_peak = peaks.iloc[-2]
+        right_shoulder_peak = peaks.iloc[-1]
+
+        left_shoulder_trough = troughs.iloc[-3]
+        head_trough = troughs.iloc[-2]
+        right_shoulder_trough = troughs.iloc[-1]
+
+        # Head and Shoulders pattern detection (Bearish)
+        if left_shoulder_peak < head_peak > right_shoulder_peak and left_shoulder_trough < head_trough < right_shoulder_trough:
+            return "Head/Shoulders (Sell Signal)"
+
+        # Inverse Head and Shoulders pattern detection (Bullish)
+        elif left_shoulder_peak > head_peak < right_shoulder_peak and left_shoulder_trough > head_trough < right_shoulder_trough:
+            return "Inverse Head/Shoulders (Buy Signal)"
+    
+    return "No Head/Shoulders"
 
 
 
