@@ -354,7 +354,7 @@ def main(backtest=False, opt=False):
     # long term stragedy
     # backtest 10/22/24 (1d) = 72% - average win $ 27% - Average 6 signals and 91 days holding time in 2 years
     weights_long_term = {
-        'RSI_Status': 0.75,                    
+        'RSI_Status': 0.5,                    
         'MACD_Status': 1.5,                     
         'ADX_Status': 0.75,                      
         'Divergance_status': 0.5,               
@@ -362,11 +362,11 @@ def main(backtest=False, opt=False):
         'Parabolic_SAR_Status': 0.65,            
         'Stochastic_Status': 0.75,               
         'Volume_Trend': 0.75,                    
-        'VWAP_Status': 0.5,                     
+        'VWAP_Status': 0.65,                     
         'Bollinger_Status': 1.5,                
         'Golden_Cross_Status': 1.25,             
         'CandleStick_Pattern_Status': 1.25,
-        'Head_and_Shoulder_detect': 0.15     
+        'Head_and_Shoulder_detect': 0.25     
     }
 
     #short term stragedy
