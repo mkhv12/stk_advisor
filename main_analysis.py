@@ -354,7 +354,7 @@ def main(backtest=False, opt=False):
     # long term stragedy
     # backtest 10/22/24 (1d) = 72% - average win $ 27% - Average 6 signals and 91 days holding time in 2 years
     weights_long_term = {
-        'RSI_Status': 0.95,                    
+        'RSI_Status': 0.75,                    
         'MACD_Status': 1.5,                     
         'ADX_Status': 0.75,                      
         'Divergance_status': 0.5,               
@@ -366,11 +366,11 @@ def main(backtest=False, opt=False):
         'Bollinger_Status': 1.5,                
         'Golden_Cross_Status': 1.25,             
         'CandleStick_Pattern_Status': 1.25,
-        'Head_and_Shoulder_detect': 0.5     
+        'Head_and_Shoulder_detect': 0.15     
     }
 
     #short term stragedy
-    # backtest 10/22/24 (1h) = 48% - average win $ 3% - Average 9 signals and 18 days holding time in 90 days
+    # backtest 10/22/24 (1h) = 49% - average win $ 4% - Average 9 signals and 19 days holding time in 90 days
     weights_short_term = {
         'RSI_Status': 0.5,                      
         'MACD_Status': 1.5,                     
@@ -384,7 +384,7 @@ def main(backtest=False, opt=False):
         'Bollinger_Status': 0.75,                
         'Golden_Cross_Status': 0.75,            
         'CandleStick_Pattern_Status': 0.75,
-        'Head_and_Shoulder_detect': 0.9        
+        'Head_and_Shoulder_detect': 0.65       
     }
 
 
@@ -393,7 +393,7 @@ def main(backtest=False, opt=False):
     Minute_period_length = 30
 
     if backtest:
-        #backtest_analysis(year_period_length, "1d", weights_long_term)
+        backtest_analysis(year_period_length, "1d", weights_long_term)
         backtest_analysis(hr_period_length, "1h", weights_short_term)
         #backtest_analysis(Minute_period_length, "15m", weights_short_term)
         #backtest_analysis(Minute_period_length, "5m", weights_short_term)
