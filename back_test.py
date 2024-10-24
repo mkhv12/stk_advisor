@@ -4,7 +4,7 @@ import main_analysis
 from datetime import datetime, timedelta
 
 
-def backtest(ticker, start_date, end_date, interval, weights, profit_threshold=0.04, stop_loss_threshold=0.03):
+def backtest(ticker, start_date, end_date, interval, weights, profit_threshold=0.05, stop_loss_threshold=0.03):
     # Fetch stock data
     data = main_analysis.fetch_stock_data(ticker, start_date, end_date, interval, progress=False)
 
@@ -67,7 +67,7 @@ def backtest(ticker, start_date, end_date, interval, weights, profit_threshold=0
     # Calculate final portfolio value
     final_portfolio_value = cash + position * data['Close'].iloc[-1]
     profit_or_loss = final_portfolio_value - initial_capital
-    win_percentage = (profit_or_loss/initial_capital)*100
+    win_percentage = round((profit_or_loss/initial_capital)*100,0)
 
     # Count the number of buy or sell signals, including volume trend analysis
     buy_or_sell_signals = [
@@ -118,17 +118,17 @@ def optimize_weights(RSI_Status, MACD_Status, ADX_Status, MACD_Histogram_Status,
         'Head_and_Shoulder_detect':Head_and_Shoulder_detect
     }
 
-    date_back = datetime.now() - timedelta(days=730)
+    date_back = datetime.now() - timedelta(days=120)
     today = datetime.now() + timedelta(days=1)
     start_date = date_back.strftime("%Y-%m-%d")
     end_date = today.strftime("%Y-%m-%d")
     
-    result = backtest('QQQ', start_date, end_date, '1d', weights)  # Adjust ticker, dates, and interval as needed
+    result = backtest('VTI', start_date, end_date, '1h', weights)  # Adjust ticker, dates, and interval as needed
     
     return result['Win_perc']
 
 low_bound = 0.25
-high_bound = 2    
+high_bound = 5.0  
 # Set the parameter bounds
 pbounds = {
     'RSI_Status': (low_bound, high_bound),
@@ -158,7 +158,7 @@ def run_optimization():
     # Run the optimization
     optimizer.maximize(
         init_points=10,
-        n_iter=30
+        n_iter=50
     )
 
     # Get the best weights
