@@ -352,16 +352,16 @@ def main(backtest=False, opt=False):
     #CandleStick_Pattern_Status - Detect sentiment and reversal patterns reliably
   
     # long term stragedy
-    # backtest 10/24/24 (1d) = 69% - average win $ 26% - Average 7 signals and 67 days holding time in 2 years
+    # backtest 10/25/24 (1d) = 67% - average win $ 23% - Average 7 signals and 65 days holding time in 2 years
     weights_long_term = {
         'RSI_Status': 1.5,                    
         'MACD_Status': 1.5,                     
         'ADX_Status': 1.0,                      
         'Divergance_status': 1.0,               
-        'MACD_Histogram_Status': 0.75,          
+        'MACD_Histogram_Status': 0.95,          
         'Parabolic_SAR_Status': 0.5,            
         'Stochastic_Status': 0.5,               
-        'Volume_Trend': 0.75,                    
+        'Volume_Trend': 0.95,                    
         'VWAP_Status': 0.5,                     
         'Bollinger_Status': 1.25,                
         'Golden_Cross_Status': 0.75,             
@@ -370,7 +370,7 @@ def main(backtest=False, opt=False):
     }
 
     #short term stragedy
-    # backtest 10/22/24 (1h) = 45% - average win $ 2% - Average 6 signals and 17 days holding time in 120 days
+    # backtest 10/22/24 (1h) = 49% - average win $ 4% - Average 6 signals and 18 days holding time in 120 days
     weights_short_term = {
         'RSI_Status': 1.5,                      
         'MACD_Status': 1.5,                     
@@ -380,11 +380,11 @@ def main(backtest=False, opt=False):
         'Parabolic_SAR_Status': 0.75,            
         'Stochastic_Status': 0.75,               
         'Volume_Trend': 1.5,                    
-        'VWAP_Status': 0.75,                     
+        'VWAP_Status': 0.95,                     
         'Bollinger_Status': 1.25,                
         'Golden_Cross_Status': 1.5,            
-        'CandleStick_Pattern_Status': 1.0,
-        'Head_and_Shoulder_detect': 1.0      
+        'CandleStick_Pattern_Status': 1.2,
+        'Head_and_Shoulder_detect': 1.2      
     }
 
 
