@@ -377,22 +377,22 @@ def main(backtest=False, opt=False):
 
     #short term stragedy
     # backtest 10/28/24 (1h) = 41% - average win $ 1% - Average 8 signals and 16 days holding time in 120 days
-    # backtest 10/28/24 (15m) = 16% - average win $ -0% - Average 2 signals and 6 days holding time in 30 days
+    # backtest 10/28/24 (15m) = 17% - average win $ 2% - Average 3 signals and 8 days holding time in 30 days
     weights_short_term = {
-        'RSI_Status': 1.0,                      
+        'RSI_Status': 0.5,                      
         'MACD_Status': 1.5,                     
         'ADX_Status': 0.75,                      
         'Divergance_status': 0.75,               
-        'MACD_Histogram_Status': 1.0,           
-        'Parabolic_SAR_Status': 1.0,            
-        'Stochastic_Status': 1.0,               
+        'MACD_Histogram_Status': 0.25,           
+        'Parabolic_SAR_Status': 0.25,            
+        'Stochastic_Status': 0.25,               
         'Volume_Trend': 1.5,                    
-        'VWAP_Status': 1.0,                     
-        'Bollinger_Status': 1.0,                
-        'Golden_Cross_Status': 0.5,            
+        'VWAP_Status': 0.5,                     
+        'Bollinger_Status': 1.25,                
+        'Golden_Cross_Status': 0.25,            
         'CandleStick_Pattern_Status': 0.75,
-        'Head_and_Shoulder_detect': 0.5,
-        'Double_Top_Bottom':0.5      
+        'Head_and_Shoulder_detect': 0.75,
+        'Double_Top_Bottom':0.75      
     }
 
 
@@ -401,8 +401,8 @@ def main(backtest=False, opt=False):
     Minute_period_length = 30  #max 59 days
 
     if backtest:
-        #backtest_analysis(year_period_length, "1d", weights_long_term)
-        #backtest_analysis(hr_period_length, "1h", weights_short_term)
+        backtest_analysis(year_period_length, "1d", weights_long_term)
+        backtest_analysis(hr_period_length, "1h", weights_short_term)
         backtest_analysis(Minute_period_length, "15m", weights_short_term)
         #backtest_analysis(Minute_period_length, "5m", weights_short_term)
     elif opt:
