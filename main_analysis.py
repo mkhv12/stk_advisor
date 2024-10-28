@@ -380,15 +380,15 @@ def main(backtest=False, opt=False):
     # backtest 10/28/24 (15m) = 17% - average win $ 2% - Average 3 signals and 8 days holding time in 30 days
     weights_short_term = {
         'RSI_Status': 0.5,                      
-        'MACD_Status': 1.5,                     
-        'ADX_Status': 0.75,                      
-        'Divergance_status': 0.75,               
-        'MACD_Histogram_Status': 0.25,           
+        'MACD_Status': 0.65,                     
+        'ADX_Status': 0.85,                      
+        'Divergance_status': 0.85,               
+        'MACD_Histogram_Status': 0.5,           
         'Parabolic_SAR_Status': 0.25,            
         'Stochastic_Status': 0.25,               
         'Volume_Trend': 1.5,                    
         'VWAP_Status': 0.5,                     
-        'Bollinger_Status': 1.25,                
+        'Bollinger_Status': 0.8,                
         'Golden_Cross_Status': 0.25,            
         'CandleStick_Pattern_Status': 0.75,
         'Head_and_Shoulder_detect': 0.75,
@@ -398,11 +398,11 @@ def main(backtest=False, opt=False):
 
     hr_period_length = 120
     year_period_length = 730
-    Minute_period_length = 30  #max 59 days
+    Minute_period_length = 59  #max 59 days
 
     if backtest:
-        backtest_analysis(year_period_length, "1d", weights_long_term)
-        backtest_analysis(hr_period_length, "1h", weights_short_term)
+        #backtest_analysis(year_period_length, "1d", weights_long_term)
+        #backtest_analysis(hr_period_length, "1h", weights_short_term)
         backtest_analysis(Minute_period_length, "15m", weights_short_term)
         #backtest_analysis(Minute_period_length, "5m", weights_short_term)
     elif opt:
