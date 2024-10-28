@@ -132,6 +132,8 @@ def analyze_stock(data, weights):
     divergance_status = tech_analysis_tools.detect_rsi_divergence(data)
 
     head_and_shoulder_detect = tech_analysis_tools.detect_head_and_shoulders(data)
+
+    detect_double_top_bottom = tech_analysis_tools.detect_double_top_bottom(data)
     
     # Calculate weighted scores for buy and sell signals
     weighted_buy_score = 0
@@ -153,7 +155,8 @@ def analyze_stock(data, weights):
         'Stochastic_Status': stochastic_status,
         'CandleStick_Pattern_Status': candlestick_pattern,
         'Divergance_status':divergance_status,
-        'Head_and_Shoulder_detect':head_and_shoulder_detect
+        'Head_and_Shoulder_detect':head_and_shoulder_detect,
+        'Double_Top_Bottom':detect_double_top_bottom
     }
 
 
@@ -194,7 +197,8 @@ def analyze_stock(data, weights):
         'weigth_scores' : weigth_scores,
         'Price_Drop':price_drop,
         'Divergance_status':divergance_status,
-        'Head_and_Shoulder_detect':head_and_shoulder_detect
+        'Head_and_Shoulder_detect':head_and_shoulder_detect,
+        'Double_Top_Bottom':detect_double_top_bottom
     }
 
 
@@ -249,6 +253,7 @@ def real_time_analysis(qdays, interval, weights):
                 print(f"VWAP: {analysis['VWAP']:.2f} ({analysis['VWAP_Status']})")
                 print(f"Volume Trend: {analysis['Volume_Trend']}")
                 print(f"Head and Shoulder Pattern: {analysis['Head_and_Shoulder_detect']}")
+                print(f"Double Top/Bottom Pattern: {analysis['Double_Top_Bottom']}")
                 
                 if analysis['Decision'] == "Consider Sell" and status == "HOLDING":
                     print_with_color(f"Decision: {analysis['Decision']}", "red")
@@ -352,50 +357,53 @@ def main(backtest=False, opt=False):
     #CandleStick_Pattern_Status - Detect sentiment and reversal patterns reliably
   
     # long term stragedy
-    # backtest 10/25/24 (1d) = 67% - average win $ 23% - Average 7 signals and 65 days holding time in 2 years
+    # backtest 10/28/24 (1d) = 67% - average win $ 32% - Average 9 signals and 60 days holding time in 2 years
     weights_long_term = {
-        'RSI_Status': 1.5,                    
+        'RSI_Status': 1.25,                    
         'MACD_Status': 1.5,                     
         'ADX_Status': 1.0,                      
         'Divergance_status': 1.0,               
         'MACD_Histogram_Status': 0.95,          
         'Parabolic_SAR_Status': 0.5,            
-        'Stochastic_Status': 0.5,               
-        'Volume_Trend': 0.95,                    
+        'Stochastic_Status': 0.75,               
+        'Volume_Trend': 1.25,                    
         'VWAP_Status': 0.5,                     
         'Bollinger_Status': 1.25,                
-        'Golden_Cross_Status': 0.75,             
+        'Golden_Cross_Status': 1.0,             
         'CandleStick_Pattern_Status': 0.75,
-        'Head_and_Shoulder_detect': 0.75     
+        'Head_and_Shoulder_detect': 0.5,
+        'Double_Top_Bottom':0.5     
     }
 
     #short term stragedy
-    # backtest 10/22/24 (1h) = 49% - average win $ 4% - Average 6 signals and 18 days holding time in 120 days
+    # backtest 10/28/24 (1h) = 41% - average win $ 1% - Average 8 signals and 16 days holding time in 120 days
+    # backtest 10/28/24 (15m) = 16% - average win $ -0% - Average 2 signals and 6 days holding time in 30 days
     weights_short_term = {
-        'RSI_Status': 1.5,                      
+        'RSI_Status': 1.0,                      
         'MACD_Status': 1.5,                     
-        'ADX_Status': 1.0,                      
-        'Divergance_status': 1.0,               
+        'ADX_Status': 0.75,                      
+        'Divergance_status': 0.75,               
         'MACD_Histogram_Status': 1.0,           
-        'Parabolic_SAR_Status': 0.75,            
-        'Stochastic_Status': 0.75,               
+        'Parabolic_SAR_Status': 1.0,            
+        'Stochastic_Status': 1.0,               
         'Volume_Trend': 1.5,                    
-        'VWAP_Status': 0.95,                     
-        'Bollinger_Status': 1.25,                
-        'Golden_Cross_Status': 1.5,            
-        'CandleStick_Pattern_Status': 1.2,
-        'Head_and_Shoulder_detect': 1.2      
+        'VWAP_Status': 1.0,                     
+        'Bollinger_Status': 1.0,                
+        'Golden_Cross_Status': 0.5,            
+        'CandleStick_Pattern_Status': 0.75,
+        'Head_and_Shoulder_detect': 0.5,
+        'Double_Top_Bottom':0.5      
     }
 
 
     hr_period_length = 120
     year_period_length = 730
-    Minute_period_length = 30
+    Minute_period_length = 30  #max 59 days
 
     if backtest:
-        backtest_analysis(year_period_length, "1d", weights_long_term)
-        backtest_analysis(hr_period_length, "1h", weights_short_term)
-        #backtest_analysis(Minute_period_length, "15m", weights_short_term)
+        #backtest_analysis(year_period_length, "1d", weights_long_term)
+        #backtest_analysis(hr_period_length, "1h", weights_short_term)
+        backtest_analysis(Minute_period_length, "15m", weights_short_term)
         #backtest_analysis(Minute_period_length, "5m", weights_short_term)
     elif opt:
         # Run the optimization
@@ -403,9 +411,9 @@ def main(backtest=False, opt=False):
     else:
         while True:
             real_time_analysis(year_period_length, "1d", weights_long_term)
-            real_time_analysis(hr_period_length, "1h", weights_short_term)
-            #real_time_analysis(Minute_period_length, "15m", weights_short_term)  # max 59 days on 15m
-            #real_time_analysis(Minute_period_length, "5m", weights_short_term)   # max 59 days on 15m
+            #real_time_analysis(hr_period_length, "1h", weights_short_term)
+            real_time_analysis(Minute_period_length, "15m", weights_short_term) 
+            #real_time_analysis(Minute_period_length, "5m", weights_short_term) 
             print("***********************************************************")
             print("5 minutes before running again...")
             time.sleep(300)  # Sleep in seconds

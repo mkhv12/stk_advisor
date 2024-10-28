@@ -318,6 +318,52 @@ def detect_head_and_shoulders(data):
 
 
 
+def detect_double_top_bottom(data, lookback=5, tolerance=0.02):
+    """
+    Detects Double Top (Bearish) and Double Bottom (Bullish) patterns.
+
+    :param data: DataFrame containing stock price data with 'High' and 'Low' columns.
+    :param lookback: The number of periods to look back for the pattern.
+    :param tolerance: The tolerance level for price similarity between peaks or troughs.
+    :return: A string indicating the detected pattern, if any.
+    """
+    # Get local peaks
+    peaks = data['High'].rolling(window=lookback).apply(
+        lambda x: x.argmax() if not np.isnan(x).any() else np.nan, raw=True
+    )
+    troughs = data['Low'].rolling(window=lookback).apply(
+        lambda x: x.argmin() if not np.isnan(x).any() else np.nan, raw=True
+    )
+
+    # Ensure peaks and troughs are aligned with indexes
+    peaks = peaks.dropna().astype(int)  # Indices where peaks are found
+    troughs = troughs.dropna().astype(int)  # Indices where troughs are found
+
+    # Double Top Pattern
+    if len(peaks) >= 2:
+        peak1 = peaks.iloc[-2]
+        peak2 = peaks.iloc[-1]
+        price_diff = abs(data['High'].iloc[peak1] - data['High'].iloc[peak2])
+        
+        # Check if peaks are within the tolerance level
+        if price_diff / data['High'].iloc[peak1] < tolerance:
+            return "Double Top (Sell Signal)"
+
+    # Double Bottom Pattern
+    if len(troughs) >= 2:
+        trough1 = troughs.iloc[-2]
+        trough2 = troughs.iloc[-1]
+        price_diff = abs(data['Low'].iloc[trough1] - data['Low'].iloc[trough2])
+        
+        # Check if troughs are within the tolerance level
+        if price_diff / data['Low'].iloc[trough1] < tolerance:
+            return "Double Bottom (Buy Signal)"
+    
+    return "No Double Top/Bottom Pattern"
+
+
+
+
 def analyze_price_drop(data, drop_threshold=0.30):
     """
     Check if the current price is a certain percentage below the max high in the provided data.
