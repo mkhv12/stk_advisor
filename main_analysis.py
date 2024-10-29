@@ -242,16 +242,16 @@ def real_time_analysis(qdays, interval, weights):
                 print(f"Price Action: {analysis['Price_Drop']}")
                 print(f"RSI: {analysis['RSI_Status']}")
                 print(f"Stochastic: {analysis['Stochastic_Status']}")
-                print(f"MACD Status: {analysis['MACD_Status']}")
                 print(f"ADX Status: {analysis['ADX_Status']}")
-                print(f"Divergance Detection: {analysis['Divergance_status']}")
+                print(f"MACD Status: {analysis['MACD_Status']}")
                 print(f"MACD Histogram: {analysis['MACD_Histogram_Status']}")
-                print(f"CandleStick Pattern: {analysis['CandleStick_Pattern_Status']}")
-                print(f"Golden Cross: {analysis['Golden_Cross_Status']}")
+                print(f"Divergance Detection: {analysis['Divergance_status']}")
                 print(f"Parabolic_SAR: {analysis['Parabolic_SAR_Status']}")
                 print(f"Bollinger: {analysis['Bollinger_Status']}")
                 print(f"VWAP: {analysis['VWAP']:.2f} ({analysis['VWAP_Status']})")
                 print(f"Volume Trend: {analysis['Volume_Trend']}")
+                print(f"Golden Cross: {analysis['Golden_Cross_Status']}")
+                print(f"CandleStick Pattern: {analysis['CandleStick_Pattern_Status']}")
                 print(f"Head and Shoulder Pattern: {analysis['Head_and_Shoulder_detect']}")
                 print(f"Double Top/Bottom Pattern: {analysis['Double_Top_Bottom']}")
                 
@@ -357,32 +357,32 @@ def main(backtest=False, opt=False):
     #CandleStick_Pattern_Status - Detect sentiment and reversal patterns reliably
   
     # long term stragedy
-    # backtest 10/28/24 (1d) = 67% - average win $ 32% - Average 9 signals and 60 days holding time in 2 years
+    # backtest 10/28/24 (1d) = 67% - average win $ 24% - Average 8 signals and 64 days holding time in 2 years
     weights_long_term = {
-        'RSI_Status': 1.25,                    
+        'RSI_Status': 0.75,                    
         'MACD_Status': 1.5,                     
-        'ADX_Status': 1.0,                      
-        'Divergance_status': 1.0,               
+        'ADX_Status': 0.75,                      
+        'Divergance_status': 0.75,               
         'MACD_Histogram_Status': 0.95,          
         'Parabolic_SAR_Status': 0.5,            
         'Stochastic_Status': 0.75,               
         'Volume_Trend': 1.25,                    
-        'VWAP_Status': 0.5,                     
-        'Bollinger_Status': 1.25,                
-        'Golden_Cross_Status': 1.0,             
+        'VWAP_Status': 0.85,                     
+        'Bollinger_Status': 1.5,                
+        'Golden_Cross_Status': 1.25,             
         'CandleStick_Pattern_Status': 0.75,
-        'Head_and_Shoulder_detect': 0.5,
-        'Double_Top_Bottom':0.5     
+        'Head_and_Shoulder_detect': 0.25,
+        'Double_Top_Bottom':0.25     
     }
 
     #short term stragedy
-    # backtest 10/28/24 (1h) = 41% - average win $ 1% - Average 8 signals and 16 days holding time in 120 days
-    # backtest 10/28/24 (15m) = 17% - average win $ 2% - Average 3 signals and 8 days holding time in 30 days
+    # backtest 10/28/24 (1h) = 34% - average win $ 1% - Average 10 signals and 12 days holding time in 120 days
+    # backtest 10/28/24 (15m) = 34% - average win $ 3% - Average 6 signals and 11 days holding time in 59 days
     weights_short_term = {
         'RSI_Status': 0.5,                      
         'MACD_Status': 0.65,                     
         'ADX_Status': 0.85,                      
-        'Divergance_status': 0.85,               
+        'Divergance_status': 0.65,               
         'MACD_Histogram_Status': 0.5,           
         'Parabolic_SAR_Status': 0.25,            
         'Stochastic_Status': 0.25,               
@@ -392,7 +392,7 @@ def main(backtest=False, opt=False):
         'Golden_Cross_Status': 0.25,            
         'CandleStick_Pattern_Status': 0.75,
         'Head_and_Shoulder_detect': 0.75,
-        'Double_Top_Bottom':0.75      
+        'Double_Top_Bottom':0.9      
     }
 
 
@@ -401,7 +401,7 @@ def main(backtest=False, opt=False):
     Minute_period_length = 59  #max 59 days
 
     if backtest:
-        #backtest_analysis(year_period_length, "1d", weights_long_term)
+        backtest_analysis(year_period_length, "1d", weights_long_term)
         #backtest_analysis(hr_period_length, "1h", weights_short_term)
         backtest_analysis(Minute_period_length, "15m", weights_short_term)
         #backtest_analysis(Minute_period_length, "5m", weights_short_term)
