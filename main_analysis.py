@@ -415,7 +415,7 @@ def main(backtest=False, opt=False):
     else:
         while True:
             real_time_analysis(year_period_length, "1d", weights_long_term)
-            #real_time_analysis(hr_period_length, "1h", weights_short_term)
+            real_time_analysis(hr_period_length, "1h", weights_short_term)
             real_time_analysis(fifteen_Minute_period_length, "15m", weights_short_term) 
             #real_time_analysis(five_Minute_period_length, "5m", weights_short_term) 
             print("***********************************************************")
