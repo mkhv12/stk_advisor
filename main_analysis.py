@@ -342,7 +342,7 @@ def optimized_analysis():
 
 
 def main(backtest=False, opt=False):
-    # Default weights for real-time analysis
+    # Description
     #RSI_Status - Detect overbought/oversold signals for potential reversals
     #MACD_Status - Momentum shifts, but reduce to minimize false signals
     #ADX_Status - Strong trend confirmation to validate reversals
@@ -356,55 +356,59 @@ def main(backtest=False, opt=False):
     #Golden_Cross_Status - Longer-term trend confirmation
     #CandleStick_Pattern_Status - Detect sentiment and reversal patterns reliably
   
+    #top 6 are SCHD, VNQ, XLF, SOXQ, XLE, SCHB,
+
     # long term stragedy
-    # backtest 10/28/24 (1d) = 67% - average win $ 24% - Average 8 signals and 64 days holding time in 2 years
+    # backtest 10/30/24 Top 6 ETF (1d) = 79% / average win $ 37% / Average 6 signals / 60 days holding time in 2 years
     weights_long_term = {
-        'RSI_Status': 0.75,                    
+        'RSI_Status': 1.5,                    
         'MACD_Status': 1.5,                     
-        'ADX_Status': 0.75,                      
-        'Divergance_status': 0.75,               
-        'MACD_Histogram_Status': 0.95,          
+        'ADX_Status': 1.5,                      
+        'Divergance_status': 0.25,               
+        'MACD_Histogram_Status': 0.25,          
         'Parabolic_SAR_Status': 0.5,            
-        'Stochastic_Status': 0.75,               
-        'Volume_Trend': 1.25,                    
-        'VWAP_Status': 0.85,                     
+        'Stochastic_Status': 1.5,               
+        'Volume_Trend': 0.25,                    
+        'VWAP_Status': 1.5,                     
         'Bollinger_Status': 1.5,                
-        'Golden_Cross_Status': 1.25,             
-        'CandleStick_Pattern_Status': 0.75,
+        'Golden_Cross_Status': 0.25,             
+        'CandleStick_Pattern_Status': 0.25,
         'Head_and_Shoulder_detect': 0.25,
         'Double_Top_Bottom':0.25     
     }
 
     #short term stragedy
-    # backtest 10/28/24 (1h) = 34% - average win $ 1% - Average 10 signals and 12 days holding time in 120 days
-    # backtest 10/28/24 (15m) = 34% - average win $ 3% - Average 6 signals and 11 days holding time in 59 days
+    # backtest 10/30/24 Top 6 ETF (1h) = 56% / average win $ 4% / Average 2 signals / 18 days holding time in 60 Days
+    # backtest 10/30/24 Top 6 ETF (15m) = 17% / average win $ 1% / Average 2 signals / 2 days holding time in 30 Days
+    # backtest 10/30/24 Top 6 ETF (5m) = xx% / average win $ x% / Average x signals / xx days holding time in 15 Days
     weights_short_term = {
-        'RSI_Status': 0.5,                      
-        'MACD_Status': 0.65,                     
-        'ADX_Status': 0.85,                      
+        'RSI_Status': 1.4,                      
+        'MACD_Status': 1.0,                     
+        'ADX_Status': 0.25,                      
         'Divergance_status': 0.65,               
-        'MACD_Histogram_Status': 0.5,           
+        'MACD_Histogram_Status': 1.4,           
         'Parabolic_SAR_Status': 0.25,            
-        'Stochastic_Status': 0.25,               
-        'Volume_Trend': 1.5,                    
-        'VWAP_Status': 0.5,                     
-        'Bollinger_Status': 0.8,                
-        'Golden_Cross_Status': 0.25,            
-        'CandleStick_Pattern_Status': 0.75,
-        'Head_and_Shoulder_detect': 0.75,
+        'Stochastic_Status': 1.10,               
+        'Volume_Trend': 0.4,                    
+        'VWAP_Status': 1.5,                     
+        'Bollinger_Status': 1.0,                
+        'Golden_Cross_Status': 1.35,            
+        'CandleStick_Pattern_Status': 0.4,
+        'Head_and_Shoulder_detect': 0.7,
         'Double_Top_Bottom':0.9      
     }
 
 
-    hr_period_length = 120
     year_period_length = 730
-    Minute_period_length = 59  #max 59 days
+    hr_period_length = 60
+    fifteen_Minute_period_length = 30  #max 59 days
+    five_Minute_period_length = 15  #max 59 days
 
     if backtest:
         backtest_analysis(year_period_length, "1d", weights_long_term)
-        #backtest_analysis(hr_period_length, "1h", weights_short_term)
-        backtest_analysis(Minute_period_length, "15m", weights_short_term)
-        #backtest_analysis(Minute_period_length, "5m", weights_short_term)
+        backtest_analysis(hr_period_length, "1h", weights_short_term)
+        backtest_analysis(fifteen_Minute_period_length, "15m", weights_short_term)
+        backtest_analysis(five_Minute_period_length, "5m", weights_short_term)
     elif opt:
         # Run the optimization
         optimized_analysis()
@@ -412,8 +416,8 @@ def main(backtest=False, opt=False):
         while True:
             real_time_analysis(year_period_length, "1d", weights_long_term)
             #real_time_analysis(hr_period_length, "1h", weights_short_term)
-            real_time_analysis(Minute_period_length, "15m", weights_short_term) 
-            #real_time_analysis(Minute_period_length, "5m", weights_short_term) 
+            real_time_analysis(fifteen_Minute_period_length, "15m", weights_short_term) 
+            #real_time_analysis(five_Minute_period_length, "5m", weights_short_term) 
             print("***********************************************************")
             print("5 minutes before running again...")
             time.sleep(300)  # Sleep in seconds

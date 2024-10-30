@@ -101,7 +101,7 @@ def backtest(ticker, start_date, end_date, interval, weights, profit_threshold=0
     # Wrapper function for optimization
 def optimize_weights(RSI_Status, MACD_Status, ADX_Status, MACD_Histogram_Status, VWAP_Status,
                      Golden_Cross_Status, Parabolic_SAR_Status, Volume_Trend, 
-                     Bollinger_Status, Stochastic_Status, candlestick_pattern, Divergance_status, Head_and_Shoulder_detect, detect_double_top_bottom):
+                     Bollinger_Status, Stochastic_Status, candlestick_pattern, Divergance_status, Head_and_Shoulder_detect, Double_Top_Bottom):
     weights = {
         'RSI_Status': RSI_Status,
         'MACD_Status': MACD_Status,
@@ -116,20 +116,20 @@ def optimize_weights(RSI_Status, MACD_Status, ADX_Status, MACD_Histogram_Status,
         'CandleStick_Pattern_Status': candlestick_pattern,
         'Divergance_status':Divergance_status,
         'Head_and_Shoulder_detect':Head_and_Shoulder_detect,
-        'Double_Top_Bottom':detect_double_top_bottom
+        'Double_Top_Bottom':Double_Top_Bottom
     }
 
-    date_back = datetime.now() - timedelta(days=120)
+    date_back = datetime.now() - timedelta(days=60)
     today = datetime.now() + timedelta(days=1)
     start_date = date_back.strftime("%Y-%m-%d")
     end_date = today.strftime("%Y-%m-%d")
     
-    result = backtest('VTI', start_date, end_date, '1h', weights)  # Adjust ticker, dates, and interval as needed
+    result = backtest('VNQ', start_date, end_date, '1h', weights)  # Adjust ticker, dates, and interval as needed
     
     return result['Win_perc']
 
 low_bound = 0.25
-high_bound = 5.0  
+high_bound = 1.5  
 # Set the parameter bounds
 pbounds = {
     'RSI_Status': (low_bound, high_bound),
@@ -160,7 +160,7 @@ def run_optimization():
     # Run the optimization
     optimizer.maximize(
         init_points=10,
-        n_iter=50
+        n_iter=30
     )
 
     # Get the best weights
