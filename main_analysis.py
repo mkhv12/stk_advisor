@@ -400,29 +400,29 @@ def main(backtest=False, opt=False):
     }
 
     #minute term stragedy
-    # backtest 11/04/24 Top 6 ETF (15m) = xx% / average win $ x% / Average x signals / xx days holding time in 20 Days
-    # backtest 11/04/24 Top 6 ETF (5m) = xx% / average win $ x% / Average x signals / xx days holding time in 10 Days
+    # backtest 11/04/24 Top 6 ETF (15m) = 0% / average win $ -1% / Average 1 signals / 1 days holding time in 15 Days
+    # backtest 11/04/24 Top 6 ETF (5m) = 0% / average win $ -1% / Average 2 signals / 1 days holding time in 5 Days
     weights_minute_chart= {
-        'RSI_Status': 0.25,                      
+        'RSI_Status': 0.75,                      
         'MACD_Status': 0.25,                     
-        'ADX_Status': 0.25,                      
+        'ADX_Status': 0.75,                      
         'Divergance_status': 0.25,               
-        'MACD_Histogram_Status': 0.25,           
+        'MACD_Histogram_Status': 0.5,           
         'Parabolic_SAR_Status': 0.25,            
         'Stochastic_Status': 0.25,               
         'Volume_Trend': 0.75,                    
         'VWAP_Status': 0.25,                     
-        'Bollinger_Status': 0.25,                
+        'Bollinger_Status': 0.5,                
         'Golden_Cross_Status': 0.75,            
-        'CandleStick_Pattern_Status': 0.25,
+        'CandleStick_Pattern_Status': 0.75,
         'Head_and_Shoulder_detect': 0.25,
         'Double_Top_Bottom':0.25      
     }
 
     year_period_length = 365
     hr_period_length = 60
-    fifteen_Minute_period_length = 20  #max 59 days
-    five_Minute_period_length = 10  #max 59 days
+    fifteen_Minute_period_length = 15  
+    five_Minute_period_length = 5  
 
     if backtest:
         #backtest_analysis(year_period_length, "1d", weights_day_chart)
