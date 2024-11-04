@@ -222,7 +222,7 @@ def analyze_candlestick_patterns(data):
         return signals[-1]  # Return only the most recent candlestick pattern signal
     return "No pattern found"  # Return a message when no pattern is found
 
-def calculate_adx(data, window=50):
+def calculate_adx(data, window=30):
     high = data['High']
     low = data['Low']
     close = data['Close']

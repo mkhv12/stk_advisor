@@ -362,65 +362,82 @@ def main(backtest=False, opt=False):
     #top 6 are SCHD, VNQ, XLF, SOXQ, XLE, SCHB,
 
     # long term stragedy
-    # backtest 10/30/24 Top 6 ETF (1d) = 79% / average win $ 37% / Average 6 signals / 60 days holding time in 2 years
-    weights_long_term = {
-        'RSI_Status': 0.75,                    
-        'MACD_Status': 1.25,                     
+    # backtest 11/04/24 Top 6 ETF (1d) = 86% / average win $ 8% / Average 2 signals / 51 days holding time in 1 year
+    weights_day_chart = {
+        'RSI_Status': 0.5,                    
+        'MACD_Status': 0.25,                     
         'ADX_Status': 0.25,                      
         'Divergance_status': 0.25,               
-        'MACD_Histogram_Status': 0.25,          
+        'MACD_Histogram_Status': 0.5,          
         'Parabolic_SAR_Status': 0.25,            
-        'Stochastic_Status': 0.25,               
+        'Stochastic_Status': 0.5,               
         'Volume_Trend': 0.5,                    
         'VWAP_Status': 0.5,                     
-        'Bollinger_Status': 1.25,                
-        'Golden_Cross_Status': 0.25,             
+        'Bollinger_Status': 0.5,                
+        'Golden_Cross_Status': 0.85,             
         'CandleStick_Pattern_Status': 0.25,
         'Head_and_Shoulder_detect': 0.25,
         'Double_Top_Bottom':0.25     
     }
 
-    #short term stragedy
-    # backtest 10/30/24 Top 6 ETF (1h) = 56% / average win $ 4% / Average 2 signals / 18 days holding time in 60 Days
-    # backtest 10/30/24 Top 6 ETF (15m) = 17% / average win $ 1% / Average 2 signals / 2 days holding time in 30 Days
-    # backtest 10/30/24 Top 6 ETF (5m) = xx% / average win $ x% / Average x signals / xx days holding time in 15 Days
-    weights_short_term = {
-        'RSI_Status': 1.0,                      
-        'MACD_Status': 0.75,                     
-        'ADX_Status': 0.75,                      
-        'Divergance_status': 0.75,               
-        'MACD_Histogram_Status': 0.75,           
-        'Parabolic_SAR_Status': 0.75,            
-        'Stochastic_Status': 0.75,               
-        'Volume_Trend': 1.25,                    
-        'VWAP_Status': 0.75,                     
-        'Bollinger_Status': 0.75,                
-        'Golden_Cross_Status': 1.25,            
-        'CandleStick_Pattern_Status': 0.75,
-        'Head_and_Shoulder_detect': 0.75,
-        'Double_Top_Bottom':0.85      
+    #hours term stragedy
+    # backtest 11/04/24 Top 6 ETF (1h) = 39% / average win $ 3% / Average 2 signals / 6 days holding time in 60 Days
+    weights_hour_chart = {
+        'RSI_Status': 0.6,                      
+        'MACD_Status': 0.15,                     
+        'ADX_Status': 0.25,                      
+        'Divergance_status': 0.25,               
+        'MACD_Histogram_Status': 0.35,           
+        'Parabolic_SAR_Status': 0.25,            
+        'Stochastic_Status': 0.25,               
+        'Volume_Trend': 0.5,                    
+        'VWAP_Status': 0.3,                     
+        'Bollinger_Status': 0.5,                
+        'Golden_Cross_Status': 0.5,            
+        'CandleStick_Pattern_Status': 0.25,
+        'Head_and_Shoulder_detect': 0.25,
+        'Double_Top_Bottom':0.25      
     }
 
+    #minute term stragedy
+    # backtest 11/04/24 Top 6 ETF (15m) = xx% / average win $ x% / Average x signals / xx days holding time in 20 Days
+    # backtest 11/04/24 Top 6 ETF (5m) = xx% / average win $ x% / Average x signals / xx days holding time in 10 Days
+    weights_minute_chart= {
+        'RSI_Status': 0.25,                      
+        'MACD_Status': 0.25,                     
+        'ADX_Status': 0.25,                      
+        'Divergance_status': 0.25,               
+        'MACD_Histogram_Status': 0.25,           
+        'Parabolic_SAR_Status': 0.25,            
+        'Stochastic_Status': 0.25,               
+        'Volume_Trend': 0.75,                    
+        'VWAP_Status': 0.25,                     
+        'Bollinger_Status': 0.25,                
+        'Golden_Cross_Status': 0.75,            
+        'CandleStick_Pattern_Status': 0.25,
+        'Head_and_Shoulder_detect': 0.25,
+        'Double_Top_Bottom':0.25      
+    }
 
-    year_period_length = 730
+    year_period_length = 365
     hr_period_length = 60
-    fifteen_Minute_period_length = 30  #max 59 days
-    five_Minute_period_length = 15  #max 59 days
+    fifteen_Minute_period_length = 20  #max 59 days
+    five_Minute_period_length = 10  #max 59 days
 
     if backtest:
-        backtest_analysis(year_period_length, "1d", weights_long_term)
-        backtest_analysis(hr_period_length, "1h", weights_short_term)
-        backtest_analysis(fifteen_Minute_period_length, "15m", weights_short_term)
-        backtest_analysis(five_Minute_period_length, "5m", weights_short_term)
+        #backtest_analysis(year_period_length, "1d", weights_day_chart)
+        #backtest_analysis(hr_period_length, "1h", weights_hour_chart)
+        backtest_analysis(fifteen_Minute_period_length, "15m", weights_minute_chart)
+        backtest_analysis(five_Minute_period_length, "5m", weights_minute_chart)
     elif opt:
         # Run the optimization
         optimized_analysis()
     else:
         while True:
-            real_time_analysis(year_period_length, "1d", weights_long_term)
-            real_time_analysis(hr_period_length, "1h", weights_short_term)
-            #real_time_analysis(fifteen_Minute_period_length, "15m", weights_short_term) 
-            #real_time_analysis(five_Minute_period_length, "5m", weights_short_term) 
+            real_time_analysis(year_period_length, "1d", weights_day_chart)
+            real_time_analysis(hr_period_length, "1h", weights_hour_chart)
+            #real_time_analysis(fifteen_Minute_period_length, "15m", weights_minute_chart) 
+            #real_time_analysis(five_Minute_period_length, "5m", weights_minute_chart) 
             print("***********************************************************")
             print("5 minutes before running again...")
             time.sleep(300)  # Sleep in seconds
