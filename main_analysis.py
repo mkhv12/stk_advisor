@@ -17,7 +17,10 @@ warnings.filterwarnings("ignore", category=FutureWarning, module="yfinance")
 # Initialize colorama
 colorama.init()
 
-# Load portfolio data from Excel
+# Load backtest portfolio data from Excel
+portfolio_backtest_group_data = pd.read_excel('backtest_group.xlsx')
+
+# Load whole portfolio data from Excel
 portfolio_data = pd.read_excel('portfolio.xlsx')
 
 def fetch_stock_data(ticker, start_date, end_date, interval, progress=False):
@@ -296,7 +299,7 @@ def backtest_analysis(qdays, interval, weights):
     print("***********")
 
     # Loop through each row in the portfolio data
-    for index, row in portfolio_data.iterrows():
+    for index, row in portfolio_backtest_group_data.iterrows():
         symbol = row['Symbol']
 
         analysis = back_test.backtest(symbol, start_date, end_date, interval, weights, profit_threshold=0.04, stop_loss_threshold=0.02)
@@ -361,16 +364,16 @@ def main(backtest=False, opt=False):
     # long term stragedy
     # backtest 10/30/24 Top 6 ETF (1d) = 79% / average win $ 37% / Average 6 signals / 60 days holding time in 2 years
     weights_long_term = {
-        'RSI_Status': 1.5,                    
-        'MACD_Status': 1.5,                     
-        'ADX_Status': 1.5,                      
+        'RSI_Status': 0.75,                    
+        'MACD_Status': 1.25,                     
+        'ADX_Status': 0.25,                      
         'Divergance_status': 0.25,               
         'MACD_Histogram_Status': 0.25,          
-        'Parabolic_SAR_Status': 0.5,            
-        'Stochastic_Status': 1.5,               
-        'Volume_Trend': 0.25,                    
-        'VWAP_Status': 1.5,                     
-        'Bollinger_Status': 1.5,                
+        'Parabolic_SAR_Status': 0.25,            
+        'Stochastic_Status': 0.25,               
+        'Volume_Trend': 0.5,                    
+        'VWAP_Status': 0.5,                     
+        'Bollinger_Status': 1.25,                
         'Golden_Cross_Status': 0.25,             
         'CandleStick_Pattern_Status': 0.25,
         'Head_and_Shoulder_detect': 0.25,
@@ -382,20 +385,20 @@ def main(backtest=False, opt=False):
     # backtest 10/30/24 Top 6 ETF (15m) = 17% / average win $ 1% / Average 2 signals / 2 days holding time in 30 Days
     # backtest 10/30/24 Top 6 ETF (5m) = xx% / average win $ x% / Average x signals / xx days holding time in 15 Days
     weights_short_term = {
-        'RSI_Status': 1.4,                      
-        'MACD_Status': 1.0,                     
-        'ADX_Status': 0.25,                      
-        'Divergance_status': 0.65,               
-        'MACD_Histogram_Status': 1.4,           
-        'Parabolic_SAR_Status': 0.25,            
-        'Stochastic_Status': 1.10,               
-        'Volume_Trend': 0.4,                    
-        'VWAP_Status': 1.5,                     
-        'Bollinger_Status': 1.0,                
-        'Golden_Cross_Status': 1.35,            
-        'CandleStick_Pattern_Status': 0.4,
-        'Head_and_Shoulder_detect': 0.7,
-        'Double_Top_Bottom':0.9      
+        'RSI_Status': 1.0,                      
+        'MACD_Status': 0.75,                     
+        'ADX_Status': 0.75,                      
+        'Divergance_status': 0.75,               
+        'MACD_Histogram_Status': 0.75,           
+        'Parabolic_SAR_Status': 0.75,            
+        'Stochastic_Status': 0.75,               
+        'Volume_Trend': 1.25,                    
+        'VWAP_Status': 0.75,                     
+        'Bollinger_Status': 0.75,                
+        'Golden_Cross_Status': 1.25,            
+        'CandleStick_Pattern_Status': 0.75,
+        'Head_and_Shoulder_detect': 0.75,
+        'Double_Top_Bottom':0.85      
     }
 
 
@@ -416,7 +419,7 @@ def main(backtest=False, opt=False):
         while True:
             real_time_analysis(year_period_length, "1d", weights_long_term)
             real_time_analysis(hr_period_length, "1h", weights_short_term)
-            real_time_analysis(fifteen_Minute_period_length, "15m", weights_short_term) 
+            #real_time_analysis(fifteen_Minute_period_length, "15m", weights_short_term) 
             #real_time_analysis(five_Minute_period_length, "5m", weights_short_term) 
             print("***********************************************************")
             print("5 minutes before running again...")

@@ -127,7 +127,7 @@ def main(prediction_days):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Stock Prediction Analysis')
-    parser.add_argument('--days', type=int, default=10, help='Number of days for prediction (default: 10)')
+    parser.add_argument('--days', type=int, default=20, help='Number of days for prediction (default: 20)')
     args = parser.parse_args()
     
     main(args.days)
