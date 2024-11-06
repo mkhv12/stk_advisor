@@ -101,7 +101,7 @@ def backtest(ticker, start_date, end_date, interval, weights, profit_threshold=0
     # Wrapper function for optimization
 def optimize_weights(RSI_Status, MACD_Status, ADX_Status, MACD_Histogram_Status, VWAP_Status,
                      Golden_Cross_Status, Parabolic_SAR_Status, Volume_Trend, 
-                     Bollinger_Status, Stochastic_Status, candlestick_pattern, Divergance_status, Head_and_Shoulder_detect, Double_Top_Bottom):
+                     Bollinger_Status, Stochastic_Status, candlestick_pattern, Divergance_status, Head_and_Shoulder_detect, Double_Top_Bottom, fibonacci_signal):
     weights = {
         'RSI_Status': RSI_Status,
         'MACD_Status': MACD_Status,
@@ -116,7 +116,8 @@ def optimize_weights(RSI_Status, MACD_Status, ADX_Status, MACD_Histogram_Status,
         'CandleStick_Pattern_Status': candlestick_pattern,
         'Divergance_status':Divergance_status,
         'Head_and_Shoulder_detect':Head_and_Shoulder_detect,
-        'Double_Top_Bottom':Double_Top_Bottom
+        'Double_Top_Bottom':Double_Top_Bottom,
+        'fibonacci_signal':fibonacci_signal
     }
 
     date_back = datetime.now() - timedelta(days=60)
@@ -145,7 +146,8 @@ pbounds = {
     'candlestick_pattern': (low_bound, high_bound),
     'Divergance_status': (low_bound, high_bound),
     'Head_and_Shoulder_detect': (low_bound, high_bound),
-    'Double_Top_Bottom': (low_bound, high_bound)
+    'Double_Top_Bottom': (low_bound, high_bound),
+    'fibonacci_signal': (low_bound, high_bound)
 }
 
 

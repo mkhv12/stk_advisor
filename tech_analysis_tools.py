@@ -18,7 +18,7 @@ def calculate_rsi(data, window=14):
 def calculate_ema(data, window):
     return data['Close'].ewm(span=window, adjust=False).mean()
 
-def calculate_macd(data, fast_length=8, slow_length=21, signal_length=5):
+def calculate_macd(data, fast_length=12, slow_length=26, signal_length=9):
     ema_fast = calculate_ema(data, fast_length)
     ema_slow = calculate_ema(data, slow_length)
     macd_line = ema_fast - ema_slow
@@ -222,7 +222,7 @@ def analyze_candlestick_patterns(data):
         return signals[-1]  # Return only the most recent candlestick pattern signal
     return "No pattern found"  # Return a message when no pattern is found
 
-def calculate_adx(data, window=30):
+def calculate_adx(data, window=14):
     high = data['High']
     low = data['Low']
     close = data['Close']
@@ -361,6 +361,45 @@ def detect_double_top_bottom(data, lookback=5, tolerance=0.02):
     
     return "No Double Top/Bottom Pattern"
 
+
+def calculate_fibonacci_levels(data):
+    """
+    Calculate Fibonacci retracement levels for the given data.
+    """
+    recent_high = data['High'].max()
+    recent_low = data['Low'].min()
+
+    # Calculate Fibonacci retracement levels
+    fib_levels = {
+        '23.6%': recent_high - (recent_high - recent_low) * 0.236,
+        '38.2%': recent_high - (recent_high - recent_low) * 0.382,
+        '50%': recent_high - (recent_high - recent_low) * 0.5,
+        '61.8%': recent_high - (recent_high - recent_low) * 0.618,
+    }
+    return fib_levels
+
+def analyze_fibonacci_signal(data):
+    """
+    Generate a simple buy/sell signal based on Fibonacci retracement levels with descriptions.
+    """
+    fib_levels = calculate_fibonacci_levels(data)
+    current_price = data['Close'].iloc[-1]
+
+    # Define conditions for buy and sell signals based on price interaction with Fibonacci levels
+    if current_price < fib_levels['23.6%']:
+        return "Below 23.6% Level (Buy Signal)"
+    elif current_price < fib_levels['38.2%']:
+        return "Between 23.6% and 38.2% Levels (Buy Signal)"
+    elif current_price < fib_levels['50%']:
+        return "Between 38.2% and 50% Levels (Buy Signal)"
+    elif current_price < fib_levels['61.8%']:
+        return "Between 50% and 61.8% Levels (Sell Signal)"
+    elif current_price == fib_levels['61.8%']:
+        return "At 61.8% Level (Potential Reversal Signal)"
+    elif current_price > fib_levels['61.8%']:
+        return "Above 61.8% Level (Sell Signal)"
+    else:
+        return "No Clear Signal"
 
 
 

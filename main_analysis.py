@@ -137,6 +137,8 @@ def analyze_stock(data, weights):
     head_and_shoulder_detect = tech_analysis_tools.detect_head_and_shoulders(data)
 
     detect_double_top_bottom = tech_analysis_tools.detect_double_top_bottom(data)
+
+    fibonacci_signal = tech_analysis_tools.analyze_fibonacci_signal(data)
     
     # Calculate weighted scores for buy and sell signals
     weighted_buy_score = 0
@@ -159,9 +161,9 @@ def analyze_stock(data, weights):
         'CandleStick_Pattern_Status': candlestick_pattern,
         'Divergance_status':divergance_status,
         'Head_and_Shoulder_detect':head_and_shoulder_detect,
-        'Double_Top_Bottom':detect_double_top_bottom
+        'Double_Top_Bottom':detect_double_top_bottom,
+        'fibonacci_signal':fibonacci_signal
     }
-
 
     for indicator, status in indicators.items():
         if 'Buy Signal' in status:
@@ -201,13 +203,14 @@ def analyze_stock(data, weights):
         'Price_Drop':price_drop,
         'Divergance_status':divergance_status,
         'Head_and_Shoulder_detect':head_and_shoulder_detect,
-        'Double_Top_Bottom':detect_double_top_bottom
+        'Double_Top_Bottom':detect_double_top_bottom,
+        'fibonacci_signal':fibonacci_signal
     }
 
 
 def print_with_color(text, color):
     """
-    Print text with specified color using colorama
+    Print text with specified color using coloramapython m  
     """
     color_code = getattr(Fore, color.upper(), Fore.WHITE)
     reset_code = Style.RESET_ALL
@@ -257,6 +260,7 @@ def real_time_analysis(qdays, interval, weights):
                 print(f"CandleStick Pattern: {analysis['CandleStick_Pattern_Status']}")
                 print(f"Head and Shoulder Pattern: {analysis['Head_and_Shoulder_detect']}")
                 print(f"Double Top/Bottom Pattern: {analysis['Double_Top_Bottom']}")
+                print(f"Fibonacci Signal: {analysis['fibonacci_signal']}")
                 
                 if analysis['Decision'] == "Consider Sell" and status == "HOLDING":
                     print_with_color(f"Decision: {analysis['Decision']}", "red")
@@ -362,61 +366,64 @@ def main(backtest=False, opt=False):
     #top 6 are SCHD, VNQ, XLF, SOXQ, XLE, SCHB,
 
     # long term stragedy
-    # backtest 11/04/24 Top 6 ETF (1d) = 86% / average win $ 8% / Average 2 signals / 51 days holding time in 1 year
+    # backtest 11/06/24 Top 6 ETF (1d) = 61% / average win $ 16% / Average 8 signals / 29 days holding time in 1 year
     weights_day_chart = {
-        'RSI_Status': 0.5,                    
-        'MACD_Status': 0.25,                     
+        'RSI_Status': 0.75,                    
+        'MACD_Status': 1.5,                     
         'ADX_Status': 0.25,                      
         'Divergance_status': 0.25,               
-        'MACD_Histogram_Status': 0.5,          
+        'MACD_Histogram_Status': 0.25,          
         'Parabolic_SAR_Status': 0.25,            
-        'Stochastic_Status': 0.5,               
-        'Volume_Trend': 0.5,                    
-        'VWAP_Status': 0.5,                     
-        'Bollinger_Status': 0.5,                
-        'Golden_Cross_Status': 0.85,             
+        'Stochastic_Status': 0.25,               
+        'Volume_Trend': 1.25,                    
+        'VWAP_Status': 0.25,                     
+        'Bollinger_Status': 0.25,                
+        'Golden_Cross_Status': 1.25,             
         'CandleStick_Pattern_Status': 0.25,
         'Head_and_Shoulder_detect': 0.25,
-        'Double_Top_Bottom':0.25     
+        'Double_Top_Bottom':0.25,
+        'fibonacci_signal':0.25  
     }
 
     #hours term stragedy
-    # backtest 11/04/24 Top 6 ETF (1h) = 39% / average win $ 3% / Average 2 signals / 6 days holding time in 60 Days
+    # backtest 11/06/24 Top 6 ETF (1h) = 23% / average win $ 2% / Average 3 signals / 8 days holding time in 60 Days
     weights_hour_chart = {
-        'RSI_Status': 0.6,                      
-        'MACD_Status': 0.15,                     
-        'ADX_Status': 0.25,                      
-        'Divergance_status': 0.25,               
-        'MACD_Histogram_Status': 0.35,           
-        'Parabolic_SAR_Status': 0.25,            
-        'Stochastic_Status': 0.25,               
-        'Volume_Trend': 0.5,                    
-        'VWAP_Status': 0.3,                     
-        'Bollinger_Status': 0.5,                
-        'Golden_Cross_Status': 0.5,            
-        'CandleStick_Pattern_Status': 0.25,
-        'Head_and_Shoulder_detect': 0.25,
-        'Double_Top_Bottom':0.25      
+        'RSI_Status': 1.0,
+        'MACD_Status': 1.0,
+        'ADX_Status': 0.25,
+        'Divergance_status': 0.25,
+        'MACD_Histogram_Status': 1.5,
+        'Parabolic_SAR_Status': 0.25,
+        'Stochastic_Status': 0.25,
+        'Volume_Trend': 1.5,
+        'VWAP_Status': 0.25,
+        'Bollinger_Status': 0.5,
+        'Golden_Cross_Status': 0.75,
+        'CandleStick_Pattern_Status': 0.5,
+        'Head_and_Shoulder_detect': 0.5,
+        'Double_Top_Bottom': 0.5,
+        'fibonacci_signal': 0.5
     }
 
     #minute term stragedy
-    # backtest 11/04/24 Top 6 ETF (15m) = 0% / average win $ -1% / Average 1 signals / 1 days holding time in 15 Days
-    # backtest 11/04/24 Top 6 ETF (5m) = 0% / average win $ -1% / Average 2 signals / 1 days holding time in 5 Days
+    # backtest 11/05/24 Top 6 ETF (15m) = 6% / average win $ 0% / Average 2 signals / 2 days holding time in 15 Days
+    # backtest 11/05/24 Top 6 ETF (5m) = % / average win $ 0% / Average 1 signals / 0 days holding time in 5 Days
     weights_minute_chart= {
-        'RSI_Status': 0.75,                      
-        'MACD_Status': 0.25,                     
-        'ADX_Status': 0.75,                      
+        'RSI_Status': 0.5,                      
+        'MACD_Status': 0.5,                     
+        'ADX_Status': 0.25,                      
         'Divergance_status': 0.25,               
-        'MACD_Histogram_Status': 0.5,           
+        'MACD_Histogram_Status': 0.75,           
         'Parabolic_SAR_Status': 0.25,            
         'Stochastic_Status': 0.25,               
         'Volume_Trend': 0.75,                    
-        'VWAP_Status': 0.25,                     
-        'Bollinger_Status': 0.5,                
-        'Golden_Cross_Status': 0.75,            
-        'CandleStick_Pattern_Status': 0.75,
+        'VWAP_Status': 0.35,                     
+        'Bollinger_Status': 0.75,                
+        'Golden_Cross_Status': 0.25,            
+        'CandleStick_Pattern_Status': 0.25,
         'Head_and_Shoulder_detect': 0.25,
-        'Double_Top_Bottom':0.25      
+        'Double_Top_Bottom':0.25,
+        'fibonacci_signal':0.25        
     }
 
     year_period_length = 365
@@ -425,8 +432,8 @@ def main(backtest=False, opt=False):
     five_Minute_period_length = 5  
 
     if backtest:
-        #backtest_analysis(year_period_length, "1d", weights_day_chart)
-        #backtest_analysis(hr_period_length, "1h", weights_hour_chart)
+        backtest_analysis(year_period_length, "1d", weights_day_chart)
+        backtest_analysis(hr_period_length, "1h", weights_hour_chart)
         backtest_analysis(fifteen_Minute_period_length, "15m", weights_minute_chart)
         backtest_analysis(five_Minute_period_length, "5m", weights_minute_chart)
     elif opt:
