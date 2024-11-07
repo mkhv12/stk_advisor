@@ -375,7 +375,7 @@ def main(backtest=False, opt=False):
         'MACD_Histogram_Status': 0.25,          
         'Parabolic_SAR_Status': 0.25,            
         'Stochastic_Status': 0.25,               
-        'Volume_Trend': 1.25,                    
+        'Volume_Trend': 1.15,                    
         'VWAP_Status': 0.25,                     
         'Bollinger_Status': 0.25,                
         'Golden_Cross_Status': 1.25,             
@@ -433,16 +433,16 @@ def main(backtest=False, opt=False):
 
     if backtest:
         backtest_analysis(year_period_length, "1d", weights_day_chart)
-        backtest_analysis(hr_period_length, "1h", weights_hour_chart)
-        backtest_analysis(fifteen_Minute_period_length, "15m", weights_minute_chart)
-        backtest_analysis(five_Minute_period_length, "5m", weights_minute_chart)
+        #backtest_analysis(hr_period_length, "1h", weights_hour_chart)
+        #backtest_analysis(fifteen_Minute_period_length, "15m", weights_minute_chart)
+        #backtest_analysis(five_Minute_period_length, "5m", weights_minute_chart)
     elif opt:
         # Run the optimization
         optimized_analysis()
     else:
         while True:
             real_time_analysis(year_period_length, "1d", weights_day_chart)
-            real_time_analysis(hr_period_length, "1h", weights_hour_chart)
+            #real_time_analysis(hr_period_length, "1h", weights_hour_chart)
             #real_time_analysis(fifteen_Minute_period_length, "15m", weights_minute_chart) 
             #real_time_analysis(five_Minute_period_length, "5m", weights_minute_chart) 
             print("***********************************************************")
