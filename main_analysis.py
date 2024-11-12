@@ -366,18 +366,18 @@ def main(backtest=False, opt=False):
     #top 6 are SCHD, VNQ, XLF, SOXQ, XLE, SCHB,
 
     # long term stragedy
-    # backtest 11/06/24 Top 6 ETF (1d) = 61% / average win $ 16% / Average 8 signals / 29 days holding time in 1 year
+    # backtest 11/12/24 Top 6 ETF (1d) = 64% / average win $ 20% / Average 6 signals / 38 days holding time in 1 year
     weights_day_chart = {
         'RSI_Status': 0.75,                    
-        'MACD_Status': 1.5,                     
+        'MACD_Status': 1.25,                     
         'ADX_Status': 0.25,                      
         'Divergance_status': 0.25,               
         'MACD_Histogram_Status': 0.25,          
         'Parabolic_SAR_Status': 0.25,            
         'Stochastic_Status': 0.25,               
-        'Volume_Trend': 1.15,                    
-        'VWAP_Status': 0.25,                     
-        'Bollinger_Status': 0.25,                
+        'Volume_Trend': 1.25,                    
+        'VWAP_Status': 0.5,                     
+        'Bollinger_Status': 0.75,                
         'Golden_Cross_Status': 1.25,             
         'CandleStick_Pattern_Status': 0.25,
         'Head_and_Shoulder_detect': 0.25,
@@ -386,17 +386,17 @@ def main(backtest=False, opt=False):
     }
 
     #hours term stragedy
-    # backtest 11/06/24 Top 6 ETF (1h) = 23% / average win $ 2% / Average 3 signals / 8 days holding time in 60 Days
+    # backtest 11/12/24 Top 6 ETF (1h) = 41% / average win $ 4% / Average 3 signals / 15 days holding time in 60 Days
     weights_hour_chart = {
         'RSI_Status': 1.0,
-        'MACD_Status': 1.0,
+        'MACD_Status': 1.25,
         'ADX_Status': 0.25,
         'Divergance_status': 0.25,
         'MACD_Histogram_Status': 1.5,
         'Parabolic_SAR_Status': 0.25,
         'Stochastic_Status': 0.25,
         'Volume_Trend': 1.5,
-        'VWAP_Status': 0.25,
+        'VWAP_Status': 0.65,
         'Bollinger_Status': 0.5,
         'Golden_Cross_Status': 0.75,
         'CandleStick_Pattern_Status': 0.5,
@@ -433,7 +433,7 @@ def main(backtest=False, opt=False):
 
     if backtest:
         backtest_analysis(year_period_length, "1d", weights_day_chart)
-        #backtest_analysis(hr_period_length, "1h", weights_hour_chart)
+        backtest_analysis(hr_period_length, "1h", weights_hour_chart)
         #backtest_analysis(fifteen_Minute_period_length, "15m", weights_minute_chart)
         #backtest_analysis(five_Minute_period_length, "5m", weights_minute_chart)
     elif opt:
@@ -442,7 +442,7 @@ def main(backtest=False, opt=False):
     else:
         while True:
             real_time_analysis(year_period_length, "1d", weights_day_chart)
-            #real_time_analysis(hr_period_length, "1h", weights_hour_chart)
+            real_time_analysis(hr_period_length, "1h", weights_hour_chart)
             #real_time_analysis(fifteen_Minute_period_length, "15m", weights_minute_chart) 
             #real_time_analysis(five_Minute_period_length, "5m", weights_minute_chart) 
             print("***********************************************************")
