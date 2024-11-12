@@ -4,7 +4,7 @@ import yfinance as yf
 import pandas as pd
 
 def get_etf_tickers():
-    url = "https://finance.yahoo.com/markets/etfs/most-active/"  # Example URL (may need updating)
+    url = "https://finance.yahoo.com/markets/etfs/best-historical-performance/"  # Example URL (may need updating)
     response = requests.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
     
@@ -38,24 +38,25 @@ def fetch_etf_data(tickers):
             print(f"Error fetching data for {ticker}: {e}")
     return etf_data
 
-def filter_etfs(etf_data, min_nav=0, max_nav=float('inf'), sector=None, max_expense_ratio=0.5):
+def filter_etfs(etf_data, min_nav=0, max_nav=float('inf')):
     return [
-        etf for etf in etf_data 
-        if etf['NAV'] and min_nav <= etf['NAV'] <= max_nav
-        and (sector is None or etf['Sector'] == sector)
-        and etf['Expense Ratio'] and etf['Expense Ratio'] <= max_expense_ratio
+        etf for etf in etf_data
+        if etf['NAV'] is not None and min_nav <= etf['NAV'] <= max_nav
     ]
+
 
 def main():
     # Fetch ETF tickers
     etf_tickers = get_etf_tickers()
-
-    print(etf_tickers)
+    
     # Fetch ETF data for tickers
     etf_data = fetch_etf_data(etf_tickers)
 
+
     # Filter the ETFs based on NAV and other criteria
-    filtered_etfs = filter_etfs(etf_data, min_nav=50, max_nav=200, sector="Technology")
+    filtered_etfs = filter_etfs(etf_data, min_nav=50, max_nav=200)
+
+    print(filtered_etfs)
 
     # # Convert to DataFrame and save as CSV
     # df = pd.DataFrame(filtered_etfs)
