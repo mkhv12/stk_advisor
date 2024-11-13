@@ -432,7 +432,7 @@ def main(backtest=False, opt=False):
     five_Minute_period_length = 5  
 
     if backtest:
-        #backtest_analysis(year_period_length, "1d", weights_day_chart)
+        backtest_analysis(year_period_length, "1d", weights_day_chart)
         backtest_analysis(hr_period_length, "1h", weights_hour_chart)
         #backtest_analysis(fifteen_Minute_period_length, "15m", weights_minute_chart)
         #backtest_analysis(five_Minute_period_length, "5m", weights_minute_chart)
