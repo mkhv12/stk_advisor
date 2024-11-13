@@ -29,19 +29,19 @@ def fetch_etf_data(tickers):
             info = etf.info
             etf_data.append({
                 'Ticker': ticker,
-                'NAV': info.get('navPrice'),
-                'Price': info.get('regularMarketPrice'),
-                'Sector': info.get('sector'),
-                'Expense Ratio': info.get('expenseRatio'),
+                'Price': info.get('Price'),
+                'Change': info.get('Change'),
+                '50 Day Average': info.get('50 Day Average'),
+                '200 Day Average': info.get('200 Day Average'),
             })
         except Exception as e:
             print(f"Error fetching data for {ticker}: {e}")
     return etf_data
 
-def filter_etfs(etf_data, min_nav=0, max_nav=float('inf')):
+def filter_etfs(etf_data, min=0, max=float('inf')):
     return [
         etf for etf in etf_data
-        if etf['NAV'] is not None and min_nav <= etf['NAV'] <= max_nav
+        if etf['Price'] is not None and min <= etf['Price'] <= max
     ]
 
 
@@ -52,15 +52,14 @@ def main():
     # Fetch ETF data for tickers
     etf_data = fetch_etf_data(etf_tickers)
 
-
     # Filter the ETFs based on NAV and other criteria
-    filtered_etfs = filter_etfs(etf_data, min_nav=50, max_nav=200)
+    filtered_etfs = filter_etfs(etf_data, min=0, max=200)
 
-    print(filtered_etfs)
+    #print(filtered_etfs)
 
     # # Convert to DataFrame and save as CSV
-    # df = pd.DataFrame(filtered_etfs)
-    # print(df)
+    df = pd.DataFrame(filtered_etfs)
+    print(df)
     # df.to_csv("filtered_etfs.csv", index=False)
 
 if __name__ == "__main__":
