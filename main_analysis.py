@@ -363,21 +363,21 @@ def main(backtest=False, opt=False):
     #Golden_Cross_Status - Longer-term trend confirmation
     #CandleStick_Pattern_Status - Detect sentiment and reversal patterns reliably
   
-    #top 6 are SCHD, VNQ, XLF, SOXQ, XLE, SCHB,
+    #top 8 are SCHD, VNQ, XLF, SOXQ, XLE, SCHB, NVDA, VXUS
 
     # long term stragedy
-    # backtest 11/12/24 Top 6 ETF (1d) = 83% / average win $ 9% / Average 2 signals / 59 days holding time in 1 year
+    # backtest 11/15/24 Top (1d) = 85% / average win $ 12% / Average 3 signals / 33 days holding time in 1 year
     weights_day_chart = {
-        'RSI_Status': 1.5,                    
+        'RSI_Status': 1.25,                    
         'MACD_Status': 1.5,                     
         'ADX_Status': 1.0,                      
-        'Divergance_status': 1.0,               
-        'MACD_Histogram_Status': 1.0,          
+        'Divergance_status': 1.25,               
+        'MACD_Histogram_Status': 1.15,          
         'Parabolic_SAR_Status': 1.0,            
-        'Stochastic_Status': 1.0,               
-        'Volume_Trend': 1.0,                    
+        'Stochastic_Status': 1.15,               
+        'Volume_Trend': 1.25,                    
         'VWAP_Status': 1.0,                     
-        'Bollinger_Status': 1.0,                
+        'Bollinger_Status': 1.25,                
         'Golden_Cross_Status': 1.0,             
         'CandleStick_Pattern_Status': 1.0,
         'Head_and_Shoulder_detect': 1.0,
@@ -386,18 +386,18 @@ def main(backtest=False, opt=False):
     }
 
     #hours term stragedy
-    # backtest 11/13/24 Top 6 ETF (1h) = 57% / average win $ 3% / Average 3 signals / 20 days holding time in 60 Days
+    # backtest 11/13/24 Top (1h) = 55% / average win $ 3% / Average 3 signals / 18 days holding time in 60 Days
     weights_hour_chart = {
         'RSI_Status': 1.0,                    
         'MACD_Status': 1.5,                     
-        'ADX_Status': 1.2,                      
+        'ADX_Status': 1.35,                      
         'Divergance_status': 1.0,               
         'MACD_Histogram_Status': 1.0,          
         'Parabolic_SAR_Status': 1.0,            
         'Stochastic_Status': 1.0,                
         'Volume_Trend': 1.1,                    
         'VWAP_Status': 1.0,                     
-        'Bollinger_Status': 1.5,                
+        'Bollinger_Status': 1.25,                
         'Golden_Cross_Status': 1.0,             
         'CandleStick_Pattern_Status': 1.0,
         'Head_and_Shoulder_detect': 1.0,
@@ -406,19 +406,19 @@ def main(backtest=False, opt=False):
     }
 
     #minute term stragedy
-    # backtest 11/12/24 Top 6 ETF (15m) = 47% / average win $ 3% / Average 2 signals / 9 days holding time in 15 Days
-    # backtest 11/12/24 Top 6 ETF (5m) = 0% / average win $ 0% / Average 1 signals / 0 days holding time in 5 Days
+    # backtest 11/12/24 Top 6 (15m) = 47% / average win $ 3% / Average 2 signals / 9 days holding time in 15 Days
+    # backtest 11/12/24 Top 6 (5m) = 0% / average win $ 0% / Average 1 signals / 0 days holding time in 5 Days
     weights_minute_chart= {
         'RSI_Status': 1.5,                    
-        'MACD_Status': 1.0,                     
-        'ADX_Status': 1.0,                      
+        'MACD_Status': 1.5,                     
+        'ADX_Status': 1.25,                      
         'Divergance_status': 1.0,               
         'MACD_Histogram_Status': 1.0,          
         'Parabolic_SAR_Status': 1.0,            
         'Stochastic_Status': 1.0,               
-        'Volume_Trend': 1.8,                    
-        'VWAP_Status': 1.8,                     
-        'Bollinger_Status': 1.5,                
+        'Volume_Trend': 1.0,                    
+        'VWAP_Status': 1.0,                     
+        'Bollinger_Status': 1.0,                
         'Golden_Cross_Status': 1.0,             
         'CandleStick_Pattern_Status': 1.0,
         'Head_and_Shoulder_detect': 1.0,
@@ -442,7 +442,7 @@ def main(backtest=False, opt=False):
     else:
         while True:
             real_time_analysis(year_period_length, "1d", weights_day_chart)
-            real_time_analysis(hr_period_length, "1h", weights_hour_chart)
+            #real_time_analysis(hr_period_length, "1h", weights_hour_chart)
             #real_time_analysis(fifteen_Minute_period_length, "15m", weights_minute_chart) 
             #real_time_analysis(five_Minute_period_length, "5m", weights_minute_chart) 
             print("***********************************************************")
