@@ -366,64 +366,64 @@ def main(backtest=False, opt=False):
     #top 8 are SCHD, VNQ, XLF, SOXQ, XLE, SCHB, NVDA, VXUS
 
     # long term stragedy
-    # backtest 11/15/24 Top (1d) = 85% / average win $ 12% / Average 3 signals / 33 days holding time in 1 year
+    # backtest 11/18/24 Top (1d) = 83% / average win $ 16% / Average 4 signals / 35 days holding time in 1 year
     weights_day_chart = {
         'RSI_Status': 1.25,                    
         'MACD_Status': 1.5,                     
-        'ADX_Status': 1.0,                      
+        'ADX_Status': 0.75,                      
         'Divergance_status': 1.25,               
         'MACD_Histogram_Status': 1.15,          
-        'Parabolic_SAR_Status': 1.0,            
+        'Parabolic_SAR_Status': 0.75,            
         'Stochastic_Status': 1.15,               
         'Volume_Trend': 1.25,                    
-        'VWAP_Status': 1.0,                     
+        'VWAP_Status': 0.75,                     
         'Bollinger_Status': 1.25,                
-        'Golden_Cross_Status': 1.0,             
-        'CandleStick_Pattern_Status': 1.0,
-        'Head_and_Shoulder_detect': 1.0,
-        'Double_Top_Bottom':1.0,
-        'fibonacci_signal':1.0  
+        'Golden_Cross_Status': 0.75,             
+        'CandleStick_Pattern_Status': 0.75,
+        'Head_and_Shoulder_detect': 0.75,
+        'Double_Top_Bottom':0.75,
+        'fibonacci_signal':0.75  
     }
 
     #hours term stragedy
-    # backtest 11/13/24 Top (1h) = 55% / average win $ 3% / Average 3 signals / 18 days holding time in 60 Days
+    # backtest 11/18/24 Top (1h) = 49% / average win $ 3% / Average 4 signals / 17 days holding time in 60 Days
     weights_hour_chart = {
         'RSI_Status': 1.0,                    
-        'MACD_Status': 1.5,                     
-        'ADX_Status': 1.35,                      
+        'MACD_Status': 1.35,                     
+        'ADX_Status': 1.25,                      
         'Divergance_status': 1.0,               
         'MACD_Histogram_Status': 1.0,          
         'Parabolic_SAR_Status': 1.0,            
         'Stochastic_Status': 1.0,                
         'Volume_Trend': 1.1,                    
         'VWAP_Status': 1.0,                     
-        'Bollinger_Status': 1.25,                
+        'Bollinger_Status': 1.15,                
         'Golden_Cross_Status': 1.0,             
         'CandleStick_Pattern_Status': 1.0,
         'Head_and_Shoulder_detect': 1.0,
         'Double_Top_Bottom':1.0,
-        'fibonacci_signal':1.0  
+        'fibonacci_signal': 1.0 
     }
 
     #minute term stragedy
-    # backtest 11/12/24 Top 6 (15m) = 47% / average win $ 3% / Average 2 signals / 9 days holding time in 15 Days
+    # backtest 11/18/24 Top 6 (15m) = 13% / average win $ 1% / Average 2 signals / 2 days holding time in 15 Days
     # backtest 11/12/24 Top 6 (5m) = 0% / average win $ 0% / Average 1 signals / 0 days holding time in 5 Days
     weights_minute_chart= {
-        'RSI_Status': 1.5,                    
-        'MACD_Status': 1.5,                     
+        'RSI_Status': 1.0,                    
+        'MACD_Status': 1.35,                     
         'ADX_Status': 1.25,                      
         'Divergance_status': 1.0,               
         'MACD_Histogram_Status': 1.0,          
         'Parabolic_SAR_Status': 1.0,            
-        'Stochastic_Status': 1.0,               
-        'Volume_Trend': 1.0,                    
+        'Stochastic_Status': 1.0,                
+        'Volume_Trend': 1.1,                    
         'VWAP_Status': 1.0,                     
-        'Bollinger_Status': 1.0,                
+        'Bollinger_Status': 1.15,                
         'Golden_Cross_Status': 1.0,             
         'CandleStick_Pattern_Status': 1.0,
         'Head_and_Shoulder_detect': 1.0,
         'Double_Top_Bottom':1.0,
-        'fibonacci_signal':1.0  
+        'fibonacci_signal': 1.0 
     }
 
     year_period_length = 365
