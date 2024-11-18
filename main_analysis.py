@@ -366,7 +366,7 @@ def main(backtest=False, opt=False):
     #top 8 are SCHD, VNQ, XLF, SOXQ, XLE, SCHB, NVDA, VXUS
 
     # long term stragedy
-    # backtest 11/18/24 Top (1d) = 83% / average win $ 16% / Average 4 signals / 35 days holding time in 1 year
+    # backtest 11/18/24 Top (1d) = 85% / average win $ 16% / Average 4 signals / 34 days holding time in 1 year
     weights_day_chart = {
         'RSI_Status': 1.25,                    
         'MACD_Status': 1.5,                     
@@ -376,7 +376,7 @@ def main(backtest=False, opt=False):
         'Parabolic_SAR_Status': 0.75,            
         'Stochastic_Status': 1.15,               
         'Volume_Trend': 1.25,                    
-        'VWAP_Status': 0.75,                     
+        'VWAP_Status': 0.95,                     
         'Bollinger_Status': 1.25,                
         'Golden_Cross_Status': 0.75,             
         'CandleStick_Pattern_Status': 0.75,
