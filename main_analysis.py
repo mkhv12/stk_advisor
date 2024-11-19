@@ -366,23 +366,23 @@ def main(backtest=False, opt=False):
     #top 8 are SCHD, VNQ, XLF, SOXQ, XLE, SCHB, NVDA, VXUS
 
     # long term stragedy
-    # backtest 11/18/24 Top (1d) = 85% / average win $ 16% / Average 4 signals / 34 days holding time in 1 year
+    # backtest 11/18/24 Top (1d) = 85% / average win $ 17% / Average 4 signals / 34 days holding time in 1 year
     weights_day_chart = {
-        'RSI_Status': 1.25,                    
-        'MACD_Status': 1.5,                     
-        'ADX_Status': 0.75,                      
-        'Divergance_status': 1.25,               
-        'MACD_Histogram_Status': 1.15,          
-        'Parabolic_SAR_Status': 0.75,            
-        'Stochastic_Status': 1.15,               
-        'Volume_Trend': 1.25,                    
-        'VWAP_Status': 0.95,                     
-        'Bollinger_Status': 1.25,                
-        'Golden_Cross_Status': 0.75,             
-        'CandleStick_Pattern_Status': 0.75,
-        'Head_and_Shoulder_detect': 0.75,
-        'Double_Top_Bottom':0.75,
-        'fibonacci_signal':0.75  
+        'RSI_Status': 0.5,                    
+        'MACD_Status': 0.5,                     
+        'ADX_Status': 0.5,                     
+        'Divergance_status': 0.5,               
+        'MACD_Histogram_Status': 0.5,         
+        'Parabolic_SAR_Status': 0.25,            
+        'Stochastic_Status': 0.5,              
+        'Volume_Trend': 1.25,                   
+        'VWAP_Status': 0.75,                    
+        'Bollinger_Status': 0.25,               
+        'Golden_Cross_Status': 0.25,             
+        'CandleStick_Pattern_Status': 1.5,
+        'Head_and_Shoulder_detect': 1.25,
+        'Double_Top_Bottom': 1.25,
+        'fibonacci_signal': 1.25
     }
 
     #hours term stragedy
@@ -397,33 +397,33 @@ def main(backtest=False, opt=False):
         'Stochastic_Status': 1.0,                
         'Volume_Trend': 1.1,                    
         'VWAP_Status': 1.0,                     
-        'Bollinger_Status': 1.15,                
+        'Bollinger_Status': 0.75,                
         'Golden_Cross_Status': 1.0,             
-        'CandleStick_Pattern_Status': 1.0,
-        'Head_and_Shoulder_detect': 1.0,
-        'Double_Top_Bottom':1.0,
-        'fibonacci_signal': 1.0 
+        'CandleStick_Pattern_Status': 1.5,
+        'Head_and_Shoulder_detect': 1.25,
+        'Double_Top_Bottom':1.25,
+        'fibonacci_signal': 1.25 
     }
 
     #minute term stragedy
     # backtest 11/18/24 Top 6 (15m) = 13% / average win $ 1% / Average 2 signals / 2 days holding time in 15 Days
     # backtest 11/12/24 Top 6 (5m) = 0% / average win $ 0% / Average 1 signals / 0 days holding time in 5 Days
     weights_minute_chart= {
-        'RSI_Status': 1.0,                    
-        'MACD_Status': 1.35,                     
-        'ADX_Status': 1.25,                      
-        'Divergance_status': 1.0,               
-        'MACD_Histogram_Status': 1.0,          
-        'Parabolic_SAR_Status': 1.0,            
-        'Stochastic_Status': 1.0,                
-        'Volume_Trend': 1.1,                    
-        'VWAP_Status': 1.0,                     
-        'Bollinger_Status': 1.15,                
-        'Golden_Cross_Status': 1.0,             
-        'CandleStick_Pattern_Status': 1.0,
-        'Head_and_Shoulder_detect': 1.0,
-        'Double_Top_Bottom':1.0,
-        'fibonacci_signal': 1.0 
+        'RSI_Status': 1.25,                    
+        'MACD_Status': 1.5,                     
+        'ADX_Status': 0.75,                      
+        'Divergance_status': 1.25,               
+        'MACD_Histogram_Status': 1.25,          
+        'Parabolic_SAR_Status': 0.75,            
+        'Stochastic_Status': 1.15,               
+        'Volume_Trend': 1.25,                    
+        'VWAP_Status': 0.95,                     
+        'Bollinger_Status': 1.25,                
+        'Golden_Cross_Status': 0.75,             
+        'CandleStick_Pattern_Status': 0.75,
+        'Head_and_Shoulder_detect': 0.75,
+        'Double_Top_Bottom':0.75,
+        'fibonacci_signal':0.75  
     }
 
     year_period_length = 365
@@ -442,12 +442,12 @@ def main(backtest=False, opt=False):
     else:
         while True:
             real_time_analysis(year_period_length, "1d", weights_day_chart)
-            #real_time_analysis(hr_period_length, "1h", weights_hour_chart)
+            real_time_analysis(hr_period_length, "1h", weights_hour_chart)
             #real_time_analysis(fifteen_Minute_period_length, "15m", weights_minute_chart) 
             #real_time_analysis(five_Minute_period_length, "5m", weights_minute_chart) 
             print("***********************************************************")
-            print("5 minutes before running again...")
-            time.sleep(300)  # Sleep in seconds
+            print("10 minutes before running again...")
+            time.sleep(600)  # Sleep in seconds
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Stock Analysis Tool')
     parser.add_argument('--backtest', action='store_true', help='Run backtesting and optimization')
